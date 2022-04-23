@@ -1,0 +1,17 @@
+# macOS specific
+*.DS_Store
+
+# NPM
+node_modules
+
+# Dev files
+/.vscode
+/.jshintrc
+
+# Packed/Unpacked files
+packed/**
+unpacked/**
+
+# Excluding our md files
+!packed/*.md
+!unpacked/*.md
