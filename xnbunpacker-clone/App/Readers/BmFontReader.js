@@ -3,7 +3,6 @@ const BufferReader = require('../../BufferReader');
 const BufferWriter = require('../../BufferWriter');
 const StringReader = require('./StringReader');
 const XnbError = require('../../XnbError');
-const fs = require('fs');
 
 /**
  * BmFont Reader

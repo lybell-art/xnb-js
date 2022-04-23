@@ -107,8 +107,7 @@ function stringToUnicode(str)
 
 function UTF8ToUnicode(codes)
 {
-	const dataArray = codes;
-	if(codes instanceof ArrayBuffer) dataArray = new Uint8Array(codes.byteLength);
+	const dataArray = (codes instanceof ArrayBuffer) ? new Uint8Array(codes) : codes;
 
 	const result=[];
 	let index=0;
@@ -162,4 +161,15 @@ function UTF8ToString(utf8Array)
 	return UnicodeToString( UTF8ToUnicode(utf8Array) );
 }
 
-export {stringToUTF8, UTF8ToString};
+function UTF8Length(str)
+{
+	const codes = stringToUnicode(codes);
+	return codes.reduce((sum, unicode)=>{
+		if(code < 0x80) return sum+1;
+		if(code < 0x800) return sum+2;
+		if(code < 0x10000) return sum+3;
+		return sum+4;
+	}, 0);
+}
+
+export {stringToUTF8, UTF8ToString, UTF8Length};

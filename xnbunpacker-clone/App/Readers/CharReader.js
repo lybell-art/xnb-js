@@ -1,7 +1,6 @@
 const BaseReader = require('./BaseReader');
 const BufferReader = require('../../BufferReader');
 const BufferWriter = require('../../BufferWriter');
-const XnbError = require('../../XnbError');
 
 /**
  * Char Reader

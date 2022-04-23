@@ -90,7 +90,7 @@ class BufferWriter {
         this.alloc(targetBufferView.length);
 
         for(let i=this.bytePosition; i<newPosition; i++) {
-            this._dataView.setUint8( targetBufferView[i-this.bytePosition], i );
+            this._dataView.setUint8( i, targetBufferView[i-this.bytePosition] );
         }
 
         this.bytePosition = newPosition;
@@ -110,7 +110,7 @@ class BufferWriter {
      * @param {Mixed} byte 
      */
     writeByte(byte) {
-        this.alloc(1)._dataView.setUint8(byte, this.bytePosition);
+        this.alloc(1)._dataView.setUint8(this.bytePosition, byte);
         this.bytePosition++;
     }
 
@@ -119,7 +119,7 @@ class BufferWriter {
      * @param {Number} number 
      */
     writeInt(number) {
-        this.alloc(1)._dataView.setInt8(byte, this.bytePosition);
+        this.alloc(1)._dataView.setInt8(this.bytePosition, number);
         this.bytePosition++;
     }
 
@@ -128,7 +128,7 @@ class BufferWriter {
      * @param {Number} number 
      */
     writeUInt(number) {
-        this.alloc(1)._dataView.setUint8(byte, this.bytePosition);
+        this.alloc(1)._dataView.setUint8(this.bytePosition, number);
         this.bytePosition++;
     }
 
@@ -137,7 +137,7 @@ class BufferWriter {
      * @param {Number} number 
      */
     writeInt16(number) {
-        this.alloc(2)._dataView.setInt16(byte, this.bytePosition, true);
+        this.alloc(2)._dataView.setInt16(this.bytePosition, number, true);
         this.bytePosition += 2;
     }
 
@@ -146,7 +146,7 @@ class BufferWriter {
      * @param {Number} number 
      */
     writeUInt16(number) {
-        this.alloc(2)._dataView.setUint16(byte, this.bytePosition, true);
+        this.alloc(2)._dataView.setUint16(this.bytePosition, number, true);
         this.bytePosition += 2;
     }
 
@@ -155,7 +155,7 @@ class BufferWriter {
      * @param {Number} number 
      */
     writeInt32(number) {
-        this.alloc(4)._dataView.setInt32(number, this.bytePosition, true);
+        this.alloc(4)._dataView.setInt32(this.bytePosition, number, true);
         this.bytePosition += 4;
     }
 
@@ -164,7 +164,7 @@ class BufferWriter {
      * @param {Number} number 
      */
     writeUInt32(number) {
-        this.alloc(4)._dataView.setUint32(number, this.bytePosition, true);
+        this.alloc(4)._dataView.setUint32(this.bytePosition, number, true);
         this.bytePosition += 4;
     }
 
@@ -173,7 +173,7 @@ class BufferWriter {
      * @param {Number} number 
      */
     writeSingle(number) {
-        this.alloc(4)._dataView.setFloat32(number, this.bytePosition, true);
+        this.alloc(4)._dataView.setFloat32(this.bytePosition, number, true);
         this.bytePosition += 4;
     }
 
@@ -182,7 +182,7 @@ class BufferWriter {
      * @param {Number} number 
      */
     writeDouble(number) {
-        this.alloc(8)._dataView.setFloat64(number, this.bytePosition, true);
+        this.alloc(8)._dataView.setFloat64(this.bytePosition, number, true);
         this.bytePosition += 8;
     }
 
@@ -196,7 +196,7 @@ class BufferWriter {
             let byte = number & 0x7F;
             number = number >> 7;
             if (number) byte |= 0x80;
-            this._dataView.setUint8(byte, this.bytePosition);
+            this._dataView.setUint8(this.bytePosition, byte);
             this.bytePosition++;
         }
         while (number);
