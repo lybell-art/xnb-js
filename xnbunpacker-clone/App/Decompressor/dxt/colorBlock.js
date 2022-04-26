@@ -40,7 +40,10 @@ function writeColourBlock( firstColor, secondColor, indices, result, blockOffset
 	// write the indices as big endian like [33221100]
 	for( let y = 0; y < 4; y++ )
 	{
-		result[blockOffset + 4 + y] = ind[4*y + 0] | ( ind[4*y + 1] << 2 ) | ( ind[4*y + 2] << 4 ) | ( ind[4*y + 3] << 6 );
+		result[blockOffset + 4 + y] = ( indices[4*y + 0] | 
+			( indices[4*y + 1] << 2 ) | 
+			( indices[4*y + 2] << 4 ) | 
+			( indices[4*y + 3] << 6 ) );
 	}
 }
 
@@ -60,7 +63,7 @@ function writeColourBlock3( start, end, indices, result, blockOffset )
 
 	// remap the indices
 	let remapped;
-	if( a <= b )
+	if( firstColor <= secondColor )
 	{
 		// use the indices directly
 		remapped = indices.slice();
@@ -84,13 +87,13 @@ function writeColourBlock4( start, end, indices, result, blockOffset )
 
 	// remap the indices
 	let remapped;
-	if( a < b )
+	if( firstColor < secondColor )
 	{
 		// swap a and b
 		[firstColor, secondColor] = [secondColor, firstColor];
 		remapped = indices.map((index) => (index^0x1) & 0x3);
 	}
-	else if( a == b )
+	else if( firstColor == secondColor )
 	{
 		// use index 0
 		remapped = new Array(16).fill(0);

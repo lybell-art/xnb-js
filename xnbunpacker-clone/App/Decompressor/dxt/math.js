@@ -53,6 +53,10 @@ class Vec3
 		this._values[1] /= this.length;
 		this._values[2] /= this.length;
 	}
+	toString()
+	{
+		return `Vec3( ${this._values.join(", ")} )`;
+	}
 	static add(a, b)
 	{
 		return new Vec3(a.x+b.x, a.y+b.y, a.z+b.z);
@@ -76,4 +80,4 @@ class Vec3
 }
 
 
-export {Vec3, clamp};
+export {Vec3};

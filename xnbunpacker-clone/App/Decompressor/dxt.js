@@ -23,9 +23,9 @@ import {kDxt1, kDxt3, kDxt5,
 	kColourIterativeClusterFit, kColourClusterFit, kColourRangeFit,
 	kColourMetricPerceptual, kColourMetricUniform, kWeightColourByAlpha
 } from "./dxt/constant.js";
-import {ColorSet, SingleColourFit, RangeFit, ClusterFit} from "./dxt/colorFits.js";
-import {compressAlphaDxt3, compressAlphaDxt5} from "./dxt/alphaCompressor.js";
-import {decompressColor, decompressAlphaDxt3, decompressAlphaDxt5} from "./dxt/decompressor.js";
+import {ColorSet, SingleColourFit/*, RangeFit, ClusterFit*/} from "./dxt/colorFits.js";
+//import {compressAlphaDxt3, compressAlphaDxt5} from "./dxt/alphaCompressor.js";
+//import {decompressColor, decompressAlphaDxt3, decompressAlphaDxt5} from "./dxt/decompressor.js";
 
 //internal constant(deconstructing)
 const DXT1_COMPRESSED_BYTES = 8;
@@ -128,7 +128,7 @@ function extractColorBlock(img, {x=0, y=0, width=0, height=0}={})
 		else blockColorOffset+=COLORS;
 	});
 
-	return block;
+	return {block, mask};
 }
 
 /**
@@ -237,7 +237,7 @@ function compressImage(source, width, height, result, flags)
 	// loop over blocks
 	blockRepeat(width, height, function(x,y) {
 		// build the 4x4 block of pixels
-		const sourceRGBA = extractColorBlock(source, {x, y, width, height});
+		const {block:sourceRGBA, mask} = extractColorBlock(source, {x, y, width, height});
 
 		// compress it into the output
 		CompressMasked( sourceRGBA, mask, result, targetBlockPointer, flags );
@@ -292,7 +292,7 @@ const flags = {DXT1:kDxt1,
     ColourMetricPerceptual:kColourMetricPerceptual, 
     ColourMetricUniform:kColourMetricUniform, 
     WeightColourByAlpha:kWeightColourByAlpha
-} = Flags;
+};
 
 /**
  * @param {Uint8Array / ArrayBuffer} inputData to compress

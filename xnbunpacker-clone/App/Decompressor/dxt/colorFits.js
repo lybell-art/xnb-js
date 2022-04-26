@@ -25,7 +25,7 @@ import {kDxt1, kDxt3, kDxt5,
 } from "./constant.js";
 import {Vec3} from "./math.js";
 import {lookup_5_3, lookup_6_3, lookup_5_4, lookup_6_4} from "./lookup.js"
-import {writeColorBlock3, writeColorBlock4} from "./colorBlock.js"
+import {writeColourBlock3, writeColourBlock4} from "./colorBlock.js"
 
 class ColorSet
 {
@@ -143,6 +143,10 @@ class ColorSet
 			this._weights[i] = Math.sqrt( this._weights[i] );
 	}
 
+	get transparent()
+	{
+		return this._transparent;
+	}
 	get count()
 	{
 		return this._count;
@@ -190,9 +194,8 @@ class ColorFit
 	compress(result, offset)
 	{
 		const isDxt1 = ( (this.flags & kDxt1) != 0);
-		if(isDxt1) {
+		if(isDxt1 && this.colors.transparent) {
 			this.compress3(result, offset);
-			if( !this.colors.isTransparent() ) this.compress4(result, offset);
 			return;
 		}
 		this.compress4(result, offset);
@@ -201,7 +204,7 @@ class ColorFit
 	compress4(result, offset){}
 }
 
-class SingleColorFit extends ColorFit
+class SingleColourFit extends ColorFit
 {
 	constructor(colorSet)
 	{
@@ -227,8 +230,8 @@ class SingleColorFit extends ColorFit
 		if(this.error < this.bestError)
 		{
 			const indices = new Uint8Array(16);
-			this.color.remapIndicesSingle(this.index, indices);
-			writeColorBlock3(this.start, this.end, indices, result, offset);
+			this.colors.remapIndicesSingle(this.index, indices);
+			writeColourBlock3(this.start, this.end, indices, result, offset);
 
 			this.bestError = this.error;
 		}
@@ -241,8 +244,8 @@ class SingleColorFit extends ColorFit
 		if(this.error < this.bestError)
 		{
 			const indices = new Uint8Array(16);
-			this.color.remapIndicesSingle(this.index, indices);
-			writeColorBlock4(this.start, this.end, indices, result, offset);
+			this.colors.remapIndicesSingle(this.index, indices);
+			writeColourBlock4(this.start, this.end, indices, result, offset);
 
 			this.bestError = this.error;
 		}
@@ -273,12 +276,12 @@ class SingleColorFit extends ColorFit
 			// keep it if the error is lower
 			if( error < this.error )
 			{
-				this.start = Vec3(
+				this.start = new Vec3(
 					sources[0][0]/31.0, 
 					sources[1][0]/63.0, 
 					sources[2][0]/31.0
 				);
-				this.end = Vec3(
+				this.end = new Vec3(
 					sources[0][1]/31.0, 
 					sources[1][1]/63.0, 
 					sources[2][1]/31.0
@@ -291,3 +294,4 @@ class SingleColorFit extends ColorFit
 }
 
 
+export {ColorSet, SingleColourFit};
