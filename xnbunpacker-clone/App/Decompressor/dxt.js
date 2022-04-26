@@ -19,34 +19,15 @@
 	
    -------------------------------------------------------------------------- */
 
-import 
-
-//constant values
-const flags = {
-    DXT1                     : ( 1 << 0 ), //! Use DXT1 compression.
-    DXT3                     : ( 1 << 1 ), //! Use DXT3 compression.
-    DXT5                     : ( 1 << 2 ), //! Use DXT5 compression.
-    ColourIterativeClusterFit: ( 1 << 8 ), //! Use a very slow but very high quality colour compressor.
-    ColourClusterFit         : ( 1 << 3 ), //! Use a slow but high quality colour compressor (the default).
-    ColourRangeFit           : ( 1 << 4 ), //! Use a fast but low quality colour compressor.
-    ColourMetricPerceptual   : ( 1 << 5 ), //! Use a perceptual metric for colour error (the default).
-    ColourMetricUniform      : ( 1 << 6 ), //! Use a uniform metric for colour error.
-    WeightColourByAlpha      : ( 1 << 7 )  //! Weight the colour by alpha during cluster fit (disabled by default).
-};
-Object.freeze(flags);
+import {kDxt1, kDxt3, kDxt5,
+	kColourIterativeClusterFit, kColourClusterFit, kColourRangeFit,
+	kColourMetricPerceptual, kColourMetricUniform, kWeightColourByAlpha
+} from "./dxt/constant.js";
+import {ColorSet, SingleColourFit, RangeFit, ClusterFit} from "./dxt/colorFits.js";
+import {compressAlphaDxt3, compressAlphaDxt5} from "./dxt/alphaCompressor.js";
+import {decompressColor, decompressAlphaDxt3, decompressAlphaDxt5} from "./dxt/decompressor.js";
 
 //internal constant(deconstructing)
-const {DXT1:kDxt1,
-	DXT3:kDxt3,
-	DXT5:kDxt5,
-	ColourIterativeClusterFit:kColourIterativeClusterFit,
-	ColourClusterFit:kColourClusterFit,
-	ColourRangeFit:kColourRangeFit,
-	ColourMetricPerceptual:kColourMetricPerceptual,
-	ColourMetricUniform:kColourMetricUniform,
-	WeightColourByAlpha:kWeightColourByAlpha
-} = flags;
-
 const DXT1_COMPRESSED_BYTES = 8;
 const DXT5_COMPRESSED_BYTES = 16;
 const COLORS = 4;
@@ -113,6 +94,7 @@ function GetStorageRequirements( width, height, flags )
 	
 	// compute the storage requirements
 	const blockcount = Math.floor( ( width + 3 )/4 ) * Math.floor( ( height + 3 )/4 );
+	// if it uses dxt1 compression, blocksize is 8, else it is 16
 	const blocksize = ( ( flags & kDxt1 ) !== 0 ) ? DXT1_COMPRESSED_BYTES : DXT5_COMPRESSED_BYTES;
 	return blockcount*blocksize;
 }
@@ -204,8 +186,8 @@ function CompressMasked(rgba, mask, result, offset, flags)
 	compressor.compress( result, offset+colorOffset );
 	
 	// compress alpha separately if necessary
-	if( ( flags & kDxt3 ) !== 0 ) CompressAlphaDxt3( rgba, mask, result, offset );
-	else if( ( flags & kDxt5 ) !== 0 ) CompressAlphaDxt5( rgba, mask, result, offset );
+//	if( ( flags & kDxt3 ) !== 0 ) compressAlphaDxt3( rgba, mask, result, offset );
+//	else if( ( flags & kDxt5 ) !== 0 ) compressAlphaDxt5( rgba, mask, result, offset );
 }
 
 
@@ -227,8 +209,8 @@ function decompressBlock(result, block, offset, flags)
 	decompressColor(result, block, offset + colorOffset, (flags & kDxt1) !== 0 );
 
 	// decompress alpha
-	if ( (flags & kDxt3) !== 0) DecompressAlphaDxt3( result, block, offset );
-	else if( (flags & kDxt5) !== 0) DecompressAlphaDxt3( result, block, offset );
+	if ( (flags & kDxt3) !== 0) decompressAlphaDxt3( result, block, offset );
+	else if( (flags & kDxt5) !== 0) decompressAlphaDxt3( result, block, offset );
 }
 
 
@@ -255,7 +237,7 @@ function compressImage(source, width, height, result, flags)
 	// loop over blocks
 	blockRepeat(width, height, function(x,y) {
 		// build the 4x4 block of pixels
-		const sourceRGBA = extractColorBlock(result, {x, y, width, height});
+		const sourceRGBA = extractColorBlock(source, {x, y, width, height});
 
 		// compress it into the output
 		CompressMasked( sourceRGBA, mask, result, targetBlockPointer, flags );
@@ -300,6 +282,17 @@ function decompressImage(result, width, height, source, flags)
 
 //---------------------------------------------------------------------------//
 
+
+const flags = {DXT1:kDxt1, 
+	DXT3:kDxt3,
+	DXT5:kDxt5,
+    ColourIterativeClusterFit:kColourIterativeClusterFit,
+    ColourClusterFit:kColourClusterFit, 
+    ColourRangeFit:kColourRangeFit,
+    ColourMetricPerceptual:kColourMetricPerceptual, 
+    ColourMetricUniform:kColourMetricUniform, 
+    WeightColourByAlpha:kWeightColourByAlpha
+} = Flags;
 
 /**
  * @param {Uint8Array / ArrayBuffer} inputData to compress
