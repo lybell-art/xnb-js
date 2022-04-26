@@ -1,20 +1,20 @@
-const BaseReader = require('./BaseReader');
-const BufferReader = require('../../BufferReader');
-const Int32Reader = require('./Int32Reader');
-const SingleReader = require('./SingleReader');
-const NullableReader = require('./NullableReader');
-const CharReader = require('./CharReader');
-const Texture2DReader = require('./Texture2DReader');
-const ListReader = require('./ListReader');
-const RectangleReader = require('./RectangleReader');
-const Vector3Reader = require('./Vector3Reader');
+import BaseReader from "./BaseReader.js";
+import BufferReader from "../BufferReader.js";
+import Int32Reader from "./Int32Reader.js";
+import SingleReader from "./SingleReader.js";
+import NullableReader from "./NullableReader.js";
+import CharReader from "./CharReader.js";
+import Texture2DReader from "./Texture2DReader.js";
+import ListReader from "./ListReader.js";
+import RectangleReader from "./RectangleReader.js";
+import Vector3Reader from "./Vector3Reader.js";
 
 /**
  * SpriteFont Reader
  * @class
  * @extends BaseReader
  */
-class SpriteFontReader extends BaseReader {
+export default class SpriteFontReader extends BaseReader {
     /**
      * Reads SpriteFont from buffer.
      * @param {BufferReader} buffer
@@ -78,5 +78,3 @@ class SpriteFontReader extends BaseReader {
         return false;
     }
 }
-
-module.exports = SpriteFontReader;

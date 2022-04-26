@@ -1,14 +1,14 @@
-const BaseReader = require('./BaseReader');
-const BufferReader = require('../../BufferReader');
-const BufferWriter = require('../../BufferWriter');
-const BooleanReader = require('./BooleanReader');
+import BaseReader from "./BaseReader.js";
+import BufferReader from "../BufferReader.js";
+import ReaderResolver from "../ReaderResolver.js";
+import BooleanReader from "./BooleanReader.js";
 
 /**
  * Nullable Reader
  * @class
  * @extends BaseReader
  */
-class NullableReader extends BaseReader {
+export default class NullableReader extends BaseReader {
     /**
      * @constructor
      * @param {BaseReader} reader
@@ -60,5 +60,3 @@ class NullableReader extends BaseReader {
         return `Nullable<${this.reader.type}>`;
     }
 }
-
-module.exports = NullableReader;

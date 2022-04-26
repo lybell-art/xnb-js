@@ -1,13 +1,13 @@
-const BaseReader = require('./BaseReader');
-const BufferReader = require('../../BufferReader');
-const SingleReader = require('./SingleReader');
+import BaseReader from "./BaseReader.js";
+import BufferReader from "../BufferReader.js";
+import SingleReader from "./SingleReader.js";
 
 /**
  * Vector2 Reader
  * @class
  * @extends BaseReader
  */
-class Vector2Reader extends BaseReader {
+export default class Vector2Reader extends BaseReader {
     /**
      * Reads Vector2 from buffer.
      * @param {BufferReader} buffer
@@ -22,5 +22,3 @@ class Vector2Reader extends BaseReader {
         return { x, y };
     }
 }
-
-module.exports = Vector2Reader;
