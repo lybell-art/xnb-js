@@ -23,9 +23,9 @@ import {kDxt1, kDxt3, kDxt5,
 	kColourIterativeClusterFit, kColourClusterFit, kColourRangeFit,
 	kColourMetricPerceptual, kColourMetricUniform, kWeightColourByAlpha
 } from "./constant.js";
-import {Vec3} from "./math.js";
-import {lookup_5_3, lookup_6_3, lookup_5_4, lookup_6_4} from "./lookup.js"
-import {writeColourBlock3, writeColourBlock4} from "./colorBlock.js"
+import {Vec3, Vec4, computePCA} from "./math.js";
+import {lookup_5_3, lookup_6_3, lookup_5_4, lookup_6_4} from "./lookup.js";
+import {writeColourBlock3, writeColourBlock4} from "./colorBlock.js";
 
 class ColorSet
 {
@@ -194,11 +194,11 @@ class ColorFit
 	compress(result, offset)
 	{
 		const isDxt1 = ( (this.flags & kDxt1) != 0);
-		if(isDxt1 && this.colors.transparent) {
+		if(isDxt1) {
 			this.compress3(result, offset);
-			return;
+			if (!this.colors.transparent) this.compress4(result, offset);
 		}
-		this.compress4(result, offset);
+		else this.compress4(result, offset);
 	}
 	compress3(result, offset){}
 	compress4(result, offset){}
@@ -222,33 +222,32 @@ class SingleColourFit extends ColorFit
 		this.error = Infinity;
 		this.bestError = Infinity;
 	}
-	compress3(result, offset)
+	compressBase(lookups, saveFunc)
 	{
-		const lookups = [lookup_5_3, lookup_6_3, lookup_5_3];
 		this.computeEndPoints(lookups);
 
 		if(this.error < this.bestError)
 		{
 			const indices = new Uint8Array(16);
 			this.colors.remapIndicesSingle(this.index, indices);
-			writeColourBlock3(this.start, this.end, indices, result, offset);
+			saveFunc(this.start, this.end, indices);
 
 			this.bestError = this.error;
 		}
 	}
+	compress3(result, offset)
+	{
+		const lookups = [lookup_5_3, lookup_6_3, lookup_5_3];
+		const saveFunc = (start, end, indices) => writeColourBlock3(start, end, indices, result, offset);
+
+		this.compressBase(lookups, saveFunc);
+	}
 	compress4(result, offset)
 	{
 		const lookups = [lookup_5_4, lookup_6_4, lookup_5_4];
-		this.computeEndPoints(lookups);
+		const saveFunc = (start, end, indices) => writeColourBlock4(start, end, indices, result, offset);
 
-		if(this.error < this.bestError)
-		{
-			const indices = new Uint8Array(16);
-			this.colors.remapIndicesSingle(this.index, indices);
-			writeColourBlock4(this.start, this.end, indices, result, offset);
-
-			this.bestError = this.error;
-		}
+		this.compressBase(lookups, saveFunc);
 	}
 	computeEndPoints(lookups)
 	{
@@ -293,5 +292,164 @@ class SingleColourFit extends ColorFit
 	}
 }
 
+class RangeFit extends ColorFit
+{
+	constructor(colorSet)
+	{
+		super(colorSet);
 
-export {ColorSet, SingleColourFit};
+		this.metric = new Vec3(1);
+		if( (this.flags & kColourMetricPerceptual) !== 0)
+		{
+			this.metric.set(0.2126, 0.7152, 0.0722);
+		}
+		
+		// private property
+		this.start = new Vec3(0);
+		this.end = new Vec3(0);
+
+		this.bestError = Infinity;
+
+		//compute start&end points
+		this.computePoints();
+	}
+	compressBase(codes, saveFunc)
+	{
+		const {points:values} = this.colors;
+
+		let error = 0;
+
+		// Map the closest code of each color
+		const closest = values.map((color)=>{
+			let minDist = Infinity;
+
+			// find the closest code
+			const packedIndex = codes.reduce((idx, code, j)=>{
+				const dist = Vec3.sub(color, code).multVector(this.metric).lengthSq;
+
+				if(dist >= minDist) return idx;
+				minDist = dist;
+				return j;
+			}, 0);
+
+			// accumulate the error
+			error += minDist;
+
+			// save the index
+			return packedIndex;
+		});
+
+		// save this scheme if it wins
+		if( error < this.bestError )
+		{
+			// remap the indices
+			let indices = new Uint8Array(16);
+			this.colors.remapIndices( closest, indices );
+			
+			// save the block
+			saveFunc( this.start, this.end, indices );
+			
+			// save the error
+			this.bestError = error;
+		}
+	}
+	compress3(result, offset)
+	{
+		const codes=[
+			this.start.clone(), 
+			this.end.clone(), 
+			Vec3.interpolate(this.start, this.end, 0.5)
+		];
+
+		const saveFunc = (start, end, indices) => writeColourBlock3(start, end, indices, result, offset);
+
+		this.compressBase(codes, saveFunc);
+	}
+	compress4(result, offset)
+	{
+		const codes=[
+			this.start.clone(), 
+			this.end.clone(), 
+			Vec3.interpolate(this.start, this.end, 1/3),
+			Vec3.interpolate(this.start, this.end, 2/3),
+		];
+
+		const saveFunc = (start, end, indices) => writeColourBlock4(start, end, indices, result, offset);
+
+		this.compressBase(codes, saveFunc);
+	}
+	computePoints()
+	{
+		const {count, points:values, weights} = this.colors;
+		if(count <= 0) return;
+
+		//dimension regression
+		const principle = computePCA(values, weights);
+
+		let start, end, min, max;
+
+		start=end=values[0];
+		min=max=Vec3.dot(start, principle);
+
+		//compute the range
+		for(let i=1; i<count; i++)
+		{
+			let value = Vec3.dot(values[i], principle);
+			if(value < min)
+			{
+				start = values[i];
+				min = value;
+			}
+			else if(value > max)
+			{
+				end = values[i];
+				max = value;
+			}
+		}
+
+		// clamp the output to [0, 1]
+		start.clamp(0,1);
+		end.clamp(0,1);
+
+		// clamp to the grid and save
+		this.start.x = Math.trunc( start.x * 31 + 0.5 ) / 31;
+		this.start.y = Math.trunc( start.y * 63 + 0.5 ) / 63;
+		this.start.z = Math.trunc( start.z * 31 + 0.5 ) / 31;
+		this.end.x = Math.trunc( end.x * 31 + 0.5 ) / 31;
+		this.end.y = Math.trunc( end.y * 63 + 0.5 ) / 63;
+		this.end.z = Math.trunc( end.z * 31 + 0.5 ) / 31;
+	}
+}
+
+
+class ClusterFit extends ColorFit
+{
+	constructor(colorSet)
+	{
+		// set the iteration count
+		const kMaxIterations = 8;
+		this.iterationCount = (colorSet.flags & kColourIterativeClusterFit) ? kMaxIterations : 1;
+
+		// initialise the best error
+		this.bestError = new Vec4( Infinity );
+
+		// initialise the metric
+		this.metric = new Vec4(1);
+		if( (this.flags & kColourMetricPerceptual) !== 0)
+		{
+			this.metric.set(0.2126, 0.7152, 0.0722, 0);
+		}
+
+		// dimension regression
+		const {points:values, weights} = this.colors;
+		this.principle = computePCA(values, weights);
+
+		// private property
+		this.order = new Uint8Array(16 * kMaxIterations);
+		this.pointesWeights=[]; //Array(Vec4)[16]
+		this.xSum_wSum = new Vec4(0); //Vec4
+	}
+}
+
+
+export {ColorSet, SingleColourFit, RangeFit};

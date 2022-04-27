@@ -23,7 +23,7 @@ import {kDxt1, kDxt3, kDxt5,
 	kColourIterativeClusterFit, kColourClusterFit, kColourRangeFit,
 	kColourMetricPerceptual, kColourMetricUniform, kWeightColourByAlpha
 } from "./dxt/constant.js";
-import {ColorSet, SingleColourFit/*, RangeFit, ClusterFit*/} from "./dxt/colorFits.js";
+import {ColorSet, SingleColourFit, RangeFit/*, ClusterFit*/} from "./dxt/colorFits.js";
 //import {compressAlphaDxt3, compressAlphaDxt5} from "./dxt/alphaCompressor.js";
 //import {decompressColor, decompressAlphaDxt3, decompressAlphaDxt5} from "./dxt/decompressor.js";
 
