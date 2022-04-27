@@ -63,6 +63,10 @@ class Vec3
 
 		return this;
 	}
+	toVec4(w=1)
+	{
+		return new Vec4(this.x, this.y, this.z, w);
+	}
 	addVector(v)
 	{
 		this._values[0] += v.x;
@@ -213,6 +217,10 @@ class Vec4
 
 		return this;
 	}
+	toVec3()
+	{
+		return this.xyz;
+	}
 	addVector(v)
 	{
 		this._values[0] += v.x;
@@ -307,7 +315,7 @@ class Vec4
 			a.z*b.z+c.z,
 			a.w*b.w+c.w);
 	}
-	// returns a*b + c
+	// returns c - a*b
 	static negativeMultiplySubtract(a, b, c)
 	{
 		return new Vec4(
@@ -385,4 +393,4 @@ function computePCA(values, weights)
 	return new Vec3(...dominentPrincipalVector(covariance) );
 }
 
-export {Vec3, computePCA};
+export {Vec3, Vec4, computePCA};

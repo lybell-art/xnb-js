@@ -446,8 +446,75 @@ class ClusterFit extends ColorFit
 
 		// private property
 		this.order = new Uint8Array(16 * kMaxIterations);
-		this.pointesWeights=[]; //Array(Vec4)[16]
+		this.pointsWeights=[]; //Array(Vec4)[16]
 		this.xSum_wSum = new Vec4(0); //Vec4
+	}
+
+	constructOrdering(axis, iteration)
+	{
+		const currentOrder = this.makeOrder(axis);
+		this.copyOrderToThisOrder(currentOrder, iteration)
+
+		const uniqueOrder = this.checkOrderUnique(currentOrder, iteration);
+		if(!uniqueOrder) return false;
+
+		this.copyOrderWeight(currentOrder);
+		return true;
+	}
+	makeOrder(axis)
+	{
+		const {count, points:values} = this.colors;
+
+		// map dot products and stable sort
+		// result : [1st index of color, 2nd index of color, ...]
+		const dotProducts=values.map((color, i)=>Vec3.dot(color, axis));
+		return Array.from({length:count},(_,i)=>i)
+			.sort((a,b)=>{
+				if(dotProducts[a]-dotProducts[b] != 0) return dotProducts[a]-dotProducts[b];
+				return a-b;
+			});
+	}
+	copyOrderToThisOrder(order, iteration)
+	{
+		//copy currentOrder array to this.order
+		const orderOffset = iteration * 16;
+		order.forEach((ord, i)=>{
+			this.order[orderOffset + i] = ord;
+		});
+	}
+	checkOrderUnique(order, iteration)
+	{
+		// check this ordering is unique
+		const {count} = this.colors;
+
+		for(let it =0; it<iteration; it++) 
+		{
+			let prevOffset = it * 16;
+			let same = true;
+			for(let i=0; i < count; i++) {
+				if(order[i] !== this.order[prevOffset + i])
+				{
+					same = false;
+					break;
+				}
+			}
+			if(same) return false;
+		}
+		return true;
+	}
+	copyOrderWeight(order)
+	{
+		// copy the ordering and weight all the points
+		const {count, points:unweighted, weights} = this.colors;
+		for(let i=0; i<count; i++)
+		{
+			const j = order[i];
+			const p = unweighted[j].toVec4(1);
+			const w = new Vec4( weights[j] );
+			const x = Vec4.multVector(p, w);
+			this.pointsWeights[i] = x;
+			this.xSum_wSum.addVector(x);
+		}
 	}
 }
 
