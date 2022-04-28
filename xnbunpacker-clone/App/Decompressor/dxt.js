@@ -23,9 +23,9 @@ import {kDxt1, kDxt3, kDxt5,
 	kColourIterativeClusterFit, kColourClusterFit, kColourRangeFit,
 	kColourMetricPerceptual, kColourMetricUniform, kWeightColourByAlpha
 } from "./dxt/constant.js";
-import {ColorSet, SingleColourFit, RangeFit, C8lusterFit} from "./dxt/colorFits.js";
+import {ColorSet, SingleColourFit, RangeFit, ClusterFit} from "./dxt/colorFits.js";
 import {compressAlphaDxt3, compressAlphaDxt5} from "./dxt/alphaCompressor.js";
-//import {decompressColor, decompressAlphaDxt3, decompressAlphaDxt5} from "./dxt/decompressor.js";
+import {decompressColor, decompressAlphaDxt3, decompressAlphaDxt5} from "./dxt/decompressor.js";
 
 //internal constant(deconstructing)
 const DXT1_COMPRESSED_BYTES = 8;
@@ -192,7 +192,7 @@ function CompressMasked(rgba, mask, result, offset, flags)
 
 
 /**
- * @param {Uint8Array} Buffer in which the uncompressed result will be stored
+ * @param {Uint8Array} Buffer in which the decompressed result will be stored
  * @param {Uint8Array} compressed data
  * @param {int} compressed data's offset
  * @param {int} flags
@@ -210,7 +210,7 @@ function decompressBlock(result, block, offset, flags)
 
 	// decompress alpha
 	if ( (flags & kDxt3) !== 0) decompressAlphaDxt3( result, block, offset );
-	else if( (flags & kDxt5) !== 0) decompressAlphaDxt3( result, block, offset );
+	else if( (flags & kDxt5) !== 0) decompressAlphaDxt5( result, block, offset );
 }
 
 

@@ -32,6 +32,8 @@ function compressAlphaDxt5(rgba, mask, result, offset)
 {
 	let step5 = interpolateAlpha(rgba, mask, 5);
 	let step7 = interpolateAlpha(rgba, mask, 7);
+
+	console.log(step5, step7);
 	
 	// save the block with least error
 	if( step5.error <= step7.error ) writeAlphaBlock5( step5, result, offset );
@@ -44,9 +46,11 @@ function interpolateAlpha(rgba, mask, steps)
 	let {min, max} = setAlphaRange(rgba, mask, steps);
 
 	let code = setAlphaCodeBook(min, max, steps);
+	console.log(code);
 
 	let indices = new Uint8Array(16);
 	let error = fitCodes(rgba, mask, code, indices);
+	console.log(indices);
 
 	return {min, max, indices, error};
 }
@@ -56,7 +60,7 @@ function setAlphaRange(rgba, mask, steps)
 	let min = 255;
 	let max = 0;
 
-	for( let i = 0; i < 16; ++i )
+	for( let i = 0; i < 16; i++ )
 	{
 		// check this pixel is valid
 		let bit = 1 << i;
@@ -65,8 +69,16 @@ function setAlphaRange(rgba, mask, steps)
 		// incorporate into the min/max
 		let value = rgba[4*i + 3];
 
-		if( value < min && (steps === 5 && value != 0) ) min = value;
-		if( value > max && (steps === 5 && value != 255) ) max = value;
+		if(steps === 5)
+		{
+			if(value !== 0 && value < min) min = value;
+			if(value !== 255 && value > max) max = value;
+		}
+		else
+		{
+			if(value < min) min = value;
+			if(value > max) max = value;
+		}
 	}
 
 	// handle the case that no valid range was found
@@ -79,12 +91,12 @@ function setAlphaRange(rgba, mask, steps)
 	return {min, max};
 }
 
-function setAlphaCodeBook(start, end, steps)
+function setAlphaCodeBook(min, max, steps)
 {
 	// set up the alpha code book
-	let codes = Array.from({length:steps}, (_,i)=>{
-		return ( (steps - i ) * min + i * max ) / steps;
-	});
+	let codes = [min, max, ...Array.from({length:steps-1}, (_,i)=>{
+		return Math.floor( ( (steps - (i+1) ) * min + (i+1) * max ) / steps );
+	})];
 	if(steps === 5)
 	{
 		codes[6] = 0;
@@ -93,7 +105,7 @@ function setAlphaCodeBook(start, end, steps)
 	return codes;
 }
 
-function fitCodes(rgba, mask, code, indices)
+function fitCodes(rgba, mask, codes, indices)
 {
 	// fit each alpha value to the codebook
 	let err = 0;
@@ -200,4 +212,4 @@ function writeAlphaBlock(alpha0, alpha1, indices, result, offset)
 }
 
 
-export {compressAlphaDxt3, compressAlphaDxt5};
+export {compressAlphaDxt3, compressAlphaDxt5, setAlphaCodeBook};
