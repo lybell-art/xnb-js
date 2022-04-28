@@ -1,5 +1,6 @@
 /* -----------------------------------------------------------------------------
 	Copyright (c) 2006 Simon Brown                          si@sjbrown.co.uk
+	Copyright (c) 2007 Ignacio Castano                   icastano@nvidia.com
 	Permission is hereby granted, free of charge, to any person obtaining
 	a copy of this software and associated documentation files (the 
 	"Software"), to	deal in the Software without restriction, including
@@ -407,17 +408,9 @@ class RangeFit extends ColorFit
 			}
 		}
 
-		// clamp the output to [0, 1]
-		start.clamp(0,1);
-		end.clamp(0,1);
-
 		// clamp to the grid and save
-		this.start.x = Math.trunc( start.x * 31 + 0.5 ) / 31;
-		this.start.y = Math.trunc( start.y * 63 + 0.5 ) / 63;
-		this.start.z = Math.trunc( start.z * 31 + 0.5 ) / 31;
-		this.end.x = Math.trunc( end.x * 31 + 0.5 ) / 31;
-		this.end.y = Math.trunc( end.y * 63 + 0.5 ) / 63;
-		this.end.z = Math.trunc( end.z * 31 + 0.5 ) / 31;
+		this.start = start.clampGrid().clone();
+		this.end = end.clampGrid().clone();
 	}
 }
 
@@ -431,7 +424,7 @@ class ClusterFit extends ColorFit
 		this.iterationCount = (colorSet.flags & kColourIterativeClusterFit) ? kMaxIterations : 1;
 
 		// initialise the best error
-		this.bestError = new Vec4( Infinity );
+		this.bestError = Infinity;
 
 		// initialise the metric
 		this.metric = new Vec4(1);
@@ -450,6 +443,9 @@ class ClusterFit extends ColorFit
 		this.xSum_wSum = new Vec4(0); //Vec4
 	}
 
+	/*
+	 * main Logics
+	 */
 	constructOrdering(axis, iteration)
 	{
 		const currentOrder = this.makeOrder(axis);
@@ -461,6 +457,108 @@ class ClusterFit extends ColorFit
 		this.copyOrderWeight(currentOrder);
 		return true;
 	}
+	compress3(result, offset)
+	{
+		const aabbx = ([part0, , part1, part2])=>{
+			const const1_2 = new Vec4(1/2, 1/2, 1/2, 1/4);
+
+			const alphax_sum = Vec4.multiplyAdd( part1, const1_2, part0 );
+			const alpha2_sum = alphax_sum.splatW;
+
+			const betax_sum = MultiplyAdd( part1, const1_2, part2 );
+			const beta2_sum = betax_sum.splatW;
+
+			const alphabeta_sum = Vec4.multVector(part1, const1_2).splatW;
+
+			return {
+				ax:alphax_sum,
+				aa:alpha2_sum,
+				bx:betax_sum,
+				bb:beta2_sum,
+				ab:alphabeta_sum
+			}
+		};
+		const saveFunc = (start, end, indices)=>writeColourBlock3(start, end, indices, result, offset);
+		this.compressBase(aabbx, saveFunc, 2);
+	}
+	compress4(result, offset)
+	{
+		const aabbx = ([part0, part1, part2, part3])=>{
+			const const1_3 = new Vec4(1/3, 1/3, 1/3, 1/9);
+			const const2_3 = new Vec4(2/3, 2/3, 2/3, 4/9);
+			const const2_9 = new Vec4(2/9);
+
+			const alphax_sum = Vec4.multiplyAdd( part2, const1_3, Vec4.multiplyAdd( part1, const2_3, part0 ) );
+			const alpha2_sum = alphax_sum.splatW;
+			
+			const betax_sum = Vec4.multiplyAdd( part2, const1_3, Vec4.multiplyAdd( part2, const2_3, part3 ) );
+			const beta2_sum = betax_sum.splatW;
+			
+			const alphabeta_sum = Vec4.multVector(const2_p, Vec4.addVector(part1, part2)).splatW;
+
+			return {
+				ax:alphax_sum,
+				aa:alpha2_sum,
+				bx:betax_sum,
+				bb:beta2_sum,
+				ab:alphabeta_sum
+			}
+		};
+		const saveFunc = (start, end, indices)=>writeColourBlock4(start, end, indices, result, offset);
+		this.compressBase(aabbx, saveFunc, 3);
+	}
+	compressBase(aabbFunc, saveFunc, repeater=2)
+	{
+		// prepare an ordering using the principle axis
+		this.constructOrdering(this.principle, 0);
+
+		// check all possible clusters and iterate on the total order
+		let best = {
+			start : new Vec4(0),
+			end : new Vec4(0),
+			error : this.bestError,
+			iteration : 0,
+			bestI : 0,
+			bestJ : 0,
+		};
+		if(repeater === 3) best.bestK = 0;
+
+		// inner least squares terms function
+		const leastSquares = (parts, internalIndices)=>{
+			const aabbx = aabbFunc(parts);
+
+			const internalBest = this.computeOptimalPoints(aabbx);
+
+			if(internalBest.error >= best.error) return false;
+			// keep the solution if it wins
+			best = {...internalBest, ...internalIndices};
+			return true;
+		};
+		
+		// loop over iterations (we avoid the case that all points in first or last cluster)
+		for( let iterationIndex = 0;; )
+		{
+			this.clusterIterate(iterationIndex, leastSquares, repeater);
+
+			// stop if we didn't improve in this iteration
+			if( best.iteration != iterationIndex ) break;
+				
+			// advance if possible
+			iterationIndex++;
+			if( iterationIndex == this.iterationCount ) break;
+				
+			// stop if a new iteration is an ordering that has already been tried
+			const newAxis = Vec4.sub( best.end, best.start ).xyz;
+			if( !this.constructOrdering( newAxis, iterationIndex ) ) break;
+		}
+
+		// save the block if win
+		if(best.error < this.bestError) this.saveBlock(best, saveFunc);
+	}
+
+	/*
+	 * for constructOrdering function
+	 */
 	makeOrder(axis)
 	{
 		const {count, points:values} = this.colors;
@@ -516,7 +614,124 @@ class ClusterFit extends ColorFit
 			this.xSum_wSum.addVector(x);
 		}
 	}
+
+	/*
+	 * for compress function
+	 */
+	computeOptimalPoints(vectorPoint)
+	{
+		// constant vectors
+		const {ax, bx, aa, bb, ab} = vectorPoint;
+
+		// compute the least-squares optimal points
+		const factor = Vec4.negativeMultiplySubtract( ab, ab, aa*bb ).reciprocal();
+		let a = Vec4.negativeMultiplySubtract( bx, ab, ax*bb ).multVector(factor);
+		let b = Vec4.negativeMultiplySubtract( ax, ab, bx*aa ).multVector(factor);
+
+		// clamp to the grid
+		a.clampGrid();
+		b.clampGrid();
+		
+		let error = this.computeError({a, b, ...vectorPoint});
+		
+		return {start:a, end:b, error};
+	}
+	computeError({a, b, ax, bx, aa, bb, ab})
+	{
+		const two = new Vec4(2);
+
+		// compute the error (we skip the constant xxsum)
+		const e1 = Vec4.multiplyAdd( Vec4.multVector(a, a), aa, Vec4.multVector(b,b).multVector(bb) );
+		const e2 = Vec4.negativeMultiplySubtract( a, ax, Vec4.multVector(a,b).multVector(ab) );
+		const e3 = Vec4.negativeMultiplySubtract( b, bx, e2 );
+		const e4 = Vec4.multiplyAdd( two, e3, e1 );
+
+		// apply the metric to the error term
+		const e5 = Vec4.multVector(e4, this.metric);
+		return e5.x + e5.y + e5.z;
+	}
+	saveBlock(best, writeFunc)
+	{
+		const {count} = this.colors;
+		const {
+			start, end, iteration, error,
+			bestI, bestJ, bestK=-1
+		}=best;
+		const orderOffset = iteration * 16;
+
+		// remap the indices
+		const unordered = new Uint8Array(16);
+		const mapper = (m)=>{
+			if(m < bestI) return 0;
+			if(m < bestJ) return 2;
+			if(m < bestK) return 3;
+			return 1;
+		}
+		for(let i=0; i<count; i++)
+		{
+			unordered[ this.order[orderOffset + i] ] = mapper(i);
+		}
+
+		const bestIndices = new Uint8Array(16);
+		this.colors.remapIndices(unordered, bestIndices);
+
+		// save the block
+		writeFunc(start.xyz, end.xyz, bestIndices);
+
+		// save the error
+		this.bestError = error;
+	}
+
+	clusterIterate(index, func, iterCount = 2)
+	{
+		const {count} = this.colors;
+		const indexMapper = (i, j, k)=>{
+			const mapper = {
+				bestI:i,
+				bestJ:( iterCount === 2 ? k : j )
+				iteration : index;
+			};
+			if(iterCount === 3) mapper.bestK = k;
+			return mapper;
+		};
+
+		// first cluster [0,i) is at the start
+		let part0 = new Vec4( 0.0 );
+		for( let i = 0; i < count; i++ )
+		{
+			// second cluster [i,j) is half along
+			let part1 = new Vec4( 0.0 );
+			for( let j = i;; )
+			{
+				// third cluster [j,k) is two thirds along
+				let preLastPart = ( j == 0 ) ? this.pointsWeights[0].clone() : new Vec4(0.0);
+				const kmin = ( j == 0 ) ? 1 : j;
+				for( let k = kmin;; )
+				{
+					// last cluster [k,count) is at the end
+					const restPart = Vec4.sub(this.xSum_wSum, preLastPart).sub(part1).sub(part0);
+
+					func([part0, part1, preLastPart, restPart], indexMapper(i, j, k));
+
+					// advance
+					if( k == count ) break;
+					preLastPart.addVector(this.pointsWeights[k]);
+					k++;
+				}
+
+				// if iterCount === 2(=using Compress3), j iteration is not used
+				if(iterCount === 2) break;
+				
+				// advance
+				if(j === count) break;
+				part1.addVector(this.pointsWeights[j]);
+				j++;
+			}
+			// advance
+			part0.addVector(this.pointsWeights[i]);
+		}
+	}
 }
 
 
-export {ColorSet, SingleColourFit, RangeFit};
+export {ColorSet, SingleColourFit, RangeFit, ClusterFit};

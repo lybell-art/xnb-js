@@ -23,7 +23,7 @@ import {kDxt1, kDxt3, kDxt5,
 	kColourIterativeClusterFit, kColourClusterFit, kColourRangeFit,
 	kColourMetricPerceptual, kColourMetricUniform, kWeightColourByAlpha
 } from "./dxt/constant.js";
-import {ColorSet, SingleColourFit, RangeFit/*, ClusterFit*/} from "./dxt/colorFits.js";
+import {ColorSet, SingleColourFit, RangeFit, ClusterFit} from "./dxt/colorFits.js";
 //import {compressAlphaDxt3, compressAlphaDxt5} from "./dxt/alphaCompressor.js";
 //import {decompressColor, decompressAlphaDxt3, decompressAlphaDxt5} from "./dxt/decompressor.js";
 
@@ -78,7 +78,7 @@ function FixFlags( flags )
 	// set defaults
 	if( method != kDxt3 && method != kDxt5 )
 		method = kDxt1;
-	if( fit != kColourRangeFit )
+	if( fit != kColourRangeFit && fit != kColourIterativeClusterFit )
 		fit = kColourClusterFit;
 	if( metric != kColourMetricUniform )
 		metric = kColourMetricPerceptual;
@@ -160,9 +160,9 @@ function copyBuffer(result, block, {x=0, y=0, width=0, height=0}={})
 function getCompressor(colorSet)
 {
 	// check the compression type and compress colour
-	if(colorSet.count === 1) return new SingleColourFit(colorSet);
-	if(( colorSet.flags & kColourRangeFit ) != 0 || colorSet.count == 0) return new RangeFit(colorSet);
-	return new ClusterFit(colorSet);
+	if(colorSet.count === 1) return new SingleColourFit(colorSet); // always do a single colour fit
+	if(( colorSet.flags & kColourRangeFit ) != 0 || colorSet.count == 0) return new RangeFit(colorSet); // do a range fit
+	return new ClusterFit(colorSet); // default to a cluster fit (could be iterative or not)
 }
 
 /**

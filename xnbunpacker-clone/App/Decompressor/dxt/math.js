@@ -108,6 +108,16 @@ class Vec3
 
 		return this;
 	}
+	clampGrid()
+	{
+		const clamper = (v)=>(0 > v) ? 0 : ( (1 < v) ? 1 : v );
+		const gridClamper = (value, grid)=>Math.trunc(clamper(value) * grid + 0.5) / grid;
+		this._values[0] = gridClamper(this._values[0], 31);
+		this._values[1] = gridClamper(this._values[1], 63);
+		this._values[2] = gridClamper(this._values[2], 31);
+
+		return this;
+	}
 	normalize()
 	{
 		this._values[0] /= this.length;
@@ -204,6 +214,23 @@ class Vec4
 	{
 		return new Vec3(this.x, this.y, this.z);
 	}
+	// idk what is "splat", but these functions returns new Vec4 filled with (x,x,x,x).
+	get splatX()
+	{
+		return new Vec4(this.x);
+	}
+	get splatY()
+	{
+		return new Vec4(this.y);
+	}
+	get splatZ()
+	{
+		return new Vec4(this.z);
+	}
+	get splatW()
+	{
+		return new Vec4(this.w);
+	}
 	clone()
 	{
 		return new Vec4(this.x, this.y, this.z, this.w);
@@ -257,6 +284,15 @@ class Vec4
 
 		return this;
 	}
+	reciprocal()
+	{
+		this._values[0] = 1/this._values[0];
+		this._values[1] = 1/this._values[1];
+		this._values[2] = 1/this._values[2];
+		this._values[3] = 1/this._values[3];
+
+		return this;
+	}
 	clamp(min, max)
 	{
 		const clamper = (v)=>(min > v) ? min : ( (max < v) ? max : v );
@@ -264,6 +300,26 @@ class Vec4
 		this._values[1] = clamper(this._values[1]);
 		this._values[2] = clamper(this._values[2]);
 		this._values[3] = clamper(this._values[3]);
+
+		return this;
+	}
+	clampGrid()
+	{
+		const clamper = (v)=>(0 > v) ? 0 : ( (1 < v) ? 1 : v );
+		const gridClamper = (value, grid)=>Math.trunc(clamper(value) * grid + 0.5) / grid;
+		this._values[0] = gridClamper(this._values[0], 31);
+		this._values[1] = gridClamper(this._values[1], 63);
+		this._values[2] = gridClamper(this._values[2], 31);
+		this._values[3] = clamper(this._values[3]);
+
+		return this;
+	}
+	truncate()
+	{
+		this._values[0]= Math.trunc(this._values[0]);
+		this._values[1]= Math.trunc(this._values[1]);
+		this._values[2]= Math.trunc(this._values[2]);
+		this._values[3]= Math.trunc(this._values[3]);
 
 		return this;
 	}
@@ -323,19 +379,6 @@ class Vec4
 			c.y-a.y*b.y,
 			c.z-a.z*b.z,
 			c.w-a.w*b.w);
-	}
-	static reciprocal(v)
-	{
-		return new Vec4(1/v.x, 1/v.y, 1/v.z, 1/v.w)
-	}
-	static truncate(v)
-	{
-		return new Vec4(
-			Math.trunc(v.x),
-			Math.trunc(v.y),
-			Math.trunc(v.z),
-			Math.trunc(v.w)
-		);
 	}
 	static compareAnyLessThan(left, right)
 	{
