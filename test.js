@@ -8,7 +8,7 @@ fileImporter.addEventListener("change", handleFiles);
 
 function handleFiles()
 {
-	if(!this.files) return;
+	if(!this.files || this.files.length === 0) return;
 
 	const file=this.files[0];
 	if(file.type.search("image/") > -1) console.log("this is image!");
@@ -17,6 +17,7 @@ function handleFiles()
 	const fileReader = new FileReader();
 	fileReader.readAsArrayBuffer(file);
 	fileReader.onload = function() {
-		convertXnbData(fileReader.result);
+		let result = convertXnbData(fileReader.result);
+		console.log(result);
 	};
 }

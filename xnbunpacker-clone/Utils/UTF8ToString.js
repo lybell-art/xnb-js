@@ -148,7 +148,15 @@ function UnicodeToString(unicodeArr)
 	for(let code of unicodeArr) {
 		result.push(...UTF16Encode(code));
 	}
-	return String.fromCharCode(...result);
+	
+	//for bigger strings
+	const blockSize = 65536;
+	let resultStr = "";
+	for(let i=0; i<result.length/blockSize; i++)
+	{
+		resultStr += String.fromCharCode( ...result.slice(i*blockSize, (i+1)*blockSize) );
+	}
+	return resultStr;
 }
 
 function stringToUTF8(str)

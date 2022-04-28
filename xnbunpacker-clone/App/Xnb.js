@@ -1,14 +1,14 @@
 import BufferReader from "./BufferReader.js";
+import BufferWriter from "./BufferWriter.js";
 
 import Presser from "./Decompressor/LZXDecompressor.js";
 import {decompress as LZ4_decompress} from "./Decompressor/Lz4.js";
 
-/*
-import BufferWriter from "./BufferWriter.js";
-
+import StringReader from "./Readers/StringReader.js";
 import { simplifyType, getReader } from "./TypeReader.js";
-import { StringReader } from "./Readers/Readers.js";
 import ReaderResolver from './ReaderResolver.js';
+
+/*
 import { resolveImport } from "../Utils/Porter.js";
 */
 
@@ -133,13 +133,14 @@ class Xnb {
         // log how many readers there are
         Debug(`Readers: ${count}`);
 
-        /*
+        
         // create an instance of string reader
         const stringReader = new StringReader();
 
         // a local copy of readers for the export
         const readers = [];
 
+        
         // loop over the number of readers we have
         for (let i = 0; i < count; i++) {
             // read the type
@@ -166,7 +167,7 @@ class Xnb {
         // don't accept shared resources since SDV XNB files don't have any
         if (shared != 0)
             throw new XnbError(`Unexpected (${shared}) shared resources.`);
-
+        
         // create content reader from the readers loaded
         const content = new ReaderResolver(this.readers);
         // read the content in
@@ -186,7 +187,6 @@ class Xnb {
             readers,
             content: result
         };
-        */
     }
 
     /**

@@ -32,8 +32,6 @@ function compressAlphaDxt5(rgba, mask, result, offset)
 {
 	let step5 = interpolateAlpha(rgba, mask, 5);
 	let step7 = interpolateAlpha(rgba, mask, 7);
-
-	console.log(step5, step7);
 	
 	// save the block with least error
 	if( step5.error <= step7.error ) writeAlphaBlock5( step5, result, offset );
@@ -46,11 +44,9 @@ function interpolateAlpha(rgba, mask, steps)
 	let {min, max} = setAlphaRange(rgba, mask, steps);
 
 	let code = setAlphaCodeBook(min, max, steps);
-	console.log(code);
 
 	let indices = new Uint8Array(16);
 	let error = fitCodes(rgba, mask, code, indices);
-	console.log(indices);
 
 	return {min, max, indices, error};
 }

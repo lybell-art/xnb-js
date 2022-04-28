@@ -25,15 +25,16 @@ function unpack(file)
 }
 
 /**
- * Asynchronously reads the file into binary and then unpacks.
+ * Asynchronously reads the file into binary and then unpacks the contents.
  * @param {ArrayBuffer} buffer
- * @return {Object} the loaded XNB object
+ * @return {Object} the loaded XNB object(not include headers)
  */
 function convertXnbData(buffer)
 {
 	const xnb = new Xnb();
-	const result = xnb.load(buffer);
-	return result;
+	const {content} = xnb.load(buffer);
+	if(content.hasOwnProperty("export")) return content.export;
+	return content;
 }
 
 export {unpack, convertXnbData};

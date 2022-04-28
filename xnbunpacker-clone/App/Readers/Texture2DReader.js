@@ -2,7 +2,7 @@ import BaseReader from "./BaseReader.js";
 import BufferReader from "../BufferReader.js";
 import Int32Reader from "./Int32Reader.js";
 import UInt32Reader from "./UInt32Reader.js";
-import {dxt} from "../Decompressor/dxt.js";
+import * as dxt from "../Decompressor/dxt.js";
 import Debug from "../../Utils/Debug.js";
 import XnbError from "../../Utils/XnbError.js";
 
