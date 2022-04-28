@@ -320,7 +320,7 @@ function decompress(inputData, width, height, flags) {
 	let source = (inputData instanceof ArrayBuffer) ? new Uint8Array(inputData) : inputData;
 	const targetSize = width * height * 4;
 	const result = new Uint8Array(targetSize);
-	DecompressImage(result, width, height, source, flags);
+	decompressImage(result, width, height, source, flags);
 	return result;
 }
 
