@@ -23,8 +23,8 @@ import {kDxt1, kDxt3, kDxt5,
 	kColourIterativeClusterFit, kColourClusterFit, kColourRangeFit,
 	kColourMetricPerceptual, kColourMetricUniform, kWeightColourByAlpha
 } from "./dxt/constant.js";
-import {ColorSet, SingleColourFit, RangeFit, ClusterFit} from "./dxt/colorFits.js";
-//import {compressAlphaDxt3, compressAlphaDxt5} from "./dxt/alphaCompressor.js";
+import {ColorSet, SingleColourFit, RangeFit, C8lusterFit} from "./dxt/colorFits.js";
+import {compressAlphaDxt3, compressAlphaDxt5} from "./dxt/alphaCompressor.js";
 //import {decompressColor, decompressAlphaDxt3, decompressAlphaDxt5} from "./dxt/decompressor.js";
 
 //internal constant(deconstructing)
@@ -186,8 +186,8 @@ function CompressMasked(rgba, mask, result, offset, flags)
 	compressor.compress( result, offset+colorOffset );
 	
 	// compress alpha separately if necessary
-//	if( ( flags & kDxt3 ) !== 0 ) compressAlphaDxt3( rgba, mask, result, offset );
-//	else if( ( flags & kDxt5 ) !== 0 ) compressAlphaDxt5( rgba, mask, result, offset );
+	if( ( flags & kDxt3 ) !== 0 ) compressAlphaDxt3( rgba, mask, result, offset );
+	else if( ( flags & kDxt5 ) !== 0 ) compressAlphaDxt5( rgba, mask, result, offset );
 }
 
 
