@@ -419,6 +419,8 @@ class ClusterFit extends ColorFit
 {
 	constructor(colorSet)
 	{
+		super(colorSet);
+
 		// set the iteration count
 		const kMaxIterations = 8;
 		this.iterationCount = (colorSet.flags & kColourIterativeClusterFit) ? kMaxIterations : 1;
@@ -455,6 +457,7 @@ class ClusterFit extends ColorFit
 		if(!uniqueOrder) return false;
 
 		this.copyOrderWeight(currentOrder);
+
 		return true;
 	}
 	compress3(result, offset)
@@ -465,7 +468,7 @@ class ClusterFit extends ColorFit
 			const alphax_sum = Vec4.multiplyAdd( part1, const1_2, part0 );
 			const alpha2_sum = alphax_sum.splatW;
 
-			const betax_sum = MultiplyAdd( part1, const1_2, part2 );
+			const betax_sum = Vec4.multiplyAdd( part1, const1_2, part2 );
 			const beta2_sum = betax_sum.splatW;
 
 			const alphabeta_sum = Vec4.multVector(part1, const1_2).splatW;
@@ -491,10 +494,10 @@ class ClusterFit extends ColorFit
 			const alphax_sum = Vec4.multiplyAdd( part2, const1_3, Vec4.multiplyAdd( part1, const2_3, part0 ) );
 			const alpha2_sum = alphax_sum.splatW;
 			
-			const betax_sum = Vec4.multiplyAdd( part2, const1_3, Vec4.multiplyAdd( part2, const2_3, part3 ) );
+			const betax_sum = Vec4.multiplyAdd( part1, const1_3, Vec4.multiplyAdd( part2, const2_3, part3 ) );
 			const beta2_sum = betax_sum.splatW;
 			
-			const alphabeta_sum = Vec4.multVector(const2_p, Vec4.addVector(part1, part2)).splatW;
+			const alphabeta_sum = Vec4.multVector(const2_9, Vec4.add(part1, part2)).splatW;
 
 			return {
 				ax:alphax_sum,
@@ -529,10 +532,13 @@ class ClusterFit extends ColorFit
 
 			const internalBest = this.computeOptimalPoints(aabbx);
 
-			if(internalBest.error >= best.error) return false;
-			// keep the solution if it wins
-			best = {...internalBest, ...internalIndices};
-			return true;
+			if(internalBest.error < best.error)
+			{
+				// keep the solution if it wins
+				best = {...internalBest, ...internalIndices};
+				return true;
+			}
+			return false;
 		};
 		
 		// loop over iterations (we avoid the case that all points in first or last cluster)
@@ -604,6 +610,7 @@ class ClusterFit extends ColorFit
 	{
 		// copy the ordering and weight all the points
 		const {count, points:unweighted, weights} = this.colors;
+		this.xSum_wSum.set(0);
 		for(let i=0; i<count; i++)
 		{
 			const j = order[i];
@@ -624,9 +631,9 @@ class ClusterFit extends ColorFit
 		const {ax, bx, aa, bb, ab} = vectorPoint;
 
 		// compute the least-squares optimal points
-		const factor = Vec4.negativeMultiplySubtract( ab, ab, aa*bb ).reciprocal();
-		let a = Vec4.negativeMultiplySubtract( bx, ab, ax*bb ).multVector(factor);
-		let b = Vec4.negativeMultiplySubtract( ax, ab, bx*aa ).multVector(factor);
+		const factor = Vec4.negativeMultiplySubtract( ab, ab, Vec4.multVector(aa,bb) ).reciprocal();
+		let a = Vec4.negativeMultiplySubtract( bx, ab, Vec4.multVector(ax,bb) ).multVector(factor);
+		let b = Vec4.negativeMultiplySubtract( ax, ab, Vec4.multVector(bx,aa) ).multVector(factor);
 
 		// clamp to the grid
 		a.clampGrid();
@@ -688,8 +695,8 @@ class ClusterFit extends ColorFit
 		const indexMapper = (i, j, k)=>{
 			const mapper = {
 				bestI:i,
-				bestJ:( iterCount === 2 ? k : j )
-				iteration : index;
+				bestJ:( iterCount === 2 ? k : j ),
+				iteration : index
 			};
 			if(iterCount === 3) mapper.bestK = k;
 			return mapper;
@@ -709,7 +716,7 @@ class ClusterFit extends ColorFit
 				for( let k = kmin;; )
 				{
 					// last cluster [k,count) is at the end
-					const restPart = Vec4.sub(this.xSum_wSum, preLastPart).sub(part1).sub(part0);
+					const restPart = Vec4.sub(this.xSum_wSum, preLastPart).subVector(part1).subVector(part0);
 
 					func([part0, part1, preLastPart, restPart], indexMapper(i, j, k));
 

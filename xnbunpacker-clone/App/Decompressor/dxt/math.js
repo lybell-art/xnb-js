@@ -266,6 +266,15 @@ class Vec4
 
 		return this;
 	}
+	subVector(v)
+	{
+		this._values[0] -= v.x;
+		this._values[1] -= v.y;
+		this._values[2] -= v.z;
+		this._values[3] -= v.w;
+
+		return this;
+	}
 	mult(scalar)
 	{
 		this._values[0] *= scalar;
@@ -412,7 +421,7 @@ function computeWeightedCovariance(values, weights)
 	let covariance = values.reduce((sum, value, i)=>{
 		let weight = weights[i];
 		let v = Vec3.sub(value, mean);
-		sum[0][0] += v.x * v.x * weight; sum[0][1] += v.x * v.x * weight; sum[0][2] += v.x * v.z * weight;
+		sum[0][0] += v.x * v.x * weight; sum[0][1] += v.x * v.y * weight; sum[0][2] += v.x * v.z * weight;
 		sum[1][1] += v.y * v.y * weight; sum[1][2] += v.y * v.z * weight; sum[2][2] += v.z * v.z * weight;
 
 		return sum;
