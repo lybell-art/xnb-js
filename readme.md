@@ -8,24 +8,28 @@ xnb unpacker는 [xnbcil](https://github.com/LeonBlade/xnbcli)을 브라우저에
 
 기본적으로 ES6 모듈에 최적화되어 있으므로, dist/xnbUnpacker.module.js 파일을 본인 프로젝트에 추가하고 다음과 같이 불러오시면 됩니다.
 
+```javascript
     import * as XnbUnpacker from "./xnbUnpacker.module.js"
+```
 
 ES6 모듈을 지원하지 않는 브라우저의 경우, 다음과 같이 모듈을 불러올 수 있습니다.
 
+```html
     ...
     <script src="./xnbUnpacker.min.js" ></script>
     <script>
 	    //Your code Here
     </script>
+```
 
 ## API Documentation
 
-### unpackData( file : File/Buffer ) : Promise
+### unpackData( file : <span style="color:gray">File/Buffer</span> ) : Promise
 
 xnb 파일을 비동기적으로 언팩한 뒤 결과값을 반환합니다.
 Promise의 결과는 {type: String, data: ArrayBuffer} 혹은 Json 데이터의 값을 가집니다.
 
-```
+```javascript
 unpackData(file).then(unpackedXnb=>{
 	if(unpackedXnb.type !== undefined) {
 		const data=unpackedXnb.data; //ArrayBuffer
@@ -43,7 +47,7 @@ unpackData(file).then(unpackedXnb=>{
 xnb 파일을 비동기적으로 언팩한 뒤 언팩한 결과 파일의 리스트를 반환합니다.
 Promise의 결과는 Blobs Array(지원되는 경우), 또는 {data:ArrayBuffer, extention: String}의 값을 가집니다.
 
-```
+```javascript
 unpackToFiles(file).then(resultFiles=>{
 	for(let unpackedFile of resultFiles) {
 		/*여기에 당신의 코드*/
@@ -55,7 +59,8 @@ unpackToFiles(file).then(resultFiles=>{
 
 xnb 파일의 데이터를 가진 ArrayBuffer를 읽어 결과값을 반환합니다.
 unpackData의 결과와 동일합니다.
-```
+
+```javascript
 const fileReader = new FileReader();
 fileReader.readAsArrayBuffer(file);
 fileReader.onload = function({target}){
