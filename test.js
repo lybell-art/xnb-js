@@ -1,5 +1,5 @@
-import {convertXnbData} from "./xnbunpacker-clone/xnbUnpacker.js";
-import { toPNG } from "./libs/png.js";
+import { convertXnbData, unpackToFiles } from "./src/xnbUnpacker.js";
+import { toPNG } from "./src/libs/png.js";
 
 const fileImportButton = document.getElementById("fileImport");
 const fileImporter = document.getElementById("file");
@@ -18,7 +18,7 @@ function handleFiles()
 	window.URL.revokeObjectURL(url);
 
 	const file=this.files[0];
-	const isImage = (file.type.search("image/") > -1)
+	const isImage = (file.type.search("image/") > -1);
 	if(isImage) console.log("this is image!");
 	else console.log("this is xnb file!");
 
@@ -29,12 +29,9 @@ function handleFiles()
 
 function arrayToImg(buffer)
 {
-//	console.log(new PNG(buffer));
 	const blob = new Blob([buffer], {type: "image/png"});
-	console.log(blob);
 	url = window.URL.createObjectURL(blob);
 	outputImageCanvas.src = url;
-//	window.URL.revokeObjectURL(url);
 }
 
 function xnbLoad({target})
@@ -46,12 +43,10 @@ function xnbLoad({target})
 		let png = toPNG(result.width, result.height, rawImgData)
 		arrayToImg(png);
 	}
-	console.log(result);
 }
 
 function pngLoad({target})
 {
 	let result = target.result;
 	arrayToImg(result);
-	console.log(result);
 }

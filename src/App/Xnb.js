@@ -8,10 +8,6 @@ import StringReader from "./Readers/StringReader.js";
 import { simplifyType, getReader } from "./TypeReader.js";
 import ReaderResolver from './ReaderResolver.js';
 
-/*
-import { resolveImport } from "../Utils/Porter.js";
-*/
-
 import XnbError from "../Utils/XnbError.js";
 import Debug from "../Utils/Debug.js";
 
@@ -69,7 +65,6 @@ class Xnb {
 
         // create a new instance of reader
         this.buffer = new BufferReader(arrayBuffer);
-        console.log(this.buffer);
 
         
         // validate the XNB file header
@@ -194,8 +189,8 @@ class Xnb {
      * @param {Object} json The JSON to --convert into a XNB file
      */
 
-    /*
-     * ------------------unimplemented----------------------------------
+    
+    // ------------------unimplemented----------------------------------
     convert(json) {
         // the output buffer for this file
         const buffer = new BufferWriter();
@@ -206,17 +201,20 @@ class Xnb {
         // catch exceptions for invalid JSON file formats
         try {
             // set the header information
-            this.target = json.header.target;
-            this.formatVersion = json.header.formatVersion;
-            this.hidef = json.header.hidef;
-            const lz4Compression = (this.target == 'a' || this.target == 'i');
+            let {target, formatVersion, hidef, compressed} = json.header;
+
+            this.target = target;
+            this.formatVersion = formatVersion;
+            this.hidef = hidef;
+            const lz4Compression = (this.target == 'a' || this.target == 'i') || (compressed & COMPRESSED_LZ4_MASK != 0);
             this.compressed = lz4Compression ? true : false; // support android LZ4 compression
 
             // write the header into the buffer
-            buffer.write("XNB");
-            buffer.write(this.target);
+            buffer.writeString("XNB");
+            buffer.writeString(this.target);
             buffer.writeByte(this.formatVersion);
             // write the LZ4 mask for android compression only
+            // todo:LZX compression. There are currently NO open source libraries implementing the LZX compression algorithm.
             buffer.writeByte(this.hidef | ((this.compressed && lz4Compression) ? COMPRESSED_LZ4_MASK : 0));
 
             // write temporary filesize
@@ -251,40 +249,35 @@ class Xnb {
 
             // LZ4 compression
             if (lz4Compression) {
-                // create buffer with just the content
-                const contentBuffer = Buffer.alloc(buffer.bytePosition - XNB_COMPRESSED_PROLOGUE_SIZE);
-                // copy the content from the main buffer into the content buffer
-                buffer.buffer.copy(contentBuffer, 0, XNB_COMPRESSED_PROLOGUE_SIZE);
+                // allocate Uint8 Array for LZ4 encode
+                const trimmed = buffer.buffer.slice(XNB_COMPRESSED_PROLOGUE_SIZE);
+                const trimmedArray = new Uint8Array(trimmed);
 
-                // create a buffer for the compressed data
-                let compressed = Buffer.alloc(LZ4.encodeBound(contentBuffer.length));
+                let compressedSize = LZ4_compressBound(trimmedArray.length);
 
-                // compress the data into the buffer
-                const compressedSize = LZ4.encodeBlock(contentBuffer, compressed);
+                // encode the trimmed buffer into decompressed buffer
+                const {buffer:compressed, length:newCompressedSize} = LZ4_compress(trimmedArray, compressedSize);
+                compressedSize = newCompressedSize;
+                
+                // write the file size & decompressed size into the buffer
+                buffer.bytePosition = 6;
+                buffer.writeUInt32(XNB_COMPRESSED_PROLOGUE_SIZE + compressedSize);
+                buffer.writeUInt32(trimmedArray.length);
 
-                // slice off anything extra
-                compressed = compressed.slice(0, compressedSize);
-
-                // write the decompressed size into the buffer
-                buffer.buffer.writeUInt32LE(contentBuffer.length, 10);
-                // write the file size into the buffer
-                buffer.buffer.writeUInt32LE(XNB_COMPRESSED_PROLOGUE_SIZE + compressedSize, 6);
-
-                // create a new return buffer
-                let returnBuffer = Buffer.from(buffer.buffer);
-
-                // splice in the content into the return buffer
-                compressed.copy(returnBuffer, XNB_COMPRESSED_PROLOGUE_SIZE, 0);
-
+                // write compressed data
+                buffer.concat(compressed);
+                
                 // slice off the excess
-                returnBuffer = returnBuffer.slice(0, XNB_COMPRESSED_PROLOGUE_SIZE + compressedSize);
+                let returnBuffer = buffer.slice(0, XNB_COMPRESSED_PROLOGUE_SIZE + compressedSize);
 
                 // return the buffer
                 return returnBuffer;
             }
 
             // write the file size into the buffer
-            buffer.buffer.writeUInt32LE(buffer.bytePosition, 6)
+            let fileSize = buffer.bytePosition;
+            buffer.bytePosition = 6;
+            buffer.writeUInt32(fileSize, 6);
 
             // return the buffer
             return buffer.buffer;
@@ -294,7 +287,6 @@ class Xnb {
             console.log(ex);
         }
     }
-    */
 
     /**
      * Ensures the XNB file header is valid.
