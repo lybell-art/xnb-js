@@ -1,3 +1,29 @@
+function deepCopy(obj)
+{
+	let newObj;
+	if(Array.isArray(obj))
+	{
+		newObj=[];
+		for(let item of obj)
+		{
+			newObj.push(deepCopy(item));
+		}
+		return newObj;
+	}
+
+	if(!!obj && typeof obj === "object")
+	{
+		newObj={};
+		for(let [key, value] of Object.entries(obj))
+		{
+			newObj[key] = deepCopy(value);
+		}
+		return newObj;
+	}
+
+	return obj;
+}
+
 // convert json file to yaml compatible with XnbExtract
 function toXnbNodeData(json)
 {

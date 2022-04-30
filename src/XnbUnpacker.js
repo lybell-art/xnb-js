@@ -29,7 +29,6 @@ function unpackXnb(file)
 			fileReader.readAsArrayBuffer(file);
 			fileReader.onload = function() {
 				const result = convertXnbIncludeHeaders(fileReader.result);
-				console.log(result);
 				resolve(result);
 			};
 		});
