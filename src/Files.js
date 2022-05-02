@@ -44,7 +44,10 @@ function getMimeType(dataType)
 function makeBlob(data, dataType)
 {
 	//blob is avaliable
-	if(Blob !== undefined) return new Blob([data], {type : getMimeType(dataType)});
+	if(Blob !== undefined) return {
+		data : new Blob([data], {type : getMimeType(dataType)}),
+		extension : getExtension(dataType)
+	};
 	return {
 		data : data,
 		extension : getExtension(dataType)
@@ -108,7 +111,7 @@ function exportFiles(xnbObject, configs={}, fileName=null)
 		{
 			if(typeof fileName == "string" && fileName !== "")
 			{
-				return fileName + getExtension(value.type);
+				return `${fileName}.${getExtension(value.type)}`;
 			}
 			return value.type;
 		}

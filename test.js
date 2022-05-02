@@ -4,34 +4,47 @@ import { toPNG } from "./src/libs/png.js";
 const fileImportButton = document.getElementById("fileImport");
 const fileImporter = document.getElementById("file");
 const outputImageCanvas = document.getElementById("imageResult");
+const downloadUnpackedLink = document.getElementById("downloadUnpacked");
 
 fileImportButton.addEventListener("click", ()=>{fileImporter.click();});
 
 fileImporter.addEventListener("change", handleFiles);
 
-let url;
+let previewUrl, downloadUnpackedUrl;
+const zip = new JSZip();
+
+function extractFileName(fullname)
+{
+	let matcher = fullname.match(/(.*)\.([^\s.]+)$/);
+	if(matcher === null) return [fullname,null];
+	return [ matcher[1], matcher[2] ];
+}
 
 function handleFiles()
 {
 	if(!this.files || this.files.length === 0) return;
 
-	window.URL.revokeObjectURL(url);
+	window.URL.revokeObjectURL(previewUrl);
 
 	const file=this.files[0];
 	const isImage = (file.type.search("image/") > -1);
 	if(isImage) console.log("this is image!");
-	else console.log("this is xnb file!");
+	else
+	{
+		window.URL.revokeObjectURL(downloadUnpackedUrl);
+
+		console.log("this is xnb file!");
+
+		let [baseName] = extractFileName(file.name);
+		unpackToFiles(file, {yaml:true})
+			.then(blobs=>blobToZip(blobs, baseName))
+			.then(blobs=>downloadZipUrl(blobs, baseName))
+			.then(flushZip);
+	}
 
 	const fileReader = new FileReader();
 	fileReader.readAsArrayBuffer(file);
 	fileReader.onload = isImage ? pngLoad : xnbLoad;
-}
-
-function arrayToImg(buffer)
-{
-	const blob = new Blob([buffer], {type: "image/png"});
-	url = window.URL.createObjectURL(blob);
-	outputImageCanvas.src = url;
 }
 
 function xnbLoad({target})
@@ -49,4 +62,33 @@ function pngLoad({target})
 {
 	let result = target.result;
 	arrayToImg(result);
+}
+
+function arrayToImg(buffer)
+{
+	const blob = new Blob([buffer], {type: "image/png"});
+	previewUrl = window.URL.createObjectURL(blob);
+	outputImageCanvas.src = previewUrl;
+}
+
+function blobToZip(blobs, fileName="result")
+{
+	blobs.forEach( ( {data, extension} )=>{
+		zip.file(fileName+"."+extension, data);
+	});
+	return zip.generateAsync({type:"blob"});
+}
+
+function downloadZipUrl(zipped, fileName="result")
+{
+	downloadUnpackedUrl = window.URL.createObjectURL(zipped);
+
+	downloadUnpackedLink.href = downloadUnpackedUrl;
+	downloadUnpackedLink.download = `${fileName}.zip`;
+	downloadUnpackedLink.classList.remove("hidden");
+}
+
+function flushZip()
+{
+	zip.forEach((path)=>zip.remove(path));
 }
