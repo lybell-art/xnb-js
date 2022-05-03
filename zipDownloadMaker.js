@@ -1,0 +1,67 @@
+/******************************************************************************/
+/*                          Unpack and Make Zip File                          */
+/*----------------------------------------------------------------------------*/
+
+class zipDownloadMaker
+{
+	/**
+	 * @param {HTMLElement} linkElement
+	 * @param {Function} data make function
+	 * @param {Function} file name make function
+	 */
+	constructor(linkElement, dataMaker=(data)=>data, fileNameMaker=(data, baseName)=>baseName)
+	{
+		this.linkElement = linkElement;
+		this.url = null;
+		this.baseName = "result";
+		this.dataMaker = dataMaker;
+		this.fileNameMaker = (data)=>fileNameMaker(data, this.baseName);
+
+		this.zipper = new JSZip();
+	}
+	initialize(name = "result")
+	{
+		window.URL.revokeObjectURL(this.url);
+		this.baseName = name;
+	}
+	export(blobs)
+	{
+		if(Array.isArray(blobs) && blobs.length > 1) return this.multiFileExport(blobs);
+		return this.singleFileExport(blobs);
+	}
+	singleFileExport(blobs)
+	{
+		const [blob] = [blobs].flat();
+		const data = this.dataMaker(blob);
+		const name = this.fileNameMaker(blob);
+
+		return this.makeDownloadUrl(data, name);
+	}
+	multiFileExport(blobs)
+	{
+		return this.blobToZip(blobs)
+			.then(zip=>this.makeDownloadUrl(zip, `${this.baseName}.zip`))
+			.then(()=>this.flushZip());
+	}
+	blobToZip(blobs)
+	{
+		blobs.forEach( ( blob )=>{
+			this.zipper.file(this.fileNameMaker(blob), this.dataMaker(blob));
+		});
+		return this.zipper.generateAsync({type:"blob", compression: "DEFLATE"});
+	}
+	makeDownloadUrl(zipped, fileName="result.zip")
+	{
+		this.url = window.URL.createObjectURL(zipped);
+
+		this.linkElement.href = this.url;
+		this.linkElement.download = fileName;
+		this.linkElement.classList.remove("hidden");
+	}
+	flushZip()
+	{
+		this.zipper.forEach((path)=>this.zipper.remove(path));
+	}
+}
+
+export default zipDownloadMaker;

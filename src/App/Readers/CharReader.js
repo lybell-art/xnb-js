@@ -14,8 +14,8 @@ export default class CharReader extends BaseReader {
 	 * @returns {String}
 	 */
 	read(buffer) {
-		let charSize = this._getCharSize(buffer.peek(1).readInt8());
-		return buffer.read(charSize).toString('utf8');
+		let charSize = this._getCharSize(buffer.peekInt());
+		return buffer.readString(charSize);
 	}
 
 	/**

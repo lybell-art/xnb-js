@@ -164,36 +164,22 @@ function fromXnbNodeData(json)
 		compressed : compressed ? ( (target === 'a' || target === 'i') ? 0x40 : 0x80 ) : 0,
 		hidef
 	}
-	result.readerData = deepCopy(readerData);
+	result.readers = deepCopy(readerData);
 
 	// set content data
 	const {content:rawContent} = json;
-	if(rawContent.hasOwnProperty('export'))
+	const {type} = rawContent
+	// texture2d content
+	if(type === "Texture2D")
 	{
-		let {type} = rawContent;
-		// texture2d content
-		if(type === "Texture2D")
-		{
-			result.content = {
-				format : rawContent.data.format,
-				export:{
-					type,
-					data:null,
-					width:null,
-					height:null
-				}
-			};
-		}
-		else
-		{
-			result.content = {
-				export:{
-					type,
-					data:null
-				}
-			};
-		}
+		result.content = {
+			format : rawContent.data.format,
+			export: "Texture2D.png"
+		};
 	}
+	else if(type === "Effect") result.content = {export: "Effect.cso"};
+	else if(type === "TBin") result.content = {export: "TBin.tbin"};
+	else if(type === "BmFont") result.content = {export: "BmFont.xml"};
 	else result.content = convertJsonContentsFromXnbNode(rawContent);
 
 	return result;

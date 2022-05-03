@@ -1,7 +1,15 @@
 import XnbError from "./Utils/XnbError.js";
-import {toPNG} from "./libs/png.js";
-import {stringifyYaml} from "./libs/jsonToYaml.js";
+import {toPNG, fromPNG} from "./libs/png.js";
+import {stringifyYaml, parseYaml} from "./libs/jsonToYaml.js";
 import {toXnbNodeData, fromXnbNodeData} from "./Utils/xnbNodeConverter.js";
+
+
+function extractFileName(fullname)
+{
+	let matcher = fullname.match(/(.*)\.([^\s.]+)$/);
+	if(matcher === null) return [fullname,null];
+	return [ matcher[1], matcher[2] ];
+}
 
 function getExtension(dataType)
 {
@@ -73,7 +81,6 @@ function exportContent(content, jsonContent=false)
 	if(jsonContent)
 	{
 		let contentJson = JSON.stringify(content, null, 4);
-		console.log(contentJson);
 		return makeBlob(contentJson, "JSON");
 	}
 
@@ -113,7 +120,7 @@ function exportFiles(xnbObject, configs={}, fileName=null)
 			{
 				return `${fileName}.${getExtension(value.type)}`;
 			}
-			return value.type;
+			return `${value.type}.${getExtension(value.type)}`;
 		}
 		return value;
 	}, 4);
@@ -126,4 +133,104 @@ function exportFiles(xnbObject, configs={}, fileName=null)
 	return blobs;
 }
 
-export { exportFiles };
+
+function resolveCompression(compressionString)
+{
+	let str=compressionString.toLowerCase();
+	if(str === "none") return 0;
+	if(str === "lz4") return 0x40;
+//	if(str === "lzx") return 0x80;
+	return null;
+}
+
+
+async function readExternFiles(extension, files)
+{
+	// Texture2D to PNG
+	if(extension === "png")
+	{
+		// get binary file
+		const rawPng = await files.png.arrayBuffer();
+		// get the png data
+		const png = fromPNG(new Uint8Array(rawPng) );
+		return {
+			type: "Texture2D",
+			data: png.data,
+			width: png.width,
+			height: png.height
+		};
+	}
+
+	// Compiled Effects
+	if(extension === "cso")
+	{
+		const data = await files.cso.arrayBuffer();
+		return {
+			type: "Effect",
+			data
+		};
+	}
+
+	// TBin Map
+	if(extension === "tbin")
+	{
+		const data = await files.tbin.arrayBuffer();
+		return {
+			type: "TBin",
+			data
+		};
+	}
+
+	// BmFont Xml
+	if(extension === "xml")
+	{
+		const data = await files.xml.text();
+		return {
+			type: "BmFont",
+			data
+		};
+	}	
+}
+
+
+/**
+ * file objects to json file to compress.
+ * @param {Object} to compress files
+ * @param {Object} config (compression:default, none, LZ4, LZX(currently unsupported)) (optional)
+ */
+async function resolveImports(files, configs={})
+{
+	const {compression="default"} = configs;
+
+	const jsonFile = files.json || files.yaml;
+	if(!jsonFile) throw new XnbError("There is no JSON or YAML file to pack!");
+
+	//parse json/yaml data
+	const rawText = await jsonFile.text();
+	let jsonData = null;
+	if(files.json) jsonData = JSON.parse(rawText);
+	else jsonData = fromXnbNodeData( parseYaml(rawText) );
+
+	// apply configuration data
+	let compressBits = resolveCompression(compression);
+	if(compressBits !== null) jsonData.header.compressed = compressBits;
+
+	// need content
+	if (!jsonData.hasOwnProperty('content')) {
+		throw new XnbError(`${jsonFile.name} does not have "content".`);
+	}
+
+	const {content} = jsonData;
+
+	if(content.hasOwnProperty("export"))
+	{
+		const [,extension] = extractFileName(content.export);
+		jsonData.content.export = await readExternFiles(extension, files);
+	}
+
+	return jsonData;
+}
+
+
+
+export { exportContent, exportFiles, resolveImports, extractFileName, makeBlob };

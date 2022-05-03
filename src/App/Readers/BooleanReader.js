@@ -14,7 +14,7 @@ export default class BooleanReader extends BaseReader {
 	 * @returns {Boolean}
 	 */
 	read(buffer) {
-		return Boolean(buffer.read(1).readInt8());
+		return Boolean(buffer.readInt());
 	}
 
 	/**

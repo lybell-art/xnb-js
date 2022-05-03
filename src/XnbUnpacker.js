@@ -1,50 +1,33 @@
 import Xnb from "./App/Xnb.js";
-import {exportFiles/*, resolveImports*/} from "./Files.js";
-
-function extractFileName(fullname)
-{
-	let matcher = fullname.match(/(.*)\.([^\s.]+)$/);
-	if(matcher === null) return [fullname,null];
-	return [ matcher[1], matcher[2] ];
-}
+import {exportFiles, exportContent, resolveImports, extractFileName} from "./Files.js";
 
 /**
  * Asynchronously reads the file into binary and then unpacks the contents.
  * @param {File / Buffer} file
  */
-function unpackXnb(file)
+async function unpackXnb(file)
 {
 	// browser
 	if( typeof window !== "undefined" ) {
-		return new Promise((resolve, reject)=>{
-			// ensure that the input file has the right extension
-			const [,extension] = extractFileName(file.name);
-			if(extension !== "xnb") {
-				reject(file);
-				return;
-			}
+		// ensure that the input file has the right extension
+		const [,extension] = extractFileName(file.name);
 
-			//read the file as a binary file
-			const fileReader = new FileReader();
-			fileReader.readAsArrayBuffer(file);
-			fileReader.onload = function() {
-				const result = convertXnbIncludeHeaders(fileReader.result);
-				resolve(result);
-			};
-		});
+		if(extension !== "xnb") {
+			return new Error("Invalid XNB File!");
+		}
+
+		//read the file as a binary file
+		const buffer = await file.arrayBuffer();
+		return convertXnbIncludeHeaders(buffer);
 	}
 	// node.js
-	return new Promise((resolve, reject)=>{
-		const result = convertXnbIncludeHeaders(file.buffer);
-		resolve(result);
-	});
+	return convertXnbIncludeHeaders(file.buffer);
 }
 
 function unpackData(file)
 {
 	return unpackXnb(file).then(({content})=>{
-		if(content.hasOwnProperty("export")) return content.export;
-		return content;
+		return exportContent(content, true);
 	});
 }
 
@@ -81,8 +64,7 @@ function convertXnbData(buffer)
 {
 	const xnb = new Xnb();
 	const {content} = xnb.load(buffer);
-	if(content.hasOwnProperty("export")) return content.export;
-	return content;
+	return exportContent(content, true);
 }
 
 
@@ -95,7 +77,7 @@ function fileMapper(files)
 		const file = files[i];
 
 		// extract file name & extension
-		let [filename, extension] = extractFileName(file.name);
+		let [fileName, extension] = extractFileName(file.name);
 		if(extension === null) continue;
 
 		if(!returnMap.has(fileName)) returnMap.set(fileName, {});
@@ -105,28 +87,54 @@ function fileMapper(files)
 	return returnMap;
 }
 
+
+/**
+ * reads the json and then unpacks the contents.
+ * @param {json} to pack json data
+ * @return {ArrayBuffer} packed XNB Array Buffer
+ */
+function packJsonToBinary(json)
+{
+	const xnb = new Xnb();
+	const buffer = xnb.convert(json);
+	return buffer;
+}
+
 /**
  * Asynchronously reads the file into binary and then pack xnb files.
  * @param {FlieList} files
+ * @param {Object} configs(compression:default, none, LZ4, LZX / debug)
+ * @return {Array(Blobs)} 
  */
-
-/*
-function pack(files)
+function pack(files, configs={})
 {
-	return new Promise((resolve, reject)=>{
-		// Group files with the same base name
-		const grouppedFiles = fileMapper(files);
+	const groupedFiles = fileMapper(files);
+	let promises = [];
+	for(let [fileName, filePack] of groupedFiles)
+	{
+		promises.push(
+			resolveImports(filePack, configs)
+				.then(packJsonToBinary)
+				.then((buffer)=>{
+					//blob is avaliable
+					if(Blob !== undefined) return {
+						name:fileName,
+						data:new Blob([buffer], {type : "application/octet-stream"})
+					};
+					return {
+						name:fileName,
+						data:buffer
+					};
+				})
+		);
+	}
+	return Promise.allSettled(promises).then(blobArray => {
+		if(configs.debug === true) return blobArray;
 
-		//read the file as a binary file
-		const fileReader = new FileReader();
-		fileReader.readAsArrayBuffer(file);
-		fileReader.onload = function() {
-			const result = convertXnbData(fileReader.result);
-			resolve(result);
-		};
+		return blobArray.filter( ({status, value})=>status === "fulfilled" )
+			.map( ({value})=>value );
 	});
 }
-*/
 
 
-export {unpackData, convertXnbData, unpackToFiles};
+export {unpackXnb, unpackData, convertXnbData, unpackToFiles, fileMapper, pack};

@@ -23,9 +23,10 @@ export default class TBinReader extends BaseReader {
 
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
+		const data = content.export.data;
 		const int32Reader = new Int32Reader();
-		int32Reader.write(buffer, content.data.length, null);
-		buffer.concat(content.data);
+		int32Reader.write(buffer, data.byteLength, null);
+		buffer.concat(data);
 	}
 
 	isValueType() {

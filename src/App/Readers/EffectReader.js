@@ -28,10 +28,11 @@ export default class EffectReader extends BaseReader {
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 
+		const data = content.export.data;
 		const uint32Reader = new UInt32Reader();
 
-		uint32Reader.write(buffer, content.data.length, null);
-		buffer.concat(content.data);
+		uint32Reader.write(buffer, data.byteLength, null);
+		buffer.concat(data);
 	}
 
 	isValueType() {

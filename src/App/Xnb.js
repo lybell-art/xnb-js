@@ -2,7 +2,9 @@ import BufferReader from "./BufferReader.js";
 import BufferWriter from "./BufferWriter.js";
 
 import Presser from "./Decompressor/LZXDecompressor.js";
-import {decompress as LZ4_decompress} from "./Decompressor/Lz4.js";
+import {decompress as LZ4_decompress, 
+	compressBound as LZ4_compressBound, 
+	compress as LZ4_compress} from "./Decompressor/Lz4.js";
 
 import StringReader from "./Readers/StringReader.js";
 import { simplifyType, getReader } from "./TypeReader.js";
@@ -24,347 +26,343 @@ const XNB_COMPRESSED_PROLOGUE_SIZE = 14;
  */
 class Xnb {
 
-    /**
-     * Creates new instance of Xnb class
-     * @constructor
-     */
-    constructor() {
-        // target platform
-        this.target = '';
-        // format version
-        this.formatVersion = 0;
-        // HiDef flag
-        this.hidef = false;
-        // Compressed flag
-        this.compressed = false;
-        // compression type
-        this.compressionType = 0;
-        // the XNB buffer reader
-        this.buffer = null;
-        // the file size
-        this.fileSize = 0;
+	/**
+	 * Creates new instance of Xnb class
+	 * @constructor
+	 */
+	constructor() {
+		// target platform
+		this.target = '';
+		// format version
+		this.formatVersion = 0;
+		// HiDef flag
+		this.hidef = false;
+		// Compressed flag
+		this.compressed = false;
+		// compression type
+		this.compressionType = 0;
+		// the XNB buffer reader
+		this.buffer = null;
+		// the file size
+		this.fileSize = 0;
 
-        /**
-         * Array of readers that are used by the XNB file.
-         * @type {BaseReader[]}
-         */
-        this.readers = [];
+		/**
+		 * Array of readers that are used by the XNB file.
+		 * @type {BaseReader[]}
+		 */
+		this.readers = [];
 
-        /**
-         * Array of shared resources
-         * @type {Array}
-         */
-        this.sharedResources = [];
-    }
+		/**
+		 * Array of shared resources
+		 * @type {Array}
+		 */
+		this.sharedResources = [];
+	}
 
-    /**
-     * Loads a file into the XNB class.
-     * @param {ArrayBuffer} XNB file's array buffer
-     */
-    load(arrayBuffer) {
+	/**
+	 * Loads a file into the XNB class.
+	 * @param {ArrayBuffer} XNB file's array buffer
+	 */
+	load(arrayBuffer) {
 
-        // create a new instance of reader
-        this.buffer = new BufferReader(arrayBuffer);
+		// create a new instance of reader
+		this.buffer = new BufferReader(arrayBuffer);
 
-        
-        // validate the XNB file header
-        this._validateHeader();
+		
+		// validate the XNB file header
+		this._validateHeader();
 
-        // we validated the file successfully
-        console.info('XNB file validated successfully!');
-
-
-        // read the file size
-        this.fileSize = this.buffer.readUInt32();
-
-        // verify the size
-        if (this.buffer.size != this.fileSize)
-            throw new XnbError('XNB file has been truncated!');
-
-        // print out the file size
-        Debug(`File size: ${this.fileSize} bytes.`);
+		// we validated the file successfully
+		console.info('XNB file validated successfully!');
 
 
-        
-        // if the file is compressed then we need to decompress it
-        if (this.compressed) {
-            // get the decompressed size
-            const decompressedSize = this.buffer.readUInt32();
-            Debug(`Uncompressed size: ${decompressedSize} bytes.`);
+		// read the file size
+		this.fileSize = this.buffer.readUInt32();
 
-            // decompress LZX format
-            if (this.compressionType == COMPRESSED_LZX_MASK) {
-                // get the amount of data to compress
-                const compressedTodo = this.fileSize - XNB_COMPRESSED_PROLOGUE_SIZE;
-                // decompress the buffer based on the file size
-                const decompressed = Presser.decompress(this.buffer, compressedTodo, decompressedSize);
-                // copy the decompressed buffer into the file buffer
-                this.buffer.copyFrom(decompressed, XNB_COMPRESSED_PROLOGUE_SIZE, 0, decompressedSize);
-                // reset the byte seek head to read content
-                this.buffer.bytePosition = XNB_COMPRESSED_PROLOGUE_SIZE;
-            }
-            // decompress LZ4 format
-            else if (this.compressionType == COMPRESSED_LZ4_MASK) {
-                // allocate Uint8 Array for LZ4 decode
-                const trimmed = this.buffer.buffer.slice(XNB_COMPRESSED_PROLOGUE_SIZE);
-                const trimmedArray = new Uint8Array(trimmed);
+		// verify the size
+		if (this.buffer.size != this.fileSize)
+			throw new XnbError('XNB file has been truncated!');
 
-                // decode the trimmed buffer into decompressed buffer
-                const {buffer:decompressed} = LZ4_decompress(trimmedArray, decompressedSize);
-                // copy the decompressed buffer into our buffer
-                this.buffer.copyFrom(decompressed, XNB_COMPRESSED_PROLOGUE_SIZE, 0, decompressedSize);
-                // reset the byte seek head to read content
-                this.buffer.bytePosition = XNB_COMPRESSED_PROLOGUE_SIZE;
-            }
-        }
+		// print out the file size
+		Debug(`File size: ${this.fileSize} bytes.`);
 
-        Debug(`Reading from byte position: ${this.buffer.bytePosition}`);
 
-        
-        // NOTE: assuming the buffer is now decompressed
+		
+		// if the file is compressed then we need to decompress it
+		if (this.compressed) {
+			// get the decompressed size
+			const decompressedSize = this.buffer.readUInt32();
+			Debug(`Uncompressed size: ${decompressedSize} bytes.`);
 
-        // get the 7-bit value for readers
-        let count = this.buffer.read7BitNumber();
-        // log how many readers there are
-        Debug(`Readers: ${count}`);
+			// decompress LZX format
+			if (this.compressionType == COMPRESSED_LZX_MASK) {
+				// get the amount of data to compress
+				const compressedTodo = this.fileSize - XNB_COMPRESSED_PROLOGUE_SIZE;
+				// decompress the buffer based on the file size
+				const decompressed = Presser.decompress(this.buffer, compressedTodo, decompressedSize);
+				// copy the decompressed buffer into the file buffer
+				this.buffer.copyFrom(decompressed, XNB_COMPRESSED_PROLOGUE_SIZE, 0, decompressedSize);
+				// reset the byte seek head to read content
+				this.buffer.bytePosition = XNB_COMPRESSED_PROLOGUE_SIZE;
+			}
+			// decompress LZ4 format
+			else if (this.compressionType == COMPRESSED_LZ4_MASK) {
+				// allocate Uint8 Array for LZ4 decode
+				const trimmed = this.buffer.buffer.slice(XNB_COMPRESSED_PROLOGUE_SIZE);
+				const trimmedArray = new Uint8Array(trimmed);
 
-        
-        // create an instance of string reader
-        const stringReader = new StringReader();
+				// decode the trimmed buffer into decompressed buffer
+				const {buffer:decompressed} = LZ4_decompress(trimmedArray, decompressedSize);
+				// copy the decompressed buffer into our buffer
+				this.buffer.copyFrom(decompressed, XNB_COMPRESSED_PROLOGUE_SIZE, 0, decompressedSize);
+				// reset the byte seek head to read content
+				this.buffer.bytePosition = XNB_COMPRESSED_PROLOGUE_SIZE;
+			}
+		}
 
-        // a local copy of readers for the export
-        const readers = [];
+		Debug(`Reading from byte position: ${this.buffer.bytePosition}`);
 
-        
-        // loop over the number of readers we have
-        for (let i = 0; i < count; i++) {
-            // read the type
-            const type = stringReader.read(this.buffer);
-            // read the version
-            const version = this.buffer.readInt32();
+		
+		// NOTE: assuming the buffer is now decompressed
 
-            // get the reader for this type
-            const simpleType = simplifyType(type); 
-            const reader = getReader(simpleType);
+		// get the 7-bit value for readers
+		let count = this.buffer.read7BitNumber();
+		// log how many readers there are
+		Debug(`Readers: ${count}`);
 
-            // add reader to the list
-            this.readers.push(reader);
-            // add local reader
-            readers.push({ type, version });
-        }
+		
+		// create an instance of string reader
+		const stringReader = new StringReader();
 
-        // get the 7-bit value for shared resources
-        const shared = this.buffer.read7BitNumber();
+		// a local copy of readers for the export
+		const readers = [];
 
-        // log the shared resources count
-        Debug(`Shared Resources: ${shared}`);
+		
+		// loop over the number of readers we have
+		for (let i = 0; i < count; i++) {
+			// read the type
+			const type = stringReader.read(this.buffer);
+			// read the version
+			const version = this.buffer.readInt32();
 
-        // don't accept shared resources since SDV XNB files don't have any
-        if (shared != 0)
-            throw new XnbError(`Unexpected (${shared}) shared resources.`);
-        
-        // create content reader from the readers loaded
-        const content = new ReaderResolver(this.readers);
-        // read the content in
-        const result = content.read(this.buffer);
+			// get the reader for this type
+			const simpleType = simplifyType(type); 
+			const reader = getReader(simpleType);
 
-        // we loaded the XNB file successfully
-        console.log('Successfuly read XNB file!');
+			// add reader to the list
+			this.readers.push(reader);
+			// add local reader
+			readers.push({ type, version });
+		}
 
-        // return the loaded XNB object
-        return {
-            header: {
-                target: this.target,
-                formatVersion: this.formatVersion,
-                hidef: this.hidef,
-                compressed: this.compressed
-            },
-            readers,
-            content: result
-        };
-    }
+		// get the 7-bit value for shared resources
+		const shared = this.buffer.read7BitNumber();
 
-    /**
-     * Converts JSON into XNB file structure
-     * @param {Object} json The JSON to --convert into a XNB file
-     */
+		// log the shared resources count
+		Debug(`Shared Resources: ${shared}`);
 
-    
-    // ------------------unimplemented----------------------------------
-    convert(json) {
-        // the output buffer for this file
-        const buffer = new BufferWriter();
+		// don't accept shared resources since SDV XNB files don't have any
+		if (shared != 0)
+			throw new XnbError(`Unexpected (${shared}) shared resources.`);
+		
+		// create content reader from the readers loaded
+		const content = new ReaderResolver(this.readers);
+		// read the content in
+		const result = content.read(this.buffer);
 
-        // create an instance of string reader
-        const stringReader = new StringReader();
+		// we loaded the XNB file successfully
+		console.log('Successfuly read XNB file!');
 
-        // catch exceptions for invalid JSON file formats
-        try {
-            // set the header information
-            let {target, formatVersion, hidef, compressed} = json.header;
+		// return the loaded XNB object
+		return {
+			header: {
+				target: this.target,
+				formatVersion: this.formatVersion,
+				hidef: this.hidef,
+				compressed: this.compressed
+			},
+			readers,
+			content: result
+		};
+	}
 
-            this.target = target;
-            this.formatVersion = formatVersion;
-            this.hidef = hidef;
-            const lz4Compression = (this.target == 'a' || this.target == 'i') || (compressed & COMPRESSED_LZ4_MASK != 0);
-            this.compressed = lz4Compression ? true : false; // support android LZ4 compression
+	/**
+	 * Converts JSON into XNB file structure
+	 * @param {Object} The JSON to convert into a XNB file
+	 */
+	
+	// ------------------unimplemented----------------------------------
+	convert(json) {
+		// log the original json file
+		Debug(json);
 
-            // write the header into the buffer
-            buffer.writeString("XNB");
-            buffer.writeString(this.target);
-            buffer.writeByte(this.formatVersion);
-            // write the LZ4 mask for android compression only
-            // todo:LZX compression. There are currently NO open source libraries implementing the LZX compression algorithm.
-            buffer.writeByte(this.hidef | ((this.compressed && lz4Compression) ? COMPRESSED_LZ4_MASK : 0));
+		// the output buffer for this file
+		const buffer = new BufferWriter();
 
-            // write temporary filesize
-            buffer.writeUInt32(0);
+		// create an instance of string reader
+		const stringReader = new StringReader();
 
-            // write the decompression size temporarily if android
-            if (lz4Compression)
-                buffer.writeUInt32(0);
+		// set the header information
+		let {target, formatVersion, hidef, compressed} = json.header;
 
-            // write the amount of readers
-            buffer.write7BitNumber(json.readers.length);
+		this.target = target;
+		this.formatVersion = formatVersion;
+		this.hidef = hidef;
 
-            // loop over the readers and load the types
-            for (let reader of json.readers) {
-                this.readers.push(getReader(simplifyType(reader.type))); // simplyify the type then get the reader of it
-                stringReader.write(buffer, reader.type);
-                buffer.writeUInt32(reader.version);
-            }
+		const lz4Compression = (this.target == 'a' || this.target == 'i') || ((compressed & COMPRESSED_LZ4_MASK) != 0);
+		this.compressed = lz4Compression ? true : false; // support android LZ4 compression
 
-            // write 0 shared resources
-            buffer.write7BitNumber(0);
+		// write the header into the buffer
+		buffer.writeString("XNB");
+		buffer.writeString(this.target);
+		buffer.writeByte(this.formatVersion);
+		// write the LZ4 mask for android compression only
+		// todo:LZX compression. There are currently NO open source libraries implementing the LZX compression algorithm.
+		buffer.writeByte(this.hidef | ((this.compressed && lz4Compression) ? COMPRESSED_LZ4_MASK : 0));
 
-            // create reader resolver for content and write it
-            const content = new ReaderResolver(this.readers);
+		// write temporary filesize
+		buffer.writeUInt32(0);
 
-            // write the content to the reader resolver
-            content.write(buffer, json.content);
+		// write the decompression size temporarily if android
+		if (lz4Compression)
+			buffer.writeUInt32(0);
 
-            // trim excess space in the buffer 
-            // NOTE: this buffer allocates default with 500 bytes
-            buffer.trim();
+		// write the amount of readers
+		buffer.write7BitNumber(json.readers.length);
 
-            // LZ4 compression
-            if (lz4Compression) {
-                // allocate Uint8 Array for LZ4 encode
-                const trimmed = buffer.buffer.slice(XNB_COMPRESSED_PROLOGUE_SIZE);
-                const trimmedArray = new Uint8Array(trimmed);
+		// loop over the readers and load the types
+		for (let reader of json.readers) {
+			this.readers.push(getReader(simplifyType(reader.type))); // simplyify the type then get the reader of it
+			stringReader.write(buffer, reader.type);
+			buffer.writeUInt32(reader.version);
+		}
 
-                let compressedSize = LZ4_compressBound(trimmedArray.length);
+		// write 0 shared resources
+		buffer.write7BitNumber(0);
 
-                // encode the trimmed buffer into decompressed buffer
-                const {buffer:compressed, length:newCompressedSize} = LZ4_compress(trimmedArray, compressedSize);
-                compressedSize = newCompressedSize;
-                
-                // write the file size & decompressed size into the buffer
-                buffer.bytePosition = 6;
-                buffer.writeUInt32(XNB_COMPRESSED_PROLOGUE_SIZE + compressedSize);
-                buffer.writeUInt32(trimmedArray.length);
+		// create reader resolver for content and write it
+		const content = new ReaderResolver(this.readers);
 
-                // write compressed data
-                buffer.concat(compressed);
-                
-                // slice off the excess
-                let returnBuffer = buffer.slice(0, XNB_COMPRESSED_PROLOGUE_SIZE + compressedSize);
+		// write the content to the reader resolver
+		content.write(buffer, json.content);
 
-                // return the buffer
-                return returnBuffer;
-            }
+		// trim excess space in the buffer 
+		// NOTE: this buffer allocates default with 500 bytes
+		buffer.trim();
 
-            // write the file size into the buffer
-            let fileSize = buffer.bytePosition;
-            buffer.bytePosition = 6;
-            buffer.writeUInt32(fileSize, 6);
+		// LZ4 compression
+		if (lz4Compression) {
+			// allocate Uint8 Array for LZ4 encode
+			const trimmed = buffer.buffer.slice(XNB_COMPRESSED_PROLOGUE_SIZE);
+			const trimmedArray = new Uint8Array(trimmed);
 
-            // return the buffer
-            return buffer.buffer;
+			let compressedSize = LZ4_compressBound(trimmedArray.length);
 
-        }
-        catch (ex) {
-            console.log(ex);
-        }
-    }
+			// encode the trimmed buffer into decompressed buffer
+			const {buffer:compressed, length:newCompressedSize} = LZ4_compress(trimmedArray, compressedSize);
+			compressedSize = newCompressedSize;
+			
+			// write the file size & decompressed size into the buffer
+			buffer.bytePosition = 6;
+			buffer.writeUInt32(XNB_COMPRESSED_PROLOGUE_SIZE + compressedSize);
+			buffer.writeUInt32(trimmedArray.length);
 
-    /**
-     * Ensures the XNB file header is valid.
-     * @private
-     * @method _validateHeader
-     */
-    _validateHeader() {
-        // ensure buffer isn't null
-        if (this.buffer == null)
-            throw new XnbError('Buffer is null');
+			// write compressed data
+			buffer.concat(compressed);
+			
+			// slice off the excess
+			let returnBuffer = buffer.buffer.slice(0, XNB_COMPRESSED_PROLOGUE_SIZE + compressedSize);
 
-        // get the magic from the beginning of the file
-        const magic = this.buffer.readString(3);
-        // check to see if the magic is correct
-        if (magic != 'XNB')
-            throw new XnbError(`Invalid file magic found, expecting "XNB", found "${magic}"`);
+			// return the buffer
+			return returnBuffer;
+		}
 
-        // debug print that valid XNB magic was found
-        Debug('Valid XNB magic found!');
+		// write the file size into the buffer
+		let fileSize = buffer.bytePosition;
+		buffer.bytePosition = 6;
+		buffer.writeUInt32(fileSize, 6);
 
-        // load the target platform
-        this.target = this.buffer.readString(1).toLowerCase();
+		// return the buffer
+		return buffer.buffer;
+	}
 
-        // read the target platform
-        switch (this.target) {
-            case 'w':
-                Debug('Target platform: Microsoft Windows');
-                break;
-            case 'm':
-                Debug('Target platform: Windows Phone 7');
-                break;
-            case 'x':
-                Debug('Target platform: Xbox 360');
-                break;
-            case 'a':
-                Debug('Target platform: Android');
-                break;
-            case 'i':
-                Debug('Target platform: iOS');
-                break;
-            default:
-                console.warn(`Invalid target platform "${this.target}" found.`);
-                break;
-        }
+	/**
+	 * Ensures the XNB file header is valid.
+	 * @private
+	 * @method _validateHeader
+	 */
+	_validateHeader() {
+		// ensure buffer isn't null
+		if (this.buffer == null)
+			throw new XnbError('Buffer is null');
 
-        // read the format version
-        this.formatVersion = this.buffer.readByte();
+		// get the magic from the beginning of the file
+		const magic = this.buffer.readString(3);
+		// check to see if the magic is correct
+		if (magic != 'XNB')
+			throw new XnbError(`Invalid file magic found, expecting "XNB", found "${magic}"`);
 
-        // read the XNB format version
-        switch (this.formatVersion) {
-            case 0x3:
-                Debug('XNB Format Version: XNA Game Studio 3.0');
-                break;
-            case 0x4:
-                Debug('XNB Format Version: XNA Game Studio 3.1');
-                break;
-            case 0x5:
-                Debug('XNB Format Version: XNA Game Studio 4.0');
-                break;
-            default:
-                console.warn(`XNB Format Version 0x${this.formatVersion.toString(16)} unknown.`);
-                break;
-        }
+		// debug print that valid XNB magic was found
+		Debug('Valid XNB magic found!');
 
-        // read the flag bits
-        const flags = this.buffer.readByte(1);
-        // get the HiDef flag
-        this.hidef = (flags & HIDEF_MASK) != 0;
-        // get the compressed flag
-        this.compressed = (flags & COMPRESSED_LZX_MASK) || (flags & COMPRESSED_LZ4_MASK) != 0;
-        // set the compression type
-        // NOTE: probably a better way to do both lines but sticking with this for now
-        this.compressionType = (flags & COMPRESSED_LZX_MASK) != 0 ? COMPRESSED_LZX_MASK : ((flags & COMPRESSED_LZ4_MASK) ? COMPRESSED_LZ4_MASK : 0);
-        // debug content information
-        Debug(`Content: ${(this.hidef ? 'HiDef' : 'Reach')}`);
-        // log compressed state
-        Debug(`Compressed: ${this.compressed}, ${this.compressionType == COMPRESSED_LZX_MASK ? 'LZX' : 'LZ4'}`);
-    }
+		// load the target platform
+		this.target = this.buffer.readString(1).toLowerCase();
+
+		// read the target platform
+		switch (this.target) {
+			case 'w':
+				Debug('Target platform: Microsoft Windows');
+				break;
+			case 'm':
+				Debug('Target platform: Windows Phone 7');
+				break;
+			case 'x':
+				Debug('Target platform: Xbox 360');
+				break;
+			case 'a':
+				Debug('Target platform: Android');
+				break;
+			case 'i':
+				Debug('Target platform: iOS');
+				break;
+			default:
+				console.warn(`Invalid target platform "${this.target}" found.`);
+				break;
+		}
+
+		// read the format version
+		this.formatVersion = this.buffer.readByte();
+
+		// read the XNB format version
+		switch (this.formatVersion) {
+			case 0x3:
+				Debug('XNB Format Version: XNA Game Studio 3.0');
+				break;
+			case 0x4:
+				Debug('XNB Format Version: XNA Game Studio 3.1');
+				break;
+			case 0x5:
+				Debug('XNB Format Version: XNA Game Studio 4.0');
+				break;
+			default:
+				console.warn(`XNB Format Version 0x${this.formatVersion.toString(16)} unknown.`);
+				break;
+		}
+
+		// read the flag bits
+		const flags = this.buffer.readByte(1);
+		// get the HiDef flag
+		this.hidef = (flags & HIDEF_MASK) != 0;
+		// get the compressed flag
+		this.compressed = (flags & COMPRESSED_LZX_MASK) || (flags & COMPRESSED_LZ4_MASK) != 0;
+		// set the compression type
+		// NOTE: probably a better way to do both lines but sticking with this for now
+		this.compressionType = (flags & COMPRESSED_LZX_MASK) != 0 ? COMPRESSED_LZX_MASK : ((flags & COMPRESSED_LZ4_MASK) ? COMPRESSED_LZ4_MASK : 0);
+		// debug content information
+		Debug(`Content: ${(this.hidef ? 'HiDef' : 'Reach')}`);
+		// log compressed state
+		Debug(`Compressed: ${this.compressed}, ${this.compressionType == COMPRESSED_LZX_MASK ? 'LZX' : 'LZ4'}`);
+	}
 
 }
 

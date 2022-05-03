@@ -30,7 +30,7 @@ export default class BmFontReader extends BaseReader {
 		// write index of reader
 		this.writeIndex(buffer, resolver);
 		const stringReader = new StringReader();
-		stringReader.write(buffer, content.data, null);
+		stringReader.write(buffer, content.export.data, null);
 	}
 
 	isValueType() {

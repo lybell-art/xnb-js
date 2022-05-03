@@ -171,11 +171,11 @@ function UTF8ToString(utf8Array)
 
 function UTF8Length(str)
 {
-	const codes = stringToUnicode(codes);
+	const codes = stringToUnicode(str);
 	return codes.reduce((sum, unicode)=>{
-		if(code < 0x80) return sum+1;
-		if(code < 0x800) return sum+2;
-		if(code < 0x10000) return sum+3;
+		if(unicode < 0x80) return sum+1;
+		if(unicode < 0x800) return sum+2;
+		if(unicode < 0x10000) return sum+3;
 		return sum+4;
 	}, 0);
 }
