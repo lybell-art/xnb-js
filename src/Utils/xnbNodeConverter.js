@@ -1,4 +1,4 @@
-import {simplifyType, parseSubtypes} from "../App/TypeReader.js";
+import {simplifyType, getTypeInfo} from "../App/TypeReader.js";
 
 function deepCopy(obj)
 {
@@ -132,7 +132,10 @@ function convertJsonContentsToXnbNode(raw, readers)
 		for(let [key, value] of Object.entries(obj))
 		{
 			let newIndex;
-			if( reader.startsWith("Dictionary") ) newIndex = index+2;
+			if( reader.startsWith("Dictionary") ) {
+				if(getTypeInfo(reader).subtypes[1] === readers[index+2]) newIndex = index+2;
+				else newIndex = index+1;
+			}
 			else if( reader.startsWith("Array") || reader.startsWith("List")) newIndex = index+1;
 			else newIndex = traversed + 1;
 
@@ -269,8 +272,6 @@ function fromXnbNodeData(json)
 		result.content.verticalLineSpacing = result.content.verticalSpacing;
 		delete result.content.verticalSpacing;
 	}
-
-	console.log(result);
 
 	return result;
 }

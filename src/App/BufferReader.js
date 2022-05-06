@@ -287,10 +287,10 @@ class BufferReader {
 	 * @param {Number} [count]
 	 * @returns {String}
 	 */
-	readString(count = 0) {
+	readString(count = -1) {
 		const chars = [];
 		const startOffset = this._offset;
-		if (count === 0) {
+		if (count === -1) {
 			while (this.peekByte(1) != 0x0)
 				chars.push(this.readByte());
 		}

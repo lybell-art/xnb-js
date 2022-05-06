@@ -3,7 +3,7 @@ function Debug(str, ...args)
 	if(Debug.__isVisible) console.log(str, ...args);
 }
 
-Debug.__isVisible=true;
+Debug.__isVisible=false;
 
 Debug.setVisible=function(state) {
 	Debug.__isVisible=state;

@@ -248,7 +248,6 @@ class Xnb {
 		const content = new ReaderResolver(this.readers);
 
 		// write the content to the reader resolver
-		console.log(json.content);
 		content.write(buffer, json.content);
 
 		Debug("Content data written successfully!");

@@ -84,7 +84,7 @@ function xnbUnpackToZip(xnbFile)
 	const [baseName] = extractFileName(xnbFile.name);
 	zipper.initialize(baseName);
 
-	unpackToFiles(xnbFile, {yaml:true}).then(zipper.export.bind(zipper));
+	unpackToFiles(xnbFile).then(zipper.export.bind(zipper));
 }
 
 function extractFileName(fullname)

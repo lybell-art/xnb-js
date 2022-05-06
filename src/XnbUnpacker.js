@@ -96,9 +96,7 @@ function fileMapper(files)
 function packJsonToBinary(json)
 {
 	const xnb = new Xnb();
-	console.log("yes!");
 	const buffer = xnb.convert(json);
-	console.log("huh!");
 	return buffer;
 }
 

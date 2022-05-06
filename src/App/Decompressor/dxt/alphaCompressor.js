@@ -11,6 +11,7 @@ function compressAlphaDxt3(rgba, mask, result, offset)
 {
 	// quantise and pack the alpha values pairwise
 	// repeat by 1byte (= 4bit * 2)
+	
 	for( let i = 0; i < 8; i++ )
 	{
 		// quantise down to 4 bits
@@ -26,6 +27,7 @@ function compressAlphaDxt3(rgba, mask, result, offset)
 		// pack into the byte
 		result[offset + i] = quant1 | ( quant2 << 4 );
 	}
+	
 }
 
 function compressAlphaDxt5(rgba, mask, result, offset)

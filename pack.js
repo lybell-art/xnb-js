@@ -24,8 +24,8 @@ function handleFiles()
 {
 	if(!this.files || this.files.length === 0) return;
 
-	pack(this.files, {debug:true}).then((files)=>{console.log(files); return files;});
-/*	pack(this.files).then((files)=>{console.log(files); return files;}).then(xnbPackToZip);*/
+//	pack(this.files, {debug:true}).then((files)=>{console.log(files); return files;});
+	pack(this.files).then(xnbPackToZip);
 }
 
 
