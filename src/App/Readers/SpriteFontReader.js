@@ -61,6 +61,8 @@ export default class SpriteFontReader extends BaseReader {
 
         try {
             texture2DReader.write(buffer, content.texture, resolver);
+            // Allocate space in the buffer in advance to minimize reallocation to improve performance.
+            buffer.alloc(100000);
             rectangleListReader.write(buffer, content.glyphs, resolver);
             rectangleListReader.write(buffer, content.cropping, resolver);
             charListReader.write(buffer, content.characterMap, resolver);
@@ -72,6 +74,8 @@ export default class SpriteFontReader extends BaseReader {
         catch (ex) {
             throw ex;
         }
+
+        console.log("writing complitd!");
     }
 
     isValueType() {

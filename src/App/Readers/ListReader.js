@@ -43,8 +43,10 @@ export default class ListReader extends BaseReader {
 		this.writeIndex(buffer, resolver);
 		const uint32Reader = new UInt32Reader();
 		uint32Reader.write(buffer, content.length, null);
-		for (let i in content)
-			this.reader.write(buffer, content[i], (this.reader.isValueType ? null : resolver));
+		for (let data of Object.values(content) )
+		{
+			this.reader.write(buffer, data, (this.reader.isValueType() ? null : resolver));
+		}
 	}
 
 	get type() {

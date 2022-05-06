@@ -3,7 +3,7 @@ const PENDING = true;
 
 class BufferWriter {
 
-	constructor(size = 512) {
+	constructor(size = 2048) {
 		/**
 		 * internal buffer for the writer
 		 * @private

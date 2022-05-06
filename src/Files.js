@@ -4,6 +4,27 @@ import {stringifyYaml, parseYaml} from "./libs/jsonToYaml.js";
 import {toXnbNodeData, fromXnbNodeData} from "./Utils/xnbNodeConverter.js";
 
 
+function searchElement(parent, element)
+{
+	// ensure object is defined and is an object
+	if (!parent || typeof parent != 'object') return;
+
+	// if property exists then return it
+	if (parent.hasOwnProperty(element)) {
+		return { parent, value: parent[element] };
+	}
+
+	// search the objects for keys
+	for(let child of Object.values(parent)) {
+		if (!!child || typeof child == 'object') {
+			let found = searchElement(child, element);
+			if(found) return found;
+		}
+	}
+
+	return null;
+}
+
 function extractFileName(fullname)
 {
 	let matcher = fullname.match(/(.*)\.([^\s.]+)$/);
@@ -64,14 +85,16 @@ function makeBlob(data, dataType)
 
 function exportContent(content, jsonContent=false)
 {
-	if (content.hasOwnProperty('export'))
+	let found = searchElement(content, "export");
+	if (found)
 	{
-		let {type:dataType, data} = content.export;
+		const {value} = found;
+		let {type:dataType, data} = value;
 		
 		// transform to png
 		if(dataType === "Texture2D")
 		{
-			data = toPNG( content.export.width, content.export.height, new Uint8Array(data) );
+			data = toPNG( value.width, value.height, new Uint8Array(data) );
 		}
 
 		return makeBlob(data, dataType);
@@ -107,7 +130,7 @@ function exportFiles(xnbObject, configs={}, fileName=null)
 	const {content} = xnbObject;
 
 	// export content files
-	let contentBlob = exportContent(content, contentOnly);
+	const contentBlob = exportContent(content, contentOnly);
 	if(contentBlob !== null) blobs.push(contentBlob);
 
 	if(contentOnly) return blobs;
@@ -220,12 +243,13 @@ async function resolveImports(files, configs={})
 		throw new XnbError(`${jsonFile.name} does not have "content".`);
 	}
 
-	const {content} = jsonData;
+	const found = searchElement(jsonData.content, "export");
 
-	if(content.hasOwnProperty("export"))
+	if(found)
 	{
-		const [,extension] = extractFileName(content.export);
-		jsonData.content.export = await readExternFiles(extension, files);
+		const {parent, value} = found;
+		const [,extension] = extractFileName(value);
+		parent.export = await readExternFiles(extension, files);
 	}
 
 	return jsonData;

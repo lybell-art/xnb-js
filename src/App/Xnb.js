@@ -227,6 +227,8 @@ class Xnb {
 		if (lz4Compression)
 			buffer.writeUInt32(0);
 
+		Debug("Header data written successfully!");
+
 		// write the amount of readers
 		buffer.write7BitNumber(json.readers.length);
 
@@ -237,6 +239,8 @@ class Xnb {
 			buffer.writeUInt32(reader.version);
 		}
 
+		Debug("Reader data written successfully!");
+
 		// write 0 shared resources
 		buffer.write7BitNumber(0);
 
@@ -244,7 +248,10 @@ class Xnb {
 		const content = new ReaderResolver(this.readers);
 
 		// write the content to the reader resolver
+		console.log(json.content);
 		content.write(buffer, json.content);
+
+		Debug("Content data written successfully!");
 
 		// trim excess space in the buffer 
 		// NOTE: this buffer allocates default with 500 bytes
