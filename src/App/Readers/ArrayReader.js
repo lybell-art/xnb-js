@@ -60,7 +60,7 @@ export default class ArrayReader extends BaseReader {
 		uint32Reader.write(buffer, content.length, resolver);
 		
 		// loop over array to write array contents
-		for (let i of content)
+		for (let i = 0; i < content.length; i++)
 			this.reader.write(buffer, content[i], (this.reader.isValueType() ? null : resolver));
 	}
 

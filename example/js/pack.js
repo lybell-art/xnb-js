@@ -1,4 +1,4 @@
-import { pack } from "./src/xnbUnpacker.js";
+import { pack } from "../../dist/xnb.module.js";
 import zipDownloadMaker from "./zipDownloadMaker.js";
 
 /******************************************************************************/

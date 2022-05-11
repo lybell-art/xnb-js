@@ -4,3 +4,6 @@ sublimeproject.sublime-workspace
 
 #test javascript
 dxttest.js
+
+node_modules
+temp

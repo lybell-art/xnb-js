@@ -1,0 +1,38 @@
+{
+	"name": "xnb",
+	"version": "1.0.0",
+	"description": "Javascript XNB packing & unpacking library for es6.",
+	"type": "module",
+	"main": "./dist/xnb.js",
+	"module": "./dist/xnb.module.js",
+	"export": {
+		".": {
+			"import": "./dist/xnb.module.js",
+			"require": "./dist/xnb.cjs"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "rollup -c builder/rollup.config.js"
+	},
+	"keywords": [
+		"xnb",
+		"converter",
+		"javascript",
+		"stardew-valley"
+	],
+	"author": "Lybell",
+	"license": "LGPL-3.0-or-later",
+	"devDependencies": {
+		"@babel/core": "^7.17.10",
+		"@babel/preset-env": "^7.17.10",
+		"@rollup/plugin-babel": "^5.3.1",
+		"@rollup/plugin-commonjs": "^22.0.0",
+		"@rollup/plugin-node-resolve": "^13.3.0",
+		"core-js": "^3.22.4",
+		"rollup": "^2.72.1",
+		"rollup-plugin-terser": "^7.0.2"
+	}
+}

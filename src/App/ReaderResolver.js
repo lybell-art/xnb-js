@@ -1,4 +1,4 @@
-import BufferReader from "./bufferReader.js";
+import BufferReader from "./BufferReader.js";
 import XnbError from "../Utils/XnbError.js";
 
 /**

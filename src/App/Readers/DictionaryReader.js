@@ -3,6 +3,7 @@ import BufferReader from "../BufferReader.js";
 import BufferWriter from "../BufferWriter.js";
 import ReaderResolver from "../ReaderResolver.js";
 import UInt32Reader from "./UInt32Reader.js";
+import XnbError from "../../Utils/XnbError.js";
 
 /**
  * Dictionary Reader

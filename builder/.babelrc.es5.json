@@ -1,0 +1,11 @@
+{
+	"presets": [
+		["@babel/preset-env",
+		{
+			"targets": ">1%, ie 11"
+		}]
+	],
+	"assumptions" : {
+		"iterableIsArray" : true
+	}
+}

@@ -1,5 +1,5 @@
-import { convertXnbData, unpackToFiles } from "./src/xnbUnpacker.js";
-import { toPNG } from "./src/libs/png.js";
+import { convertXnbData, unpackToFiles } from "../../dist/xnb.module.js";
+import { toPNG } from "./libs/png.js";
 import zipDownloadMaker from "./zipDownloadMaker.js";
 
 /******************************************************************************/

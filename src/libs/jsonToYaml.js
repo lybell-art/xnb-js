@@ -48,11 +48,9 @@ function stringify (o, gap, indentation) {
 		return JSON.stringify(o);
 	} else if ('undefined' === typeof o || o === null) {
 		return 'null';
-	} else if (Boolean(o) == o) {
+	} else if (!!o == o || +o == o) { //boolean & number
 		return JSON.stringify(o);
-	} else if(Number(o) == o) {
-		return JSON.stringify(o);
-	}else {
+	} else {
 		throw new Error('Non-implemented parsing for ' + o);
 	}
 }
@@ -122,9 +120,8 @@ class LineGenerator {
 	}
 
 	findIndentString() {
-		for(let line of this.lines) {
-			line = line[0];
-			if(!line.trim() || line.trimLeft() == line) continue;
+		for(let [line] of this.lines) {
+			if(!line.trim() || line.replace(/^\s+/,"") == line) continue;
 			return line.match(/^(\s+)/)[1];
 		}
 

@@ -71,7 +71,7 @@ function convertXnbData(buffer)
 
 function fileMapper(files)
 {
-	let returnMap = new Map();
+	let returnMap = {};
 	for(let i=0; i<files.length; i++)
 	{
 		const file = files[i];
@@ -80,8 +80,8 @@ function fileMapper(files)
 		let [fileName, extension] = extractFileName(file.name);
 		if(extension === null) continue;
 
-		if(!returnMap.has(fileName)) returnMap.set(fileName, {});
-		const namedFileObj = returnMap.get(fileName);
+		if(returnMap[fileName] === undefined) returnMap[fileName]={};
+		const namedFileObj = returnMap[fileName];
 		namedFileObj[extension] = file;
 	}
 	return returnMap;
@@ -110,7 +110,7 @@ function pack(files, configs={})
 {
 	const groupedFiles = fileMapper(files);
 	let promises = [];
-	for(let [fileName, filePack] of groupedFiles)
+	for(let [fileName, filePack] of Object.entries(groupedFiles) )
 	{
 		promises.push(
 			resolveImports(filePack, configs)
