@@ -4671,8 +4671,6 @@
 		return BufferWriter;
 	}(); // export the BufferWriter class
 
-	var Debug = {};
-
 	var XnbError = /*#__PURE__*/function (_Error) {
 		_inherits(XnbError, _Error);
 
@@ -4766,16 +4764,13 @@
 					_j += 1 << Lzx.extra_bits[_i];
 				}
 			}
-
-			Debug(JSON.stringify(Lzx.extra_bits));
-			Debug("Position Base:");
-			Debug(JSON.stringify(Lzx.position_base));
 			/**
 			 * calculate required position slots
 			 *
 			 * window bits:		 15 16 17 18 19 20 21
 			 * position slots:	30 32 34 36 38 42 50
 			 */
+
 
 			var posn_slots = window_bits == 21 ? 50 : window_bits == 20 ? 42 : window_bits << 1; // repeated offsets
 
@@ -4826,8 +4821,7 @@
 				// read header if we haven't already
 				if (!this.header_read) {
 					// read the intel call
-					var intel = buffer.readLZXBits(1);
-					Debug("Intel: 0b".concat(intel.toString(2), " = ").concat(intel)); // don't care about intel e8
+					var intel = buffer.readLZXBits(1); // don't care about intel e8
 
 					if (intel != 0) throw new XnbError("Intel E8 Call found, invalid for XNB files."); // the header has been read
 
@@ -4841,14 +4835,12 @@
 					// this is a new block
 					if (this.block_remaining == 0) {
 						// read in the block type
-						this.block_type = buffer.readLZXBits(3);
-						Debug("Blocktype: 0b".concat(this.block_type.toString(2).padStart(3, '0'), " = ").concat(this.block_type)); // read 24-bit value for uncompressed bytes in this block
+						this.block_type = buffer.readLZXBits(3); // read 24-bit value for uncompressed bytes in this block
 
 						var hi = buffer.readLZXBits(16);
 						var lo = buffer.readLZXBits(8); // number of uncompressed bytes for this block left
 
-						this.block_remaining = hi << 8 | lo;
-						Debug("Block Remaining: ".concat(this.block_remaining)); // switch over the valid block types
+						this.block_remaining = hi << 8 | lo; // switch over the valid block types
 
 						switch (this.block_type) {
 							case BLOCKTYPE.ALIGNED:
@@ -5198,10 +5190,6 @@
 							var leaf = pos; // if the position has gone past the table mask then we're overrun
 
 							if ((pos += bit_mask) > table_mask) {
-								Debug(length[symbol]);
-								Debug("pos: ".concat(pos, ", bit_mask: ").concat(bit_mask, ", table_mask: ").concat(table_mask));
-								Debug("bit_num: ".concat(bit_num, ", bits: ").concat(bits));
-								Debug("symbol: ".concat(symbol, ", symbols: ").concat(symbols));
 								throw new XnbError('Overrun table!');
 							} // fill all possible lookups of this symbol with the symbol itself
 
@@ -5367,7 +5355,7 @@
 
 				var lzx = new Lzx(16); // the full decompressed array
 
-				var decompressed = [];
+				var decompressed = new BufferWriter(decompressedTodo);
 
 				while (pos < compressedTodo) {
 					// flag is for determining if frame_size is fixed or not
@@ -5396,7 +5384,7 @@
 
 					if (block_size > 0x10000 || frame_size > 0x10000) throw new XnbError('Invalid size read in compression content.'); // decompress the file based on frame and block size
 
-					decompressed = decompressed.concat(lzx.decompress(buffer, frame_size, block_size)); // increase position counter
+					decompressed.write(lzx.decompress(buffer, frame_size, block_size)); // increase position counter
 
 					pos += block_size;
 				} // we have finished decompressing the file
@@ -5404,8 +5392,8 @@
 
 				console.log('File has been successfully decompressed!'); // return a decompressed buffer
 
-				var decompressedUintArray = new Uint8Array(decompressed);
-				return decompressedUintArray.buffer;
+				decompressed.trim();
+				return decompressed.buffer;
 			}
 		}]);
 
@@ -7871,27 +7859,6 @@
 	var lookup_5_4 = [[[0, 0, 0], [0, 0, 0]], [[0, 0, 1], [0, 1, 1]], [[0, 0, 2], [0, 1, 0]], [[0, 0, 3], [0, 1, 1]], [[0, 0, 4], [0, 2, 1]], [[1, 0, 3], [0, 2, 0]], [[1, 0, 2], [0, 2, 1]], [[1, 0, 1], [0, 3, 1]], [[1, 0, 0], [0, 3, 0]], [[1, 0, 1], [1, 2, 1]], [[1, 0, 2], [1, 2, 0]], [[1, 0, 3], [0, 4, 0]], [[1, 0, 4], [0, 5, 1]], [[2, 0, 3], [0, 5, 0]], [[2, 0, 2], [0, 5, 1]], [[2, 0, 1], [0, 6, 1]], [[2, 0, 0], [0, 6, 0]], [[2, 0, 1], [2, 3, 1]], [[2, 0, 2], [2, 3, 0]], [[2, 0, 3], [0, 7, 0]], [[2, 0, 4], [1, 6, 1]], [[3, 0, 3], [1, 6, 0]], [[3, 0, 2], [0, 8, 0]], [[3, 0, 1], [0, 9, 1]], [[3, 0, 0], [0, 9, 0]], [[3, 0, 1], [0, 9, 1]], [[3, 0, 2], [0, 10, 1]], [[3, 0, 3], [0, 10, 0]], [[3, 0, 4], [2, 7, 1]], [[4, 0, 4], [2, 7, 0]], [[4, 0, 3], [0, 11, 0]], [[4, 0, 2], [1, 10, 1]], [[4, 0, 1], [1, 10, 0]], [[4, 0, 0], [0, 12, 0]], [[4, 0, 1], [0, 13, 1]], [[4, 0, 2], [0, 13, 0]], [[4, 0, 3], [0, 13, 1]], [[4, 0, 4], [0, 14, 1]], [[5, 0, 3], [0, 14, 0]], [[5, 0, 2], [2, 11, 1]], [[5, 0, 1], [2, 11, 0]], [[5, 0, 0], [0, 15, 0]], [[5, 0, 1], [1, 14, 1]], [[5, 0, 2], [1, 14, 0]], [[5, 0, 3], [0, 16, 0]], [[5, 0, 4], [0, 17, 1]], [[6, 0, 3], [0, 17, 0]], [[6, 0, 2], [0, 17, 1]], [[6, 0, 1], [0, 18, 1]], [[6, 0, 0], [0, 18, 0]], [[6, 0, 1], [2, 15, 1]], [[6, 0, 2], [2, 15, 0]], [[6, 0, 3], [0, 19, 0]], [[6, 0, 4], [1, 18, 1]], [[7, 0, 3], [1, 18, 0]], [[7, 0, 2], [0, 20, 0]], [[7, 0, 1], [0, 21, 1]], [[7, 0, 0], [0, 21, 0]], [[7, 0, 1], [0, 21, 1]], [[7, 0, 2], [0, 22, 1]], [[7, 0, 3], [0, 22, 0]], [[7, 0, 4], [2, 19, 1]], [[8, 0, 4], [2, 19, 0]], [[8, 0, 3], [0, 23, 0]], [[8, 0, 2], [1, 22, 1]], [[8, 0, 1], [1, 22, 0]], [[8, 0, 0], [0, 24, 0]], [[8, 0, 1], [0, 25, 1]], [[8, 0, 2], [0, 25, 0]], [[8, 0, 3], [0, 25, 1]], [[8, 0, 4], [0, 26, 1]], [[9, 0, 3], [0, 26, 0]], [[9, 0, 2], [2, 23, 1]], [[9, 0, 1], [2, 23, 0]], [[9, 0, 0], [0, 27, 0]], [[9, 0, 1], [1, 26, 1]], [[9, 0, 2], [1, 26, 0]], [[9, 0, 3], [0, 28, 0]], [[9, 0, 4], [0, 29, 1]], [[10, 0, 3], [0, 29, 0]], [[10, 0, 2], [0, 29, 1]], [[10, 0, 1], [0, 30, 1]], [[10, 0, 0], [0, 30, 0]], [[10, 0, 1], [2, 27, 1]], [[10, 0, 2], [2, 27, 0]], [[10, 0, 3], [0, 31, 0]], [[10, 0, 4], [1, 30, 1]], [[11, 0, 3], [1, 30, 0]], [[11, 0, 2], [4, 24, 0]], [[11, 0, 1], [1, 31, 1]], [[11, 0, 0], [1, 31, 0]], [[11, 0, 1], [1, 31, 1]], [[11, 0, 2], [2, 30, 1]], [[11, 0, 3], [2, 30, 0]], [[11, 0, 4], [2, 31, 1]], [[12, 0, 4], [2, 31, 0]], [[12, 0, 3], [4, 27, 0]], [[12, 0, 2], [3, 30, 1]], [[12, 0, 1], [3, 30, 0]], [[12, 0, 0], [4, 28, 0]], [[12, 0, 1], [3, 31, 1]], [[12, 0, 2], [3, 31, 0]], [[12, 0, 3], [3, 31, 1]], [[12, 0, 4], [4, 30, 1]], [[13, 0, 3], [4, 30, 0]], [[13, 0, 2], [6, 27, 1]], [[13, 0, 1], [6, 27, 0]], [[13, 0, 0], [4, 31, 0]], [[13, 0, 1], [5, 30, 1]], [[13, 0, 2], [5, 30, 0]], [[13, 0, 3], [8, 24, 0]], [[13, 0, 4], [5, 31, 1]], [[14, 0, 3], [5, 31, 0]], [[14, 0, 2], [5, 31, 1]], [[14, 0, 1], [6, 30, 1]], [[14, 0, 0], [6, 30, 0]], [[14, 0, 1], [6, 31, 1]], [[14, 0, 2], [6, 31, 0]], [[14, 0, 3], [8, 27, 0]], [[14, 0, 4], [7, 30, 1]], [[15, 0, 3], [7, 30, 0]], [[15, 0, 2], [8, 28, 0]], [[15, 0, 1], [7, 31, 1]], [[15, 0, 0], [7, 31, 0]], [[15, 0, 1], [7, 31, 1]], [[15, 0, 2], [8, 30, 1]], [[15, 0, 3], [8, 30, 0]], [[15, 0, 4], [10, 27, 1]], [[16, 0, 4], [10, 27, 0]], [[16, 0, 3], [8, 31, 0]], [[16, 0, 2], [9, 30, 1]], [[16, 0, 1], [9, 30, 0]], [[16, 0, 0], [12, 24, 0]], [[16, 0, 1], [9, 31, 1]], [[16, 0, 2], [9, 31, 0]], [[16, 0, 3], [9, 31, 1]], [[16, 0, 4], [10, 30, 1]], [[17, 0, 3], [10, 30, 0]], [[17, 0, 2], [10, 31, 1]], [[17, 0, 1], [10, 31, 0]], [[17, 0, 0], [12, 27, 0]], [[17, 0, 1], [11, 30, 1]], [[17, 0, 2], [11, 30, 0]], [[17, 0, 3], [12, 28, 0]], [[17, 0, 4], [11, 31, 1]], [[18, 0, 3], [11, 31, 0]], [[18, 0, 2], [11, 31, 1]], [[18, 0, 1], [12, 30, 1]], [[18, 0, 0], [12, 30, 0]], [[18, 0, 1], [14, 27, 1]], [[18, 0, 2], [14, 27, 0]], [[18, 0, 3], [12, 31, 0]], [[18, 0, 4], [13, 30, 1]], [[19, 0, 3], [13, 30, 0]], [[19, 0, 2], [16, 24, 0]], [[19, 0, 1], [13, 31, 1]], [[19, 0, 0], [13, 31, 0]], [[19, 0, 1], [13, 31, 1]], [[19, 0, 2], [14, 30, 1]], [[19, 0, 3], [14, 30, 0]], [[19, 0, 4], [14, 31, 1]], [[20, 0, 4], [14, 31, 0]], [[20, 0, 3], [16, 27, 0]], [[20, 0, 2], [15, 30, 1]], [[20, 0, 1], [15, 30, 0]], [[20, 0, 0], [16, 28, 0]], [[20, 0, 1], [15, 31, 1]], [[20, 0, 2], [15, 31, 0]], [[20, 0, 3], [15, 31, 1]], [[20, 0, 4], [16, 30, 1]], [[21, 0, 3], [16, 30, 0]], [[21, 0, 2], [18, 27, 1]], [[21, 0, 1], [18, 27, 0]], [[21, 0, 0], [16, 31, 0]], [[21, 0, 1], [17, 30, 1]], [[21, 0, 2], [17, 30, 0]], [[21, 0, 3], [20, 24, 0]], [[21, 0, 4], [17, 31, 1]], [[22, 0, 3], [17, 31, 0]], [[22, 0, 2], [17, 31, 1]], [[22, 0, 1], [18, 30, 1]], [[22, 0, 0], [18, 30, 0]], [[22, 0, 1], [18, 31, 1]], [[22, 0, 2], [18, 31, 0]], [[22, 0, 3], [20, 27, 0]], [[22, 0, 4], [19, 30, 1]], [[23, 0, 3], [19, 30, 0]], [[23, 0, 2], [20, 28, 0]], [[23, 0, 1], [19, 31, 1]], [[23, 0, 0], [19, 31, 0]], [[23, 0, 1], [19, 31, 1]], [[23, 0, 2], [20, 30, 1]], [[23, 0, 3], [20, 30, 0]], [[23, 0, 4], [22, 27, 1]], [[24, 0, 4], [22, 27, 0]], [[24, 0, 3], [20, 31, 0]], [[24, 0, 2], [21, 30, 1]], [[24, 0, 1], [21, 30, 0]], [[24, 0, 0], [24, 24, 0]], [[24, 0, 1], [21, 31, 1]], [[24, 0, 2], [21, 31, 0]], [[24, 0, 3], [21, 31, 1]], [[24, 0, 4], [22, 30, 1]], [[25, 0, 3], [22, 30, 0]], [[25, 0, 2], [22, 31, 1]], [[25, 0, 1], [22, 31, 0]], [[25, 0, 0], [24, 27, 0]], [[25, 0, 1], [23, 30, 1]], [[25, 0, 2], [23, 30, 0]], [[25, 0, 3], [24, 28, 0]], [[25, 0, 4], [23, 31, 1]], [[26, 0, 3], [23, 31, 0]], [[26, 0, 2], [23, 31, 1]], [[26, 0, 1], [24, 30, 1]], [[26, 0, 0], [24, 30, 0]], [[26, 0, 1], [26, 27, 1]], [[26, 0, 2], [26, 27, 0]], [[26, 0, 3], [24, 31, 0]], [[26, 0, 4], [25, 30, 1]], [[27, 0, 3], [25, 30, 0]], [[27, 0, 2], [28, 24, 0]], [[27, 0, 1], [25, 31, 1]], [[27, 0, 0], [25, 31, 0]], [[27, 0, 1], [25, 31, 1]], [[27, 0, 2], [26, 30, 1]], [[27, 0, 3], [26, 30, 0]], [[27, 0, 4], [26, 31, 1]], [[28, 0, 4], [26, 31, 0]], [[28, 0, 3], [28, 27, 0]], [[28, 0, 2], [27, 30, 1]], [[28, 0, 1], [27, 30, 0]], [[28, 0, 0], [28, 28, 0]], [[28, 0, 1], [27, 31, 1]], [[28, 0, 2], [27, 31, 0]], [[28, 0, 3], [27, 31, 1]], [[28, 0, 4], [28, 30, 1]], [[29, 0, 3], [28, 30, 0]], [[29, 0, 2], [30, 27, 1]], [[29, 0, 1], [30, 27, 0]], [[29, 0, 0], [28, 31, 0]], [[29, 0, 1], [29, 30, 1]], [[29, 0, 2], [29, 30, 0]], [[29, 0, 3], [29, 30, 1]], [[29, 0, 4], [29, 31, 1]], [[30, 0, 3], [29, 31, 0]], [[30, 0, 2], [29, 31, 1]], [[30, 0, 1], [30, 30, 1]], [[30, 0, 0], [30, 30, 0]], [[30, 0, 1], [30, 31, 1]], [[30, 0, 2], [30, 31, 0]], [[30, 0, 3], [30, 31, 1]], [[30, 0, 4], [31, 30, 1]], [[31, 0, 3], [31, 30, 0]], [[31, 0, 2], [31, 30, 1]], [[31, 0, 1], [31, 31, 1]], [[31, 0, 0], [31, 31, 0]]];
 	var lookup_6_4 = [[[0, 0, 0], [0, 0, 0]], [[0, 0, 1], [0, 1, 0]], [[0, 0, 2], [0, 2, 0]], [[1, 0, 1], [0, 3, 1]], [[1, 0, 0], [0, 3, 0]], [[1, 0, 1], [0, 4, 0]], [[1, 0, 2], [0, 5, 0]], [[2, 0, 1], [0, 6, 1]], [[2, 0, 0], [0, 6, 0]], [[2, 0, 1], [0, 7, 0]], [[2, 0, 2], [0, 8, 0]], [[3, 0, 1], [0, 9, 1]], [[3, 0, 0], [0, 9, 0]], [[3, 0, 1], [0, 10, 0]], [[3, 0, 2], [0, 11, 0]], [[4, 0, 1], [0, 12, 1]], [[4, 0, 0], [0, 12, 0]], [[4, 0, 1], [0, 13, 0]], [[4, 0, 2], [0, 14, 0]], [[5, 0, 1], [0, 15, 1]], [[5, 0, 0], [0, 15, 0]], [[5, 0, 1], [0, 16, 0]], [[5, 0, 2], [1, 15, 0]], [[6, 0, 1], [0, 17, 0]], [[6, 0, 0], [0, 18, 0]], [[6, 0, 1], [0, 19, 0]], [[6, 0, 2], [3, 14, 0]], [[7, 0, 1], [0, 20, 0]], [[7, 0, 0], [0, 21, 0]], [[7, 0, 1], [0, 22, 0]], [[7, 0, 2], [4, 15, 0]], [[8, 0, 1], [0, 23, 0]], [[8, 0, 0], [0, 24, 0]], [[8, 0, 1], [0, 25, 0]], [[8, 0, 2], [6, 14, 0]], [[9, 0, 1], [0, 26, 0]], [[9, 0, 0], [0, 27, 0]], [[9, 0, 1], [0, 28, 0]], [[9, 0, 2], [7, 15, 0]], [[10, 0, 1], [0, 29, 0]], [[10, 0, 0], [0, 30, 0]], [[10, 0, 1], [0, 31, 0]], [[10, 0, 2], [9, 14, 0]], [[11, 0, 1], [0, 32, 0]], [[11, 0, 0], [0, 33, 0]], [[11, 0, 1], [2, 30, 0]], [[11, 0, 2], [0, 34, 0]], [[12, 0, 1], [0, 35, 0]], [[12, 0, 0], [0, 36, 0]], [[12, 0, 1], [3, 31, 0]], [[12, 0, 2], [0, 37, 0]], [[13, 0, 1], [0, 38, 0]], [[13, 0, 0], [0, 39, 0]], [[13, 0, 1], [5, 30, 0]], [[13, 0, 2], [0, 40, 0]], [[14, 0, 1], [0, 41, 0]], [[14, 0, 0], [0, 42, 0]], [[14, 0, 1], [6, 31, 0]], [[14, 0, 2], [0, 43, 0]], [[15, 0, 1], [0, 44, 0]], [[15, 0, 0], [0, 45, 0]], [[15, 0, 1], [8, 30, 0]], [[15, 0, 2], [0, 46, 0]], [[16, 0, 2], [0, 47, 0]], [[16, 0, 1], [1, 46, 0]], [[16, 0, 0], [0, 48, 0]], [[16, 0, 1], [0, 49, 0]], [[16, 0, 2], [0, 50, 0]], [[17, 0, 1], [2, 47, 0]], [[17, 0, 0], [0, 51, 0]], [[17, 0, 1], [0, 52, 0]], [[17, 0, 2], [0, 53, 0]], [[18, 0, 1], [4, 46, 0]], [[18, 0, 0], [0, 54, 0]], [[18, 0, 1], [0, 55, 0]], [[18, 0, 2], [0, 56, 0]], [[19, 0, 1], [5, 47, 0]], [[19, 0, 0], [0, 57, 0]], [[19, 0, 1], [0, 58, 0]], [[19, 0, 2], [0, 59, 0]], [[20, 0, 1], [7, 46, 0]], [[20, 0, 0], [0, 60, 0]], [[20, 0, 1], [0, 61, 0]], [[20, 0, 2], [0, 62, 0]], [[21, 0, 1], [8, 47, 0]], [[21, 0, 0], [0, 63, 0]], [[21, 0, 1], [1, 62, 0]], [[21, 0, 2], [1, 63, 0]], [[22, 0, 1], [10, 46, 0]], [[22, 0, 0], [2, 62, 0]], [[22, 0, 1], [2, 63, 0]], [[22, 0, 2], [3, 62, 0]], [[23, 0, 1], [11, 47, 0]], [[23, 0, 0], [3, 63, 0]], [[23, 0, 1], [4, 62, 0]], [[23, 0, 2], [4, 63, 0]], [[24, 0, 1], [13, 46, 0]], [[24, 0, 0], [5, 62, 0]], [[24, 0, 1], [5, 63, 0]], [[24, 0, 2], [6, 62, 0]], [[25, 0, 1], [14, 47, 0]], [[25, 0, 0], [6, 63, 0]], [[25, 0, 1], [7, 62, 0]], [[25, 0, 2], [7, 63, 0]], [[26, 0, 1], [16, 45, 0]], [[26, 0, 0], [8, 62, 0]], [[26, 0, 1], [8, 63, 0]], [[26, 0, 2], [9, 62, 0]], [[27, 0, 1], [16, 48, 0]], [[27, 0, 0], [9, 63, 0]], [[27, 0, 1], [10, 62, 0]], [[27, 0, 2], [10, 63, 0]], [[28, 0, 1], [16, 51, 0]], [[28, 0, 0], [11, 62, 0]], [[28, 0, 1], [11, 63, 0]], [[28, 0, 2], [12, 62, 0]], [[29, 0, 1], [16, 54, 0]], [[29, 0, 0], [12, 63, 0]], [[29, 0, 1], [13, 62, 0]], [[29, 0, 2], [13, 63, 0]], [[30, 0, 1], [16, 57, 0]], [[30, 0, 0], [14, 62, 0]], [[30, 0, 1], [14, 63, 0]], [[30, 0, 2], [15, 62, 0]], [[31, 0, 1], [16, 60, 0]], [[31, 0, 0], [15, 63, 0]], [[31, 0, 1], [24, 46, 0]], [[31, 0, 2], [16, 62, 0]], [[32, 0, 2], [16, 63, 0]], [[32, 0, 1], [17, 62, 0]], [[32, 0, 0], [25, 47, 0]], [[32, 0, 1], [17, 63, 0]], [[32, 0, 2], [18, 62, 0]], [[33, 0, 1], [18, 63, 0]], [[33, 0, 0], [27, 46, 0]], [[33, 0, 1], [19, 62, 0]], [[33, 0, 2], [19, 63, 0]], [[34, 0, 1], [20, 62, 0]], [[34, 0, 0], [28, 47, 0]], [[34, 0, 1], [20, 63, 0]], [[34, 0, 2], [21, 62, 0]], [[35, 0, 1], [21, 63, 0]], [[35, 0, 0], [30, 46, 0]], [[35, 0, 1], [22, 62, 0]], [[35, 0, 2], [22, 63, 0]], [[36, 0, 1], [23, 62, 0]], [[36, 0, 0], [31, 47, 0]], [[36, 0, 1], [23, 63, 0]], [[36, 0, 2], [24, 62, 0]], [[37, 0, 1], [24, 63, 0]], [[37, 0, 0], [32, 47, 0]], [[37, 0, 1], [25, 62, 0]], [[37, 0, 2], [25, 63, 0]], [[38, 0, 1], [26, 62, 0]], [[38, 0, 0], [32, 50, 0]], [[38, 0, 1], [26, 63, 0]], [[38, 0, 2], [27, 62, 0]], [[39, 0, 1], [27, 63, 0]], [[39, 0, 0], [32, 53, 0]], [[39, 0, 1], [28, 62, 0]], [[39, 0, 2], [28, 63, 0]], [[40, 0, 1], [29, 62, 0]], [[40, 0, 0], [32, 56, 0]], [[40, 0, 1], [29, 63, 0]], [[40, 0, 2], [30, 62, 0]], [[41, 0, 1], [30, 63, 0]], [[41, 0, 0], [32, 59, 0]], [[41, 0, 1], [31, 62, 0]], [[41, 0, 2], [31, 63, 0]], [[42, 0, 1], [32, 61, 0]], [[42, 0, 0], [32, 62, 0]], [[42, 0, 1], [32, 63, 0]], [[42, 0, 2], [41, 46, 0]], [[43, 0, 1], [33, 62, 0]], [[43, 0, 0], [33, 63, 0]], [[43, 0, 1], [34, 62, 0]], [[43, 0, 2], [42, 47, 0]], [[44, 0, 1], [34, 63, 0]], [[44, 0, 0], [35, 62, 0]], [[44, 0, 1], [35, 63, 0]], [[44, 0, 2], [44, 46, 0]], [[45, 0, 1], [36, 62, 0]], [[45, 0, 0], [36, 63, 0]], [[45, 0, 1], [37, 62, 0]], [[45, 0, 2], [45, 47, 0]], [[46, 0, 1], [37, 63, 0]], [[46, 0, 0], [38, 62, 0]], [[46, 0, 1], [38, 63, 0]], [[46, 0, 2], [47, 46, 0]], [[47, 0, 1], [39, 62, 0]], [[47, 0, 0], [39, 63, 0]], [[47, 0, 1], [40, 62, 0]], [[47, 0, 2], [48, 46, 0]], [[48, 0, 2], [40, 63, 0]], [[48, 0, 1], [41, 62, 0]], [[48, 0, 0], [41, 63, 0]], [[48, 0, 1], [48, 49, 0]], [[48, 0, 2], [42, 62, 0]], [[49, 0, 1], [42, 63, 0]], [[49, 0, 0], [43, 62, 0]], [[49, 0, 1], [48, 52, 0]], [[49, 0, 2], [43, 63, 0]], [[50, 0, 1], [44, 62, 0]], [[50, 0, 0], [44, 63, 0]], [[50, 0, 1], [48, 55, 0]], [[50, 0, 2], [45, 62, 0]], [[51, 0, 1], [45, 63, 0]], [[51, 0, 0], [46, 62, 0]], [[51, 0, 1], [48, 58, 0]], [[51, 0, 2], [46, 63, 0]], [[52, 0, 1], [47, 62, 0]], [[52, 0, 0], [47, 63, 0]], [[52, 0, 1], [48, 61, 0]], [[52, 0, 2], [48, 62, 0]], [[53, 0, 1], [56, 47, 0]], [[53, 0, 0], [48, 63, 0]], [[53, 0, 1], [49, 62, 0]], [[53, 0, 2], [49, 63, 0]], [[54, 0, 1], [58, 46, 0]], [[54, 0, 0], [50, 62, 0]], [[54, 0, 1], [50, 63, 0]], [[54, 0, 2], [51, 62, 0]], [[55, 0, 1], [59, 47, 0]], [[55, 0, 0], [51, 63, 0]], [[55, 0, 1], [52, 62, 0]], [[55, 0, 2], [52, 63, 0]], [[56, 0, 1], [61, 46, 0]], [[56, 0, 0], [53, 62, 0]], [[56, 0, 1], [53, 63, 0]], [[56, 0, 2], [54, 62, 0]], [[57, 0, 1], [62, 47, 0]], [[57, 0, 0], [54, 63, 0]], [[57, 0, 1], [55, 62, 0]], [[57, 0, 2], [55, 63, 0]], [[58, 0, 1], [56, 62, 1]], [[58, 0, 0], [56, 62, 0]], [[58, 0, 1], [56, 63, 0]], [[58, 0, 2], [57, 62, 0]], [[59, 0, 1], [57, 63, 1]], [[59, 0, 0], [57, 63, 0]], [[59, 0, 1], [58, 62, 0]], [[59, 0, 2], [58, 63, 0]], [[60, 0, 1], [59, 62, 1]], [[60, 0, 0], [59, 62, 0]], [[60, 0, 1], [59, 63, 0]], [[60, 0, 2], [60, 62, 0]], [[61, 0, 1], [60, 63, 1]], [[61, 0, 0], [60, 63, 0]], [[61, 0, 1], [61, 62, 0]], [[61, 0, 2], [61, 63, 0]], [[62, 0, 1], [62, 62, 1]], [[62, 0, 0], [62, 62, 0]], [[62, 0, 1], [62, 63, 0]], [[62, 0, 2], [63, 62, 0]], [[63, 0, 1], [63, 63, 1]], [[63, 0, 0], [63, 63, 0]]];
 
-	/* -----------------------------------------------------------------------------
-		Copyright (c) 2006 Simon Brown													si@sjbrown.co.uk
-		Permission is hereby granted, free of charge, to any person obtaining
-		a copy of this software and associated documentation files (the 
-		"Software"), to	deal in the Software without restriction, including
-		without limitation the rights to use, copy, modify, merge, publish,
-		distribute, sublicense, and/or sell copies of the Software, and to 
-		permit persons to whom the Software is furnished to do so, subject to 
-		the following conditions:
-		The above copyright notice and this permission notice shall be included
-		in all copies or substantial portions of the Software.
-		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-		OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
-		MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-		IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
-		CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
-		TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
-		SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-		
-		 -------------------------------------------------------------------------- */
-
 	function floatToInt(value, limit) {
 		// use ANSI round-to-zero behaviour to get round-to-nearest
 		var integer = parseInt(value + 0.5); // clamp to the limit
@@ -9486,7 +9453,6 @@
 				this.writeIndex(buffer, resolver);
 				var width = content.export.width;
 				var height = content.export.height;
-				Debug("Format: ".concat(content.format));
 				int32Reader.write(buffer, content.format, null);
 				uint32Reader.write(buffer, content.export.width, null);
 				uint32Reader.write(buffer, content.export.height, null);
@@ -9977,6 +9943,118 @@
 		throw new XnbError("Invalid reader type \"".concat(typeString, "\" passed, unable to resolve!"));
 	};
 
+	var XnbData = /*#__PURE__*/function () {
+		function XnbData(header, readers, content) {
+			_classCallCheck(this, XnbData);
+
+			var target = header.target,
+					formatVersion = header.formatVersion,
+					hidef = header.hidef,
+					compressed = header.compressed;
+			this.header = {
+				target: target,
+				formatVersion: formatVersion,
+				hidef: hidef,
+				compressed: compressed
+			};
+			this.readers = readers;
+			this.content = content;
+		}
+
+		_createClass(XnbData, [{
+			key: "target",
+			get: function get() {
+				var _this$header;
+
+				switch ((_this$header = this.header) === null || _this$header === void 0 ? void 0 : _this$header.target) {
+					case 'w':
+						return "Microsoft Windows";
+
+					case 'm':
+						return "Windows Phone 7";
+
+					case 'x':
+						return "Xbox 360";
+
+					case 'a':
+						return "Android";
+
+					case 'i':
+						return "iOS";
+
+					default:
+						return "Unknown";
+				}
+			}
+		}, {
+			key: "formatVersion",
+			get: function get() {
+				var _this$header2;
+
+				switch ((_this$header2 = this.header) === null || _this$header2 === void 0 ? void 0 : _this$header2.formatVersion) {
+					case 0x3:
+						return "XNA Game Studio 3.0";
+
+					case 0x4:
+						return "XNA Game Studio 3.1";
+
+					case 0x5:
+						return "XNA Game Studio 4.0";
+
+					default:
+						return "Unknown";
+				}
+			}
+		}, {
+			key: "hidef",
+			get: function get() {
+				var _this$header3;
+
+				return !!((_this$header3 = this.header) !== null && _this$header3 !== void 0 && _this$header3.hidef);
+			}
+		}, {
+			key: "compressed",
+			get: function get() {
+				var _this$header4;
+
+				return !!((_this$header4 = this.header) !== null && _this$header4 !== void 0 && _this$header4.compressed);
+			}
+		}, {
+			key: "contentType",
+			get: function get() {
+				var raw = this.content.export;
+				if (raw !== undefined) return raw.type;
+				return "JSON";
+			}
+		}, {
+			key: "rawContent",
+			get: function get() {
+				var raw = this.content.export;
+				if (raw !== undefined) return raw.data;
+				return JSON.stringify(this.content, function (key, value) {
+					if (key === "export") return value.type;
+					return value;
+				}, 4);
+			}
+		}, {
+			key: "stringify",
+			value: function stringify() {
+				return JSON.stringify({
+					header: this.header,
+					readers: this.readers,
+					content: this.content
+				}, null, 4);
+			}
+		}, {
+			key: "toString",
+			value: function toString() {
+				return this.stringify();
+			}
+		}]);
+
+		return XnbData;
+	}();
+
 	var HIDEF_MASK = 0x1;
 	var COMPRESSED_LZ4_MASK = 0x40;
 	var COMPRESSED_LZX_MASK = 0x80;
@@ -9987,13 +10065,13 @@
 	 * @public
 	 */
 
-	var Xnb = /*#__PURE__*/function () {
+	var XnbConverter = /*#__PURE__*/function () {
 		/**
 		 * Creates new instance of Xnb class
 		 * @constructor
 		 */
-		function Xnb() {
-			_classCallCheck(this, Xnb);
+		function XnbConverter() {
+			_classCallCheck(this, XnbConverter);
 
 			// target platform
 			this.target = ''; // format version
@@ -10028,7 +10106,7 @@
 		 */
 
 
-		_createClass(Xnb, [{
+		_createClass(XnbConverter, [{
 			key: "load",
 			value: function load(arrayBuffer) {
 				// create a new instance of reader
@@ -10046,8 +10124,7 @@
 
 				if (this.compressed) {
 					// get the decompressed size
-					var decompressedSize = this.buffer.readUInt32();
-					Debug("Uncompressed size: ".concat(decompressedSize, " bytes.")); // decompress LZX format
+					var decompressedSize = this.buffer.readUInt32(); // decompress LZX format
 
 					if (this.compressionType == COMPRESSED_LZX_MASK) {
 						// get the amount of data to compress
@@ -10072,14 +10149,12 @@
 
 						this.buffer.bytePosition = XNB_COMPRESSED_PROLOGUE_SIZE;
 					}
-				}
-
-				Debug("Reading from byte position: ".concat(this.buffer.bytePosition)); // NOTE: assuming the buffer is now decompressed
+				} // NOTE: assuming the buffer is now decompressed
 				// get the 7-bit value for readers
 
-				var count = this.buffer.read7BitNumber(); // log how many readers there are
 
-				Debug("Readers: ".concat(count)); // create an instance of string reader
+				var count = this.buffer.read7BitNumber(); // log how many readers there are
+				// create an instance of string reader
 
 				var stringReader = new StringReader(); // a local copy of readers for the export
 
@@ -10104,8 +10179,7 @@
 
 
 				var shared = this.buffer.read7BitNumber(); // log the shared resources count
-
-				Debug("Shared Resources: ".concat(shared)); // don't accept shared resources since SDV XNB files don't have any
+				// don't accept shared resources since SDV XNB files don't have any
 
 				if (shared != 0) throw new XnbError("Unexpected (".concat(shared, ") shared resources.")); // create content reader from the readers loaded
 
@@ -10115,29 +10189,22 @@
 
 				console.log('Successfuly read XNB file!'); // return the loaded XNB object
 
-				return {
-					header: {
-						target: this.target,
-						formatVersion: this.formatVersion,
-						hidef: this.hidef,
-						compressed: this.compressed
-					},
-					readers: readers,
-					content: result
-				};
+				return new XnbData({
+					target: this.target,
+					formatVersion: this.formatVersion,
+					hidef: this.hidef,
+					compressed: this.compressed
+				}, readers, result);
 			}
 			/**
 			 * Converts JSON into XNB file structure
 			 * @param {Object} The JSON to convert into a XNB file
 			 */
-			// ------------------unimplemented----------------------------------
 
 		}, {
 			key: "convert",
 			value: function convert(json) {
-				// log the original json file
-				Debug(json); // the output buffer for this file
-
+				// the output buffer for this file
 				var buffer = new BufferWriter(); // create an instance of string reader
 
 				var stringReader = new StringReader(); // set the header information
@@ -10163,8 +10230,7 @@
 
 				buffer.writeUInt32(0); // write the decompression size temporarily if android
 
-				if (lz4Compression) buffer.writeUInt32(0);
-				Debug("Header data written successfully!"); // write the amount of readers
+				if (lz4Compression) buffer.writeUInt32(0); // write the amount of readers
 
 				buffer.write7BitNumber(json.readers.length); // loop over the readers and load the types
 
@@ -10174,16 +10240,14 @@
 
 					stringReader.write(buffer, reader.type);
 					buffer.writeUInt32(reader.version);
-				}
+				} // write 0 shared resources
 
-				Debug("Reader data written successfully!"); // write 0 shared resources
 
 				buffer.write7BitNumber(0); // create reader resolver for content and write it
 
 				var content = new ReaderResolver(this.readers); // write the content to the reader resolver
 
-				content.write(buffer, json.content);
-				Debug("Content data written successfully!"); // trim excess space in the buffer 
+				content.write(buffer, json.content); // trim excess space in the buffer 
 				// NOTE: this buffer allocates default with 500 bytes
 
 				buffer.trim(); // LZ4 compression
@@ -10233,30 +10297,24 @@
 				var magic = this.buffer.readString(3); // check to see if the magic is correct
 
 				if (magic != 'XNB') throw new XnbError("Invalid file magic found, expecting \"XNB\", found \"".concat(magic, "\"")); // debug print that valid XNB magic was found
-
-				Debug('Valid XNB magic found!'); // load the target platform
+				// load the target platform
 
 				this.target = this.buffer.readString(1).toLowerCase(); // read the target platform
 
 				switch (this.target) {
 					case 'w':
-						Debug('Target platform: Microsoft Windows');
 						break;
 
 					case 'm':
-						Debug('Target platform: Windows Phone 7');
 						break;
 
 					case 'x':
-						Debug('Target platform: Xbox 360');
 						break;
 
 					case 'a':
-						Debug('Target platform: Android');
 						break;
 
 					case 'i':
-						Debug('Target platform: iOS');
 						break;
 
 					default:
@@ -10269,15 +10327,12 @@
 
 				switch (this.formatVersion) {
 					case 0x3:
-						Debug('XNB Format Version: XNA Game Studio 3.0');
 						break;
 
 					case 0x4:
-						Debug('XNB Format Version: XNA Game Studio 3.1');
 						break;
 
 					case 0x5:
-						Debug('XNB Format Version: XNA Game Studio 4.0');
 						break;
 
 					default:
@@ -10294,14 +10349,11 @@
 				// NOTE: probably a better way to do both lines but sticking with this for now
 
 				this.compressionType = (flags & COMPRESSED_LZX_MASK) != 0 ? COMPRESSED_LZX_MASK : flags & COMPRESSED_LZ4_MASK ? COMPRESSED_LZ4_MASK : 0; // debug content information
-
-				Debug("Content: ".concat(this.hidef ? 'HiDef' : 'Reach')); // log compressed state
-
-				Debug("Compressed: ".concat(this.compressed, ", ").concat(this.compressionType == COMPRESSED_LZX_MASK ? 'LZX' : 'LZ4'));
+				// log compressed state
 			}
 		}]);
 
-		return Xnb;
+		return XnbConverter;
 	}();
 
 	var t = {
@@ -13893,7 +13945,7 @@
 	}
 	/**
 	 * decompressed xnb object to real file blobs.
-	 * @param {Object} decompressed xnb objects (returned by convertXnbIncludeHeaders() / Xnb.load())
+	 * @param {XnbData} decompressed xnb objects (returned by bufferToXnb() / Xnb.load())
 	 * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only) (optional)
 	 * @param {String} exported file's name (optional)
 	 */
@@ -14120,17 +14172,32 @@
 		return _resolveImports.apply(this, arguments);
 	}
 
+	/******************************************************************************/
+
+	/*																Unpack XNB																	*/
+
+	/*----------------------------------------------------------------------------*/
+
 	/**
-	 * Asynchronously reads the file into binary and then unpacks the contents.
+	 * Asynchronously reads the file into binary and then unpacks the json data.
+	 * XNB -> arrayBuffer -> XnbData
 	 * @param {File / Buffer} file
+	 * @return {XnbData} JSON data with headers
 	 */
 
-	function unpackXnb(_x) {
-		return _unpackXnb.apply(this, arguments);
+	function unpackToXnbData(_x) {
+		return _unpackToXnbData.apply(this, arguments);
 	}
+	/**
+	 * Asynchronously reads the file into binary and then return content file.
+	 * XNB -> arrayBuffer -> XnbData -> Content
+	 * @param {File / Buffer} file
+	 * @return {Object} the loaded contents
+	 */
 
-	function _unpackXnb() {
-		_unpackXnb = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(file) {
+
+	function _unpackToXnbData() {
+		_unpackToXnbData = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(file) {
 			var _extractFileName3, extension, buffer;
 
 			return regeneratorRuntime.wrap(function _callee$(_context) {
@@ -14158,10 +14225,10 @@
 
 						case 6:
 							buffer = _context.sent;
-							return _context.abrupt("return", convertXnbIncludeHeaders(buffer));
+							return _context.abrupt("return", bufferToXnb(buffer));
 
 						case 8:
-							return _context.abrupt("return", convertXnbIncludeHeaders(file.buffer));
+							return _context.abrupt("return", bufferToXnb(file.buffer));
 
 						case 9:
 						case "end":
@@ -14170,19 +14237,18 @@
 				}
 			}, _callee);
 		}));
-		return _unpackXnb.apply(this, arguments);
+		return _unpackToXnbData.apply(this, arguments);
 	}
 
-	function unpackData(file) {
-		return unpackXnb(file).then(function (_ref) {
-			var content = _ref.content;
-			return exportContent(content, true);
-		});
+	function unpackToContent(file) {
+		return unpackToXnbData(file).then(xnbDataToContent);
 	}
 	/**
 	 * Asynchronously reads the file into binary and then unpacks the contents and remake to Blobs array.
+	 * XNB -> arrayBuffer -> XnbData -> Files
 	 * @param {File / Buffer} file
 	 * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only)
+	 * @return {Array<Blobs>} exported Files Blobs
 	 */
 
 
@@ -14200,30 +14266,47 @@
 	}
 	/**
 	 * reads the buffer and then unpacks.
+	 * arrayBuffer -> XnbData
 	 * @param {ArrayBuffer} buffer
-	 * @return {Object} the loaded XNB object include headers
+	 * @return {XnbData} the loaded XNB json
 	 */
 
 
-	function convertXnbIncludeHeaders(buffer) {
-		var xnb = new Xnb();
+	function bufferToXnb(buffer) {
+		var xnb = new XnbConverter();
 		return xnb.load(buffer);
 	}
 	/**
 	 * reads the buffer and then unpacks the contents.
+	 * arrayBuffer -> XnbData -> Content
 	 * @param {ArrayBuffer} buffer
 	 * @return {Object} the loaded XNB object(not include headers)
 	 */
 
 
-	function convertXnbData(buffer) {
-		var xnb = new Xnb();
+	function bufferToContents(buffer) {
+		var xnb = new XnbConverter();
+		var xnbData = xnb.load(buffer);
+		return xnbDataToContent(xnbData);
+	}
+	/**
+	 * remove header from the loaded XNB Object
+	 * XnbData -> Content
+	 * @param {XnbData} the loaded XNB object include headers
+	 * @return {Array<Blobs>} exported Files Blobs
+	 */
 
-		var _xnb$load = xnb.load(buffer),
-				content = _xnb$load.content;
 
+	function xnbDataToContent(loadedXnb) {
+		var content = loadedXnb.content;
 		return exportContent(content, true);
 	}
+	/******************************************************************************/
+
+	/*																 Pack XNB																	 */
+
+	/*----------------------------------------------------------------------------*/
+
 
 	function fileMapper(files) {
 		var returnMap = {};
@@ -14251,7 +14334,7 @@
 
 
 	function packJsonToBinary(json) {
-		var xnb = new Xnb();
+		var xnb = new XnbConverter();
 		var buffer = xnb.convert(json);
 		return buffer;
 	}
@@ -14290,23 +14373,26 @@
 
 		return __promise_allSettled(promises).then(function (blobArray) {
 			if (configs.debug === true) return blobArray;
-			return blobArray.filter(function (_ref2) {
-				var status = _ref2.status;
-						_ref2.value;
+			return blobArray.filter(function (_ref) {
+				var status = _ref.status;
+						_ref.value;
 				return status === "fulfilled";
-			}).map(function (_ref3) {
-				var value = _ref3.value;
+			}).map(function (_ref2) {
+				var value = _ref2.value;
 				return value;
 			});
 		});
 	}
 
-	exports.convertXnbData = convertXnbData;
-	exports.fileMapper = fileMapper;
+	exports.XnbData = XnbData;
+	exports.bufferToContents = bufferToContents;
+	exports.bufferToXnb = bufferToXnb;
 	exports.pack = pack;
-	exports.unpackData = unpackData;
+	exports.unpackToContent = unpackToContent;
 	exports.unpackToFiles = unpackToFiles;
-	exports.unpackXnb = unpackXnb;
+	exports.unpackToXnbData = unpackToXnbData;
+	exports.xnbDataToContent = xnbDataToContent;
+	exports.xnbDataToFiles = exportFiles;
 
 	Object.defineProperty(exports, '__esModule', { value: true });
 

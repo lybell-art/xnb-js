@@ -15,17 +15,36 @@
 		<div class="preview-wrapper">
 			<p class="title big">Preview</p>
 			<div class="result-image-box">
-				<img id="imageResult" class="result-img" src="assets/blank.png" />
+				<div class="image-box-aligner">
+					<img id="imageResult" class="result-img" src="assets/blank.png" />
+				</div>
+				<pre id="textResult" class="result-text"></pre>
 			</div>
 		</div>
 		<div class="controller-wrapper">
 			<div class="pack-wrapper">
-				<p class="title">Unpack XNB</p>
+				<div class="title-wrapper">
+					<p class="title">Unpack XNB</p>
+					<div id="unpack_loading" class="spinner">
+						<div class="cube1"></div>
+						<div class="cube2"></div>
+					</div>
+				</div>
 				<div class="checkbox-wrapper">
-					<input id="check_yaml" type="checkbox" name="unpack_options" value="yaml">
-					<label for="check_yaml">Export to YAML</label>
-					<input id="check_content" type="checkbox" name="unpack_options" value="content_only">
-					<label for="check_content">Content Only</label>
+					<div class="checkbox-item">
+						<input id="check_yaml" type="checkbox" name="unpack_options" value="yaml">
+						<label for="check_yaml">Export to YAML</label>
+						<div class="checkbox-desc">
+							Export to a yaml file that is compatible with the XNB Extractor.
+						</div>
+					</div>
+					<div class="checkbox-item">
+						<input id="check_content" type="checkbox" name="unpack_options" value="content_only">
+						<label for="check_content">Content Only</label>
+						<div class="checkbox-desc desc-120px">
+							Export content file only.
+						</div>
+					</div>
 				</div>
 				<div class="button-wrapper">
 					<div id="unpackButton" class="button">
@@ -34,20 +53,22 @@
 					</div>
 					<div id="downloadUnpacked" class="button inactive">
 						<img src="assets/download.svg" />
-						<p>Download Result</p>
+						<p class="no-bottom-margin">Download Result</p>
+						<p class="js-result-filename small"></p>
 					</div>
 				</div>
 			</div>
 			<div class="pack-wrapper">
 				<p class="title">Pack XNB</p>
 				<div class="button-wrapper">
-					<div id="unpackButton" class="button">
+					<div id="packButton" class="button">
 						<img src="assets/pack.svg" />
 						<p>Pack</p>
 					</div>
 					<div id="downloadPacked" class="button inactive">
 						<img src="assets/download.svg" />
-						<p>Download Result</p>
+						<p class="no-bottom-margin">Download Result</p>
+						<p class="js-result-filename small"></p>
 					</div>
 				</div>
 			</div>

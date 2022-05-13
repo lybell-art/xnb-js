@@ -1,5 +1,6 @@
 import Lzx from "./Lzx.js";
 import BufferReader from "../BufferReader.js";
+import BufferWriter from "../BufferWriter.js";
 
 import Debug from "../../Utils/Debug.js";
 import XnbError from "../../Utils/XnbError.js";
@@ -30,7 +31,7 @@ class Presser {
 		const lzx = new Lzx(16);
 
 		// the full decompressed array
-		let decompressed = [];
+		let decompressed = new BufferWriter(decompressedTodo);
 		let z = 0;
 
 		// loop over the bytes left
@@ -69,7 +70,7 @@ class Presser {
 			Debug(`Block Size: ${block_size}, Frame Size: ${frame_size}`);
 
 			// decompress the file based on frame and block size
-			decompressed = decompressed.concat(lzx.decompress(buffer, frame_size, block_size));
+			decompressed.write(lzx.decompress(buffer, frame_size, block_size));
 
 			// increase position counter
 			pos += block_size;
@@ -79,8 +80,8 @@ class Presser {
 		console.log('File has been successfully decompressed!');
 
 		// return a decompressed buffer
-		const decompressedUintArray = new Uint8Array(decompressed);
-		return decompressedUintArray.buffer;
+		decompressed.trim();
+		return decompressed.buffer;
 	}
 }
 

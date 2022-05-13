@@ -15,7 +15,7 @@ function removeDebug() {
 			return (id === "__empty__") ? "export default {};" : null;
 		},
 		transform(code, filename) {
-			code = code.replace(/Debug\(.+[\)];\n{0,1}/, "");
+			code = code.replace(/Debug\(.+[\)];\n{0,1}/g, "");
 			code = code.replace("import Debug from .*\n$", "");
 			return {
 				code: code,

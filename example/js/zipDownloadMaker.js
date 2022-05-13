@@ -18,6 +18,14 @@ class zipDownloadMaker
 		this.fileNameMaker = (data)=>fileNameMaker(data, this.baseName);
 
 		this.zipper = new JSZip();
+
+		this.virtualLink = document.createElement("a");
+		this.linkElement.addEventListener("click", (e)=>{
+			if(linkElement.classList.contains("inactive")) return;
+			this.virtualLink.click();
+		});
+
+		this.filenameDisplayer = linkElement.getElementsByClassName("js-result-filename")[0] ?? null;
 	}
 	initialize(name = "result")
 	{
@@ -35,12 +43,12 @@ class zipDownloadMaker
 		const data = this.dataMaker(blob);
 		const name = this.fileNameMaker(blob);
 
-		return this.makeDownloadUrl(data, name);
+		return this.makeDownloadButton(data, name);
 	}
 	multiFileExport(blobs)
 	{
 		return this.blobToZip(blobs)
-			.then(zip=>this.makeDownloadUrl(zip, `${this.baseName}.zip`))
+			.then(zip=>this.makeDownloadButton(zip, `${this.baseName}.zip`))
 			.then(()=>this.flushZip());
 	}
 	blobToZip(blobs)
@@ -50,17 +58,28 @@ class zipDownloadMaker
 		});
 		return this.zipper.generateAsync({type:"blob", compression: "DEFLATE"});
 	}
-	makeDownloadUrl(zipped, fileName="result.zip")
+	makeDownloadButton(zipped, fileName="result.zip")
 	{
 		this.url = window.URL.createObjectURL(zipped);
 
-		this.linkElement.href = this.url;
-		this.linkElement.download = fileName;
-		this.linkElement.classList.remove("hidden");
+		this.virtualLink.href = this.url;
+		this.virtualLink.download = fileName;
+		this.linkElement.classList.remove("inactive");
+		this.displayFilename(fileName);
+	}
+	displayFilename(fileName="result.zip")
+	{
+		if(this.filenameDisplayer == null) return;
+		this.filenameDisplayer.textContent = fileName;
 	}
 	flushZip()
 	{
 		this.zipper.forEach((path)=>this.zipper.remove(path));
+	}
+	inactiveDownloadButton()
+	{
+		this.linkElement.classList.add("inactive");
+		this.displayFilename("");
 	}
 }
 

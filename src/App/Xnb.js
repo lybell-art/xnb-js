@@ -13,6 +13,8 @@ import ReaderResolver from './ReaderResolver.js';
 import XnbError from "../Utils/XnbError.js";
 import Debug from "../Utils/Debug.js";
 
+import XnbData from "./XnbData.js";
+
 // "constants" for this class
 const HIDEF_MASK = 0x1;
 const COMPRESSED_LZ4_MASK = 0x40;
@@ -24,7 +26,7 @@ const XNB_COMPRESSED_PROLOGUE_SIZE = 14;
  * @class
  * @public
  */
-class Xnb {
+class XnbConverter {
 
 	/**
 	 * Creates new instance of Xnb class
@@ -174,16 +176,13 @@ class Xnb {
 		console.log('Successfuly read XNB file!');
 
 		// return the loaded XNB object
-		return {
-			header: {
-				target: this.target,
-				formatVersion: this.formatVersion,
-				hidef: this.hidef,
-				compressed: this.compressed
-			},
-			readers,
-			content: result
-		};
+		return new XnbData({
+			target: this.target,
+			formatVersion: this.formatVersion,
+			hidef: this.hidef,
+			compressed: this.compressed
+		}, 
+		readers, result);
 	}
 
 	/**
@@ -191,11 +190,7 @@ class Xnb {
 	 * @param {Object} The JSON to convert into a XNB file
 	 */
 	
-	// ------------------unimplemented----------------------------------
 	convert(json) {
-		// log the original json file
-		Debug(json);
-
 		// the output buffer for this file
 		const buffer = new BufferWriter();
 
@@ -372,4 +367,4 @@ class Xnb {
 
 }
 
-export default Xnb;
+export default XnbConverter;

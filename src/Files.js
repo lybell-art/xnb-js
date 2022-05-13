@@ -113,7 +113,7 @@ function exportContent(content, jsonContent=false)
 
 /**
  * decompressed xnb object to real file blobs.
- * @param {Object} decompressed xnb objects (returned by convertXnbIncludeHeaders() / Xnb.load())
+ * @param {XnbData} decompressed xnb objects (returned by bufferToXnb() / Xnb.load())
  * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only) (optional)
  * @param {String} exported file's name (optional)
  */

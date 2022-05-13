@@ -1,11 +1,19 @@
-import Xnb from "./App/Xnb.js";
+import XnbConverter from "./App/Xnb.js";
+import XnbData from "./App/XnbData.js";
 import {exportFiles, exportContent, resolveImports, extractFileName} from "./Files.js";
 
+
+/******************************************************************************/
+/*                                Unpack XNB                                  */
+/*----------------------------------------------------------------------------*/
+
 /**
- * Asynchronously reads the file into binary and then unpacks the contents.
+ * Asynchronously reads the file into binary and then unpacks the json data.
+ * XNB -> arrayBuffer -> XnbData
  * @param {File / Buffer} file
+ * @return {XnbData} JSON data with headers
  */
-async function unpackXnb(file)
+async function unpackToXnbData(file)
 {
 	// browser
 	if( typeof window !== "undefined" ) {
@@ -18,23 +26,29 @@ async function unpackXnb(file)
 
 		//read the file as a binary file
 		const buffer = await file.arrayBuffer();
-		return convertXnbIncludeHeaders(buffer);
+		return bufferToXnb(buffer);
 	}
 	// node.js
-	return convertXnbIncludeHeaders(file.buffer);
+	return bufferToXnb(file.buffer);
 }
 
-function unpackData(file)
+/**
+ * Asynchronously reads the file into binary and then return content file.
+ * XNB -> arrayBuffer -> XnbData -> Content
+ * @param {File / Buffer} file
+ * @return {Object} the loaded contents
+ */
+function unpackToContent(file)
 {
-	return unpackXnb(file).then(({content})=>{
-		return exportContent(content, true);
-	});
+	return unpackToXnbData(file).then(xnbDataToContent);
 }
 
 /**
  * Asynchronously reads the file into binary and then unpacks the contents and remake to Blobs array.
+ * XNB -> arrayBuffer -> XnbData -> Files
  * @param {File / Buffer} file
  * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only)
+ * @return {Array<Blobs>} exported Files Blobs
  */
 function unpackToFiles(file, configs={})
 {
@@ -44,30 +58,49 @@ function unpackToFiles(file, configs={})
 }
 
 
+
 /**
  * reads the buffer and then unpacks.
+ * arrayBuffer -> XnbData
  * @param {ArrayBuffer} buffer
- * @return {Object} the loaded XNB object include headers
+ * @return {XnbData} the loaded XNB json
  */
-function convertXnbIncludeHeaders(buffer)
+function bufferToXnb(buffer)
 {
-	const xnb = new Xnb();
+	const xnb = new XnbConverter();
 	return xnb.load(buffer);
 }
 
 /**
  * reads the buffer and then unpacks the contents.
+ * arrayBuffer -> XnbData -> Content
  * @param {ArrayBuffer} buffer
  * @return {Object} the loaded XNB object(not include headers)
  */
-function convertXnbData(buffer)
+function bufferToContents(buffer)
 {
-	const xnb = new Xnb();
-	const {content} = xnb.load(buffer);
+	const xnb = new XnbConverter();
+	const xnbData = xnb.load(buffer);
+	return xnbDataToContent(xnbData);
+}
+
+/**
+ * remove header from the loaded XNB Object
+ * XnbData -> Content
+ * @param {XnbData} the loaded XNB object include headers
+ * @return {Array<Blobs>} exported Files Blobs
+ */
+function xnbDataToContent(loadedXnb)
+{
+	const {content} = loadedXnb;
 	return exportContent(content, true);
 }
 
 
+
+/******************************************************************************/
+/*                                 Pack XNB                                   */
+/*----------------------------------------------------------------------------*/
 
 function fileMapper(files)
 {
@@ -87,7 +120,6 @@ function fileMapper(files)
 	return returnMap;
 }
 
-
 /**
  * reads the json and then unpacks the contents.
  * @param {json} to pack json data
@@ -95,7 +127,7 @@ function fileMapper(files)
  */
 function packJsonToBinary(json)
 {
-	const xnb = new Xnb();
+	const xnb = new XnbConverter();
 	const buffer = xnb.convert(json);
 	return buffer;
 }
@@ -137,4 +169,15 @@ function pack(files, configs={})
 }
 
 
-export {unpackXnb, unpackData, convertXnbData, unpackToFiles, fileMapper, pack};
+export {unpackToXnbData, 
+	unpackToContent, 
+	unpackToFiles, 
+
+	bufferToXnb, 
+	bufferToContents, 
+
+	xnbDataToContent, 
+	exportFiles as xnbDataToFiles,
+	pack,
+	XnbData
+};

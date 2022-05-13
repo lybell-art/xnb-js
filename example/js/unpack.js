@@ -1,6 +1,8 @@
-import { convertXnbData, unpackToFiles } from "../../dist/xnb.module.js";
-import { toPNG } from "./libs/png.js";
+import { bufferToXnb } from "./workerHelper.js";
+import { xnbDataToContent, xnbDataToFiles } from "./libs/xnb.module.js";
 import zipDownloadMaker from "./zipDownloadMaker.js";
+
+const options = {yaml:false, contentOnly:false};
 
 /******************************************************************************/
 /*                             Add Event Listener                             */
@@ -13,13 +15,37 @@ function addEventlistener_unpack()
 	fileImporter.addEventListener("change", handleFiles);
 
 	// add file import button
-	const fileImportButton = document.getElementById("fileImport");
+	const fileImportButton = document.getElementById("unpackButton");
 	fileImportButton.addEventListener("click", ()=>{fileImporter.click();});
+
+	// add checkbox event handler
+	const yamlChecker = document.getElementById("check_yaml");
+	const contentOnlyChecker = document.getElementById("check_content");
+
+	yamlChecker.addEventListener("change", function(){
+		options.yaml = this.checked;
+		if(this.checked && contentOnlyChecker.checked)
+		{
+			contentOnlyChecker.checked = false;
+			options.contentOnly = false;
+		}
+		showCode();
+	});
+	contentOnlyChecker.addEventListener("change", function(){
+		options.contentOnly = this.checked;
+		if(this.checked && yamlChecker.checked)
+		{
+			yamlChecker.checked = false;
+			options.yaml = false;
+		} 
+		showCode();
+	});
 }
 
 /******************************************************************************/
 /*                                Handle Files                                */
 /*----------------------------------------------------------------------------*/
+const loadingSpinner = document.getElementById("unpack_loading");
 
 function handleFiles()
 {
@@ -30,30 +56,58 @@ function handleFiles()
 	const isImage = (file.type.search("image/") > -1);
 
 	// if the file is xnb file, make zip files
-	if(isImage) console.log("this is image!");
+	if(isImage) {
+		console.log("this is image!");
+		const fileReader = new FileReader();
+		fileReader.readAsArrayBuffer(file);
+		fileReader.onload = pngLoad;
+	}
 	else {
 		console.log("this is xnb file!");
-		xnbUnpackToZip(file);
-	}
+		const [baseName] = extractFileName(file.name);
+		const exportFiles = xnbData => xnbDataToFiles(xnbData, options, baseName);
 
-	// read files, make preview
-	window.URL.revokeObjectURL(previewUrl);
-	const fileReader = new FileReader();
-	fileReader.readAsArrayBuffer(file);
-	fileReader.onload = isImage ? pngLoad : xnbLoad;
+		loadingSpinner.classList.add("shown");
+		showCode();
+
+		zipper.initialize(baseName);
+		file.arrayBuffer()
+			.then(bufferToXnb)
+			.then(showXnbData)
+			.then(exportFiles)
+			.then(zipper.export.bind(zipper))
+			.catch(closeButton)
+			.finally(()=>{loadingSpinner.classList.remove("shown")});
+	}
 }
 
 /******************************************************************************/
 /*                            Show Preview Images                             */
 /*----------------------------------------------------------------------------*/
 const outputImageCanvas = document.getElementById("imageResult");
+const outputTextBox = document.getElementById("textResult");
 let previewUrl;
 
 
-function xnbLoad({target})
+function showXnbData(xnbData)
 {
-	let result = convertXnbData(target.result);
-	if(result?.extension === "png") arrayToImg(result.data);
+	if(xnbData.contentType === "Texture2D")
+	{
+		const content = xnbDataToContent(xnbData);
+		arrayToImg(content.data);
+		outputTextBox.textContent = "";
+	}
+	else if(xnbData.contentType === "JSON")
+	{
+		outputTextBox.textContent = xnbData.rawContent;
+		outputImageCanvas.src="assets/blank.png";
+	}
+	else
+	{
+		outputTextBox.textContent = "[Binary Data]";
+		outputImageCanvas.src="assets/blank.png";
+	}
+	return xnbData;
 }
 
 function pngLoad({target})
@@ -64,6 +118,8 @@ function pngLoad({target})
 
 function arrayToImg(buffer)
 {
+	window.URL.revokeObjectURL(previewUrl);
+
 	const blob = new Blob([buffer], {type: "image/png"});
 	previewUrl = window.URL.createObjectURL(blob);
 	outputImageCanvas.src = previewUrl;
@@ -79,19 +135,44 @@ const zipper = new zipDownloadMaker(
 	({extension}, baseName)=>`${baseName}.${extension}`
 );
 
-function xnbUnpackToZip(xnbFile)
-{
-	const [baseName] = extractFileName(xnbFile.name);
-	zipper.initialize(baseName);
-
-	unpackToFiles(xnbFile).then(zipper.export.bind(zipper));
-}
-
 function extractFileName(fullname)
 {
 	let matcher = fullname.match(/(.*)\.([^\s.]+)$/);
 	if(matcher === null) return [fullname,null];
 	return [ matcher[1], matcher[2] ];
 }
+
+function closeButton()
+{
+	zipper.inactiveDownloadButton();
+}
+
+/******************************************************************************/
+/*                                  Show Code                                 */
+/*----------------------------------------------------------------------------*/
+const codeBox = document.getElementById("code");
+
+
+function codeMaker(strings, {yaml=false, contentOnly=false}={})
+{
+	let configList=[];
+	if(yaml) configList.push("yaml:true");
+	if(contentOnly) configList.push("contentOnly:true");
+	const configString = configList.length > 0 ? `, {${configList.join(", ")}}` : "";
+	return strings[0] + configString + strings[1];
+}
+
+
+function showCode()
+{
+const code=codeMaker`import { unpackToFiles } from "./libs/xnb.module.js";
+async function handleFile(file)
+{
+	return unpackToFiles(file${options});
+}`;
+	codeBox.textContent = code;
+}
+
+
 
 export {addEventlistener_unpack};
