@@ -47,14 +47,29 @@ function unpackToContent(file)
  * Asynchronously reads the file into binary and then unpacks the contents and remake to Blobs array.
  * XNB -> arrayBuffer -> XnbData -> Files
  * @param {File / Buffer} file
+ * @param {String} file name(for node.js)
  * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only)
  * @return {Array<Blobs>} exported Files Blobs
  */
-function unpackToFiles(file, configs={})
+function unpackToFiles(file, ...args)
 {
-	let [fileName] = extractFileName(file.name);
+	let name = null, configs={};
+	if(args.length >= 2)
+	{
+		name = args[0];
+		configs=args[1];
+	}
+	else if(args.length === 1)
+	{
+		const arg = args[0];
+		if(typeof arg === "string") name = arg;
+		else if(typeof arg === "object") configs = arg;
+	}
+	if(typeof window !== "undefined" && name === null) name = file.name;
+
+	let [fileName] = extractFileName(name);
 	const exporter = xnbObject => exportFiles(xnbObject, configs, fileName);
-	return unpackXnb(file).then(exporter);
+	return unpackToXnbData(file).then(exporter);
 }
 
 
@@ -102,6 +117,11 @@ function xnbDataToContent(loadedXnb)
 /*                                 Pack XNB                                   */
 /*----------------------------------------------------------------------------*/
 
+/**
+ * reads the json and then unpacks the contents.
+ * @param {FileList/Array<Object{name, data}>} to pack json data
+ * @return {Object<file>/Object<buffer>} packed XNB Array Buffer
+ */
 function fileMapper(files)
 {
 	let returnMap = {};
@@ -115,7 +135,8 @@ function fileMapper(files)
 
 		if(returnMap[fileName] === undefined) returnMap[fileName]={};
 		const namedFileObj = returnMap[fileName];
-		namedFileObj[extension] = file;
+		if(typeof Blob === "function" && file instanceof Blob) namedFileObj[extension] = file;
+		else namedFileObj[extension] = file.data;
 	}
 	return returnMap;
 }
@@ -149,13 +170,13 @@ function pack(files, configs={})
 				.then(packJsonToBinary)
 				.then((buffer)=>{
 					//blob is avaliable
-					if(Blob !== undefined) return {
+					if(typeof Blob === "function") return {
 						name:fileName,
 						data:new Blob([buffer], {type : "application/octet-stream"})
 					};
 					return {
 						name:fileName,
-						data:buffer
+						data:new Uint8Array(buffer)
 					};
 				})
 		);

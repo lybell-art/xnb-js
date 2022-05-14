@@ -5977,9 +5977,9 @@ class XnbConverter {
 		if (magic != 'XNB') throw new XnbError("Invalid file magic found, expecting \"XNB\", found \"".concat(magic, "\"")); // debug print that valid XNB magic was found
 		// load the target platform
 
-		this.target = this.buffer.readString(1).toLowerCase(); // read the target platform
+		this.target = this.buffer.readString(1).toLowerCase(); // read the format version
 
-		this.formatVersion = this.buffer.readByte(); // read the XNB format version
+		this.formatVersion = this.buffer.readByte(); // read the flag bits
 
 		const flags = this.buffer.readByte(1); // get the HiDef flag
 
@@ -9423,14 +9423,26 @@ function unpackToContent(file) {
  * Asynchronously reads the file into binary and then unpacks the contents and remake to Blobs array.
  * XNB -> arrayBuffer -> XnbData -> Files
  * @param {File / Buffer} file
+ * @param {String} file name(for node.js)
  * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only)
  * @return {Array<Blobs>} exported Files Blobs
  */
 
 
 function unpackToFiles(file) {
-	let configs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-	let [fileName] = extractFileName(file.name);
+	let name = null,
+			configs = {};
+
+	if ((arguments.length <= 1 ? 0 : arguments.length - 1) >= 2) {
+		name = arguments.length <= 1 ? undefined : arguments[1];
+		configs = arguments.length <= 2 ? undefined : arguments[2];
+	} else if ((arguments.length <= 1 ? 0 : arguments.length - 1) === 1) {
+		const arg = arguments.length <= 1 ? undefined : arguments[1];
+		if (typeof arg === "string") name = arg;else if (typeof arg === "object") configs = arg;
+	}
+
+	if (typeof window !== "undefined" && name === null) name = file.name;
+	let [fileName] = extractFileName(name);
 
 	const exporter = xnbObject => exportFiles(xnbObject, configs, fileName);
 

@@ -10299,47 +10299,9 @@
 				if (magic != 'XNB') throw new XnbError("Invalid file magic found, expecting \"XNB\", found \"".concat(magic, "\"")); // debug print that valid XNB magic was found
 				// load the target platform
 
-				this.target = this.buffer.readString(1).toLowerCase(); // read the target platform
+				this.target = this.buffer.readString(1).toLowerCase(); // read the format version
 
-				switch (this.target) {
-					case 'w':
-						break;
-
-					case 'm':
-						break;
-
-					case 'x':
-						break;
-
-					case 'a':
-						break;
-
-					case 'i':
-						break;
-
-					default:
-						console.warn("Invalid target platform \"".concat(this.target, "\" found."));
-						break;
-				} // read the format version
-
-
-				this.formatVersion = this.buffer.readByte(); // read the XNB format version
-
-				switch (this.formatVersion) {
-					case 0x3:
-						break;
-
-					case 0x4:
-						break;
-
-					case 0x5:
-						break;
-
-					default:
-						console.warn("XNB Format Version 0x".concat(this.formatVersion.toString(16), " unknown."));
-						break;
-				} // read the flag bits
-
+				this.formatVersion = this.buffer.readByte(); // read the flag bits
 
 				var flags = this.buffer.readByte(1); // get the HiDef flag
 
@@ -13907,7 +13869,7 @@
 
 	function makeBlob(data, dataType) {
 		//blob is avaliable
-		if (Blob !== undefined) return {
+		if (typeof Blob === "function") return {
 			data: new Blob([data], {
 				type: getMimeType(dataType)
 			}),
@@ -13993,8 +13955,88 @@
 
 		return null;
 	}
+	/**
+	 * @param {Blob/Buffer} input Blob/Buffer
+	 * @return {Promise} promise returns text
+	 */
 
-	function readExternFiles(_x, _x2) {
+
+	function readBlobasText(_x) {
+		return _readBlobasText.apply(this, arguments);
+	}
+	/**
+	 * @param {Blob/Buffer} input Blob/Buffer
+	 * @return {Promise} promise returns text
+	 */
+
+
+	function _readBlobasText() {
+		_readBlobasText = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(blob) {
+			return regeneratorRuntime.wrap(function _callee$(_context) {
+				while (1) {
+					switch (_context.prev = _context.next) {
+						case 0:
+							if (!(typeof Blob === "function" && blob instanceof Blob)) {
+								_context.next = 4;
+								break;
+							}
+
+							return _context.abrupt("return", blob.text());
+
+						case 4:
+							if (!(typeof Buffer === "function" && blob instanceof Buffer)) {
+								_context.next = 6;
+								break;
+							}
+
+							return _context.abrupt("return", blob.toString());
+
+						case 6:
+						case "end":
+							return _context.stop();
+					}
+				}
+			}, _callee);
+		}));
+		return _readBlobasText.apply(this, arguments);
+	}
+
+	function readBlobasArrayBuffer(_x2) {
+		return _readBlobasArrayBuffer.apply(this, arguments);
+	}
+
+	function _readBlobasArrayBuffer() {
+		_readBlobasArrayBuffer = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(blob) {
+			return regeneratorRuntime.wrap(function _callee2$(_context2) {
+				while (1) {
+					switch (_context2.prev = _context2.next) {
+						case 0:
+							if (!(typeof Blob === "function" && blob instanceof Blob)) {
+								_context2.next = 4;
+								break;
+							}
+
+							return _context2.abrupt("return", blob.arrayBuffer());
+
+						case 4:
+							if (!(typeof Buffer === "function" && blob instanceof Buffer)) {
+								_context2.next = 6;
+								break;
+							}
+
+							return _context2.abrupt("return", blob.buffer);
+
+						case 6:
+						case "end":
+							return _context2.stop();
+					}
+				}
+			}, _callee2);
+		}));
+		return _readBlobasArrayBuffer.apply(this, arguments);
+	}
+
+	function readExternFiles(_x3, _x4) {
 		return _readExternFiles.apply(this, arguments);
 	}
 	/**
@@ -14005,26 +14047,26 @@
 
 
 	function _readExternFiles() {
-		_readExternFiles = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(extension, files) {
+		_readExternFiles = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(extension, files) {
 			var rawPng, png, data, _data, _data2;
 
-			return regeneratorRuntime.wrap(function _callee$(_context) {
+			return regeneratorRuntime.wrap(function _callee3$(_context3) {
 				while (1) {
-					switch (_context.prev = _context.next) {
+					switch (_context3.prev = _context3.next) {
 						case 0:
 							if (!(extension === "png")) {
-								_context.next = 6;
+								_context3.next = 6;
 								break;
 							}
 
-							_context.next = 3;
-							return files.png.arrayBuffer();
+							_context3.next = 3;
+							return readBlobasArrayBuffer(files.png);
 
 						case 3:
-							rawPng = _context.sent;
+							rawPng = _context3.sent;
 							// get the png data
 							png = r$1(new Uint8Array(rawPng));
-							return _context.abrupt("return", {
+							return _context3.abrupt("return", {
 								type: "Texture2D",
 								data: png.data,
 								width: png.width,
@@ -14033,68 +14075,68 @@
 
 						case 6:
 							if (!(extension === "cso")) {
-								_context.next = 11;
+								_context3.next = 11;
 								break;
 							}
 
-							_context.next = 9;
-							return files.cso.arrayBuffer();
+							_context3.next = 9;
+							return readBlobasArrayBuffer(files.cso);
 
 						case 9:
-							data = _context.sent;
-							return _context.abrupt("return", {
+							data = _context3.sent;
+							return _context3.abrupt("return", {
 								type: "Effect",
 								data: data
 							});
 
 						case 11:
 							if (!(extension === "tbin")) {
-								_context.next = 16;
+								_context3.next = 16;
 								break;
 							}
 
-							_context.next = 14;
-							return files.tbin.arrayBuffer();
+							_context3.next = 14;
+							return readBlobasArrayBuffer(files.tbin);
 
 						case 14:
-							_data = _context.sent;
-							return _context.abrupt("return", {
+							_data = _context3.sent;
+							return _context3.abrupt("return", {
 								type: "TBin",
 								data: _data
 							});
 
 						case 16:
 							if (!(extension === "xml")) {
-								_context.next = 21;
+								_context3.next = 21;
 								break;
 							}
 
-							_context.next = 19;
-							return files.xml.text();
+							_context3.next = 19;
+							return readBlobasText(files.xml);
 
 						case 19:
-							_data2 = _context.sent;
-							return _context.abrupt("return", {
+							_data2 = _context3.sent;
+							return _context3.abrupt("return", {
 								type: "BmFont",
 								data: _data2
 							});
 
 						case 21:
 						case "end":
-							return _context.stop();
+							return _context3.stop();
 					}
 				}
-			}, _callee);
+			}, _callee3);
 		}));
 		return _readExternFiles.apply(this, arguments);
 	}
 
-	function resolveImports(_x3) {
+	function resolveImports(_x5) {
 		return _resolveImports.apply(this, arguments);
 	}
 
 	function _resolveImports() {
-		_resolveImports = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(files) {
+		_resolveImports = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(files) {
 			var configs,
 					_configs$compression,
 					compression,
@@ -14107,29 +14149,29 @@
 					value,
 					_extractFileName,
 					extension,
-					_args2 = arguments;
+					_args4 = arguments;
 
-			return regeneratorRuntime.wrap(function _callee2$(_context2) {
+			return regeneratorRuntime.wrap(function _callee4$(_context4) {
 				while (1) {
-					switch (_context2.prev = _context2.next) {
+					switch (_context4.prev = _context4.next) {
 						case 0:
-							configs = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : {};
+							configs = _args4.length > 1 && _args4[1] !== undefined ? _args4[1] : {};
 							_configs$compression = configs.compression, compression = _configs$compression === void 0 ? "default" : _configs$compression;
 							jsonFile = files.json || files.yaml;
 
 							if (jsonFile) {
-								_context2.next = 5;
+								_context4.next = 5;
 								break;
 							}
 
 							throw new XnbError("There is no JSON or YAML file to pack!");
 
 						case 5:
-							_context2.next = 7;
-							return jsonFile.text();
+							_context4.next = 7;
+							return readBlobasText(jsonFile);
 
 						case 7:
-							rawText = _context2.sent;
+							rawText = _context4.sent;
 							jsonData = null;
 							if (files.json) jsonData = JSON.parse(rawText);else jsonData = fromXnbNodeData(parse(rawText)); // apply configuration data
 
@@ -14137,7 +14179,7 @@
 							if (compressBits !== null) jsonData.header.compressed = compressBits; // need content
 
 							if (jsonData.hasOwnProperty('content')) {
-								_context2.next = 14;
+								_context4.next = 14;
 								break;
 							}
 
@@ -14147,27 +14189,27 @@
 							found = searchElement(jsonData.content, "export");
 
 							if (!found) {
-								_context2.next = 21;
+								_context4.next = 21;
 								break;
 							}
 
 							parent = found.parent, value = found.value;
 							_extractFileName = extractFileName(value), extension = _extractFileName[1];
-							_context2.next = 20;
+							_context4.next = 20;
 							return readExternFiles(extension, files);
 
 						case 20:
-							parent.export = _context2.sent;
+							parent.export = _context4.sent;
 
 						case 21:
-							return _context2.abrupt("return", jsonData);
+							return _context4.abrupt("return", jsonData);
 
 						case 22:
 						case "end":
-							return _context2.stop();
+							return _context4.stop();
 					}
 				}
-			}, _callee2);
+			}, _callee4);
 		}));
 		return _resolveImports.apply(this, arguments);
 	}
@@ -14247,22 +14289,34 @@
 	 * Asynchronously reads the file into binary and then unpacks the contents and remake to Blobs array.
 	 * XNB -> arrayBuffer -> XnbData -> Files
 	 * @param {File / Buffer} file
+	 * @param {String} file name(for node.js)
 	 * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only)
 	 * @return {Array<Blobs>} exported Files Blobs
 	 */
 
 
 	function unpackToFiles(file) {
-		var configs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+		var name = null,
+				configs = {};
 
-		var _extractFileName = extractFileName(file.name),
+		if ((arguments.length <= 1 ? 0 : arguments.length - 1) >= 2) {
+			name = arguments.length <= 1 ? undefined : arguments[1];
+			configs = arguments.length <= 2 ? undefined : arguments[2];
+		} else if ((arguments.length <= 1 ? 0 : arguments.length - 1) === 1) {
+			var arg = arguments.length <= 1 ? undefined : arguments[1];
+			if (typeof arg === "string") name = arg;else if (_typeof(arg) === "object") configs = arg;
+		}
+
+		if (typeof window !== "undefined" && name === null) name = file.name;
+
+		var _extractFileName = extractFileName(name),
 				fileName = _extractFileName[0];
 
 		var exporter = function exporter(xnbObject) {
 			return exportFiles(xnbObject, configs, fileName);
 		};
 
-		return unpackXnb(file).then(exporter);
+		return unpackToXnbData(file).then(exporter);
 	}
 	/**
 	 * reads the buffer and then unpacks.
@@ -14307,6 +14361,12 @@
 
 	/*----------------------------------------------------------------------------*/
 
+	/**
+	 * reads the json and then unpacks the contents.
+	 * @param {FileList/Array<Object{name, data}>} to pack json data
+	 * @return {Object<file>/Object<buffer>} packed XNB Array Buffer
+	 */
+
 
 	function fileMapper(files) {
 		var returnMap = {};
@@ -14321,7 +14381,7 @@
 			if (extension === null) continue;
 			if (returnMap[fileName] === undefined) returnMap[fileName] = {};
 			var namedFileObj = returnMap[fileName];
-			namedFileObj[extension] = file;
+			if (typeof Blob === "function" && file instanceof Blob) namedFileObj[extension] = file;else namedFileObj[extension] = file.data;
 		}
 
 		return returnMap;
@@ -14358,7 +14418,7 @@
 					filePack = groupedFiles[fileName];
 			promises.push(resolveImports(filePack, configs).then(packJsonToBinary).then(function (buffer) {
 				//blob is avaliable
-				if (Blob !== undefined) return {
+				if (typeof Blob === "function") return {
 					name: fileName,
 					data: new Blob([buffer], {
 						type: "application/octet-stream"
@@ -14366,7 +14426,7 @@
 				};
 				return {
 					name: fileName,
-					data: buffer
+					data: new Uint8Array(buffer)
 				};
 			}));
 		}

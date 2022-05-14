@@ -73,7 +73,7 @@ function getMimeType(dataType)
 function makeBlob(data, dataType)
 {
 	//blob is avaliable
-	if(Blob !== undefined) return {
+	if(typeof Blob === "function") return {
 		data : new Blob([data], {type : getMimeType(dataType)}),
 		extension : getExtension(dataType)
 	};
@@ -166,6 +166,26 @@ function resolveCompression(compressionString)
 	return null;
 }
 
+/**
+ * @param {Blob/Buffer} input Blob/Buffer
+ * @return {Promise} promise returns text
+ */
+async function readBlobasText(blob)
+{
+	if(typeof Blob === "function" && blob instanceof Blob) return blob.text();
+	else if(typeof Buffer === "function" && blob instanceof Buffer) return blob.toString();
+}
+
+/**
+ * @param {Blob/Buffer} input Blob/Buffer
+ * @return {Promise} promise returns text
+ */
+async function readBlobasArrayBuffer(blob)
+{
+	if(typeof Blob === "function" && blob instanceof Blob) return blob.arrayBuffer();
+	else if(typeof Buffer === "function" && blob instanceof Buffer) return blob.buffer;
+}
+
 
 async function readExternFiles(extension, files)
 {
@@ -173,7 +193,7 @@ async function readExternFiles(extension, files)
 	if(extension === "png")
 	{
 		// get binary file
-		const rawPng = await files.png.arrayBuffer();
+		const rawPng = await readBlobasArrayBuffer(files.png);
 		// get the png data
 		const png = fromPNG(new Uint8Array(rawPng) );
 		return {
@@ -187,7 +207,7 @@ async function readExternFiles(extension, files)
 	// Compiled Effects
 	if(extension === "cso")
 	{
-		const data = await files.cso.arrayBuffer();
+		const data = await readBlobasArrayBuffer(files.cso);
 		return {
 			type: "Effect",
 			data
@@ -197,7 +217,7 @@ async function readExternFiles(extension, files)
 	// TBin Map
 	if(extension === "tbin")
 	{
-		const data = await files.tbin.arrayBuffer();
+		const data = await readBlobasArrayBuffer(files.tbin);
 		return {
 			type: "TBin",
 			data
@@ -207,7 +227,7 @@ async function readExternFiles(extension, files)
 	// BmFont Xml
 	if(extension === "xml")
 	{
-		const data = await files.xml.text();
+		const data = await readBlobasText(files.xml);
 		return {
 			type: "BmFont",
 			data
@@ -229,7 +249,7 @@ async function resolveImports(files, configs={})
 	if(!jsonFile) throw new XnbError("There is no JSON or YAML file to pack!");
 
 	//parse json/yaml data
-	const rawText = await jsonFile.text();
+	const rawText = await readBlobasText(jsonFile);
 	let jsonData = null;
 	if(files.json) jsonData = JSON.parse(rawText);
 	else jsonData = fromXnbNodeData( parseYaml(rawText) );

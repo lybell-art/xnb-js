@@ -15,6 +15,8 @@ function removeDebug() {
 			return (id === "__empty__") ? "export default {};" : null;
 		},
 		transform(code, filename) {
+			code = code.replace(/\/\/ read the target platform\s+switch[\s\S]+found\.`\);\s+break;\s+}/mg, "");
+			code = code.replace(/\/\/ read the XNB format version\s+switch[\s\S]+unknown\.`\);\s+break;\s+}/mg, "");
 			code = code.replace(/Debug\(.+[\)];\n{0,1}/g, "");
 			code = code.replace("import Debug from .*\n$", "");
 			return {
@@ -132,7 +134,7 @@ let builds = [
 		babelCleanup(),
 		terser()
 	]
-},
+}
 ]
 
 

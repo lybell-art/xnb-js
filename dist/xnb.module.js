@@ -5977,9 +5977,9 @@ class XnbConverter {
 		if (magic != 'XNB') throw new XnbError("Invalid file magic found, expecting \"XNB\", found \"".concat(magic, "\"")); // debug print that valid XNB magic was found
 		// load the target platform
 
-		this.target = this.buffer.readString(1).toLowerCase(); // read the target platform
+		this.target = this.buffer.readString(1).toLowerCase(); // read the format version
 
-		this.formatVersion = this.buffer.readByte(); // read the XNB format version
+		this.formatVersion = this.buffer.readByte(); // read the flag bits
 
 		const flags = this.buffer.readByte(1); // get the HiDef flag
 
@@ -9202,7 +9202,7 @@ function getMimeType(dataType) {
 
 function makeBlob(data, dataType) {
 	//blob is avaliable
-	if (Blob !== undefined) return {
+	if (typeof Blob === "function") return {
 		data: new Blob([data], {
 			type: getMimeType(dataType)
 		}),
@@ -9294,12 +9294,30 @@ function resolveCompression(compressionString) {
 
 	return null;
 }
+/**
+ * @param {Blob/Buffer} input Blob/Buffer
+ * @return {Promise} promise returns text
+ */
+
+
+async function readBlobasText(blob) {
+	if (typeof Blob === "function" && blob instanceof Blob) return blob.text();else if (typeof Buffer === "function" && blob instanceof Buffer) return blob.toString();
+}
+/**
+ * @param {Blob/Buffer} input Blob/Buffer
+ * @return {Promise} promise returns text
+ */
+
+
+async function readBlobasArrayBuffer(blob) {
+	if (typeof Blob === "function" && blob instanceof Blob) return blob.arrayBuffer();else if (typeof Buffer === "function" && blob instanceof Buffer) return blob.buffer;
+}
 
 async function readExternFiles(extension, files) {
 	// Texture2D to PNG
 	if (extension === "png") {
 		// get binary file
-		const rawPng = await files.png.arrayBuffer(); // get the png data
+		const rawPng = await readBlobasArrayBuffer(files.png); // get the png data
 
 		const png = r(new Uint8Array(rawPng));
 		return {
@@ -9312,7 +9330,7 @@ async function readExternFiles(extension, files) {
 
 
 	if (extension === "cso") {
-		const data = await files.cso.arrayBuffer();
+		const data = await readBlobasArrayBuffer(files.cso);
 		return {
 			type: "Effect",
 			data
@@ -9321,7 +9339,7 @@ async function readExternFiles(extension, files) {
 
 
 	if (extension === "tbin") {
-		const data = await files.tbin.arrayBuffer();
+		const data = await readBlobasArrayBuffer(files.tbin);
 		return {
 			type: "TBin",
 			data
@@ -9330,7 +9348,7 @@ async function readExternFiles(extension, files) {
 
 
 	if (extension === "xml") {
-		const data = await files.xml.text();
+		const data = await readBlobasText(files.xml);
 		return {
 			type: "BmFont",
 			data
@@ -9352,7 +9370,7 @@ async function resolveImports(files) {
 	const jsonFile = files.json || files.yaml;
 	if (!jsonFile) throw new XnbError("There is no JSON or YAML file to pack!"); //parse json/yaml data
 
-	const rawText = await jsonFile.text();
+	const rawText = await readBlobasText(jsonFile);
 	let jsonData = null;
 	if (files.json) jsonData = JSON.parse(rawText);else jsonData = fromXnbNodeData(parse(rawText)); // apply configuration data
 
@@ -9423,18 +9441,30 @@ function unpackToContent(file) {
  * Asynchronously reads the file into binary and then unpacks the contents and remake to Blobs array.
  * XNB -> arrayBuffer -> XnbData -> Files
  * @param {File / Buffer} file
+ * @param {String} file name(for node.js)
  * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only)
  * @return {Array<Blobs>} exported Files Blobs
  */
 
 
 function unpackToFiles(file) {
-	let configs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-	let [fileName] = extractFileName(file.name);
+	let name = null,
+			configs = {};
+
+	if ((arguments.length <= 1 ? 0 : arguments.length - 1) >= 2) {
+		name = arguments.length <= 1 ? undefined : arguments[1];
+		configs = arguments.length <= 2 ? undefined : arguments[2];
+	} else if ((arguments.length <= 1 ? 0 : arguments.length - 1) === 1) {
+		const arg = arguments.length <= 1 ? undefined : arguments[1];
+		if (typeof arg === "string") name = arg;else if (typeof arg === "object") configs = arg;
+	}
+
+	if (typeof window !== "undefined" && name === null) name = file.name;
+	let [fileName] = extractFileName(name);
 
 	const exporter = xnbObject => exportFiles(xnbObject, configs, fileName);
 
-	return unpackXnb(file).then(exporter);
+	return unpackToXnbData(file).then(exporter);
 }
 /**
  * reads the buffer and then unpacks.
@@ -9481,6 +9511,12 @@ function xnbDataToContent(loadedXnb) {
 
 /*----------------------------------------------------------------------------*/
 
+/**
+ * reads the json and then unpacks the contents.
+ * @param {FileList/Array<Object{name, data}>} to pack json data
+ * @return {Object<file>/Object<buffer>} packed XNB Array Buffer
+ */
+
 
 function fileMapper(files) {
 	let returnMap = {};
@@ -9492,7 +9528,7 @@ function fileMapper(files) {
 		if (extension === null) continue;
 		if (returnMap[fileName] === undefined) returnMap[fileName] = {};
 		const namedFileObj = returnMap[fileName];
-		namedFileObj[extension] = file;
+		if (typeof Blob === "function" && file instanceof Blob) namedFileObj[extension] = file;else namedFileObj[extension] = file.data;
 	}
 
 	return returnMap;
@@ -9525,7 +9561,7 @@ function pack(files) {
 	for (let [fileName, filePack] of Object.entries(groupedFiles)) {
 		promises.push(resolveImports(filePack, configs).then(packJsonToBinary).then(buffer => {
 			//blob is avaliable
-			if (Blob !== undefined) return {
+			if (typeof Blob === "function") return {
 				name: fileName,
 				data: new Blob([buffer], {
 					type: "application/octet-stream"
@@ -9533,7 +9569,7 @@ function pack(files) {
 			};
 			return {
 				name: fileName,
-				data: buffer
+				data: new Uint8Array(buffer)
 			};
 		}));
 	}
