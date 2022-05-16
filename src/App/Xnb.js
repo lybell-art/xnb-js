@@ -13,7 +13,7 @@ import ReaderResolver from './ReaderResolver.js';
 import XnbError from "../Utils/XnbError.js";
 import Debug from "../Utils/Debug.js";
 
-import XnbData from "./XnbData.js";
+import {XnbData} from "./XnbData.js";
 
 // "constants" for this class
 const HIDEF_MASK = 0x1;

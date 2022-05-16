@@ -5,12 +5,13 @@ const bufferToXnb = (function(){
 
 	return function bufferToXnb(buffer)
 	{
-		return new Promise( (resolve)=>{
+		return new Promise( (resolve, reject)=>{
 			worker.postMessage(buffer);
 			worker.onmessage = (e)=>{
 				const {header, readers, content} = e.data;
 				resolve( new XnbData(header, readers, content) );
-			}
+			};
+			worker.onerror = (e)=>reject(e);
 		});
 	}
 })();

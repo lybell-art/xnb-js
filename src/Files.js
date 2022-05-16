@@ -111,16 +111,16 @@ function exportContent(content, jsonContent=false)
 }
 
 
-/**
+/** @api
  * decompressed xnb object to real file blobs.
  * @param {XnbData} decompressed xnb objects (returned by bufferToXnb() / Xnb.load())
- * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only) (optional)
- * @param {String} exported file's name (optional)
+ * @param {Object} config (yaml:export file as yaml, 
+ * 					contentOnly:export content file only, 
+ * 					fileName:exported files's name) (optional)
  */
-function exportFiles(xnbObject, configs={}, fileName=null)
+function exportFiles(xnbObject, {yaml:isYaml=false, contentOnly=false, fileName=null}={})
 {
 	// set config
-	let {yaml:isYaml=false, contentOnly=false} = configs;
 	if(isYaml && contentOnly) isYaml = false;
 
 	// ensure we have content field

@@ -1,13 +1,13 @@
 import XnbConverter from "./App/Xnb.js";
-import XnbData from "./App/XnbData.js";
+import {XnbData, XnbContent} from "./App/XnbData.js";
 import {exportFiles, exportContent, resolveImports, extractFileName} from "./Files.js";
 
 
-/******************************************************************************/
-/*                                Unpack XNB                                  */
+/*----------------------------------------------------------------------------*/
+/*................................Unpack XNB..................................*/
 /*----------------------------------------------------------------------------*/
 
-/**
+/** @api
  * Asynchronously reads the file into binary and then unpacks the json data.
  * XNB -> arrayBuffer -> XnbData
  * @param {File / Buffer} file
@@ -32,49 +32,36 @@ async function unpackToXnbData(file)
 	return bufferToXnb(file.buffer);
 }
 
-/**
+/** @api
  * Asynchronously reads the file into binary and then return content file.
  * XNB -> arrayBuffer -> XnbData -> Content
  * @param {File / Buffer} file
- * @return {Object} the loaded contents
+ * @return {XnbContent} exported Content Object
  */
 function unpackToContent(file)
 {
 	return unpackToXnbData(file).then(xnbDataToContent);
 }
 
-/**
+/** @api
  * Asynchronously reads the file into binary and then unpacks the contents and remake to Blobs array.
  * XNB -> arrayBuffer -> XnbData -> Files
  * @param {File / Buffer} file
- * @param {String} file name(for node.js)
- * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only)
+ * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only, fileName:file name(for node.js))
  * @return {Array<Blobs>} exported Files Blobs
  */
-function unpackToFiles(file, ...args)
+function unpackToFiles(file, configs={})
 {
-	let name = null, configs={};
-	if(args.length >= 2)
-	{
-		name = args[0];
-		configs=args[1];
-	}
-	else if(args.length === 1)
-	{
-		const arg = args[0];
-		if(typeof arg === "string") name = arg;
-		else if(typeof arg === "object") configs = arg;
-	}
+	let {yaml=false, contentOnly=false, fileName:name=null} = configs;
 	if(typeof window !== "undefined" && name === null) name = file.name;
 
 	let [fileName] = extractFileName(name);
-	const exporter = xnbObject => exportFiles(xnbObject, configs, fileName);
+	const exporter = xnbObject => exportFiles(xnbObject, {yaml, contentOnly, fileName});
 	return unpackToXnbData(file).then(exporter);
 }
 
 
-
-/**
+/** @api
  * reads the buffer and then unpacks.
  * arrayBuffer -> XnbData
  * @param {ArrayBuffer} buffer
@@ -86,11 +73,11 @@ function bufferToXnb(buffer)
 	return xnb.load(buffer);
 }
 
-/**
+/** @api
  * reads the buffer and then unpacks the contents.
  * arrayBuffer -> XnbData -> Content
  * @param {ArrayBuffer} buffer
- * @return {Object} the loaded XNB object(not include headers)
+ * @return {XnbContent} exported Content Object
  */
 function bufferToContents(buffer)
 {
@@ -99,25 +86,26 @@ function bufferToContents(buffer)
 	return xnbDataToContent(xnbData);
 }
 
-/**
+/** @api
  * remove header from the loaded XNB Object
  * XnbData -> Content
  * @param {XnbData} the loaded XNB object include headers
- * @return {Array<Blobs>} exported Files Blobs
+ * @return {XnbContent} exported Content Object
  */
 function xnbDataToContent(loadedXnb)
 {
 	const {content} = loadedXnb;
-	return exportContent(content, true);
+	const {data, extension} = exportContent(content, true);
+	return new XnbContent(data, extension);
 }
 
 
 
-/******************************************************************************/
-/*                                 Pack XNB                                   */
+/*----------------------------------------------------------------------------*/
+/*.................................Pack XNB...................................*/
 /*----------------------------------------------------------------------------*/
 
-/**
+/** @api
  * reads the json and then unpacks the contents.
  * @param {FileList/Array<Object{name, data}>} to pack json data
  * @return {Object<file>/Object<buffer>} packed XNB Array Buffer
@@ -141,7 +129,7 @@ function fileMapper(files)
 	return returnMap;
 }
 
-/**
+/** @api
  * reads the json and then unpacks the contents.
  * @param {json} to pack json data
  * @return {ArrayBuffer} packed XNB Array Buffer
@@ -153,7 +141,7 @@ function packJsonToBinary(json)
 	return buffer;
 }
 
-/**
+/** @api
  * Asynchronously reads the file into binary and then pack xnb files.
  * @param {FlieList} files
  * @param {Object} configs(compression:default, none, LZ4, LZX / debug)
@@ -189,7 +177,6 @@ function pack(files, configs={})
 	});
 }
 
-
 export {unpackToXnbData, 
 	unpackToContent, 
 	unpackToFiles, 
@@ -200,5 +187,6 @@ export {unpackToXnbData,
 	xnbDataToContent, 
 	exportFiles as xnbDataToFiles,
 	pack,
-	XnbData
+	XnbData,
+	XnbContent
 };

@@ -64,7 +64,8 @@ let builds = [
 		babel({
 			babelHelpers:'bundled',
 			babelrc: false,
-			...babelrc
+			...babelrc,
+			shouldPrintComment:(val)=>val.startsWith("* @api")
 		}),
 		babelCleanup()
 	]
@@ -107,7 +108,8 @@ let builds = [
 			babelHelpers:'bundled',
 			babelrc: false,
 			exclude:'node_modules/**',
-			...es5babelrc
+			...es5babelrc,
+			shouldPrintComment:(val)=>val.startsWith("* @api")
 		}),
 		babelCleanup()
 	]

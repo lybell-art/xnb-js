@@ -65,7 +65,7 @@ function handleFiles()
 	else {
 		console.log("this is xnb file!");
 		const [baseName] = extractFileName(file.name);
-		const exportFiles = xnbData => xnbDataToFiles(xnbData, options, baseName);
+		const exportFiles = xnbData => xnbDataToFiles(xnbData, {...options, fileName:baseName});
 
 		loadingSpinner.classList.add("shown");
 		showCode();
@@ -93,8 +93,8 @@ function showXnbData(xnbData)
 {
 	if(xnbData.contentType === "Texture2D")
 	{
-		const content = xnbDataToContent(xnbData);
-		arrayToImg(content.data);
+		const {content} = xnbDataToContent(xnbData);
+		arrayToImg(content);
 		outputTextBox.textContent = "";
 	}
 	else if(xnbData.contentType === "JSON")

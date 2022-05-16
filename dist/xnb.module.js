@@ -22,20 +22,14 @@ const UTF16_BITES = [0xD800, 0xDC00];
 const UTF16_MASK = 0b1111111111;
 
 function UTF8Encode(code) {
-	//0x0000 ~ 0x007F
-	if (code < 0x80) return [code]; //0x0080 ~ 0x07FF
-
-	if (code < 0x800) return [UTF8_FIRST_BITES[0] | code >> 6, UTF8_SECOND_BITES | code & UTF8_MASK]; //0x0800 ~ 0xFFFF
-
-	if (code < 0x10000) return [UTF8_FIRST_BITES[1] | code >> 12, UTF8_SECOND_BITES | code >> 6 & UTF8_MASK, UTF8_SECOND_BITES | code & UTF8_MASK]; //0x10000 ~
-
+	if (code < 0x80) return [code];
+	if (code < 0x800) return [UTF8_FIRST_BITES[0] | code >> 6, UTF8_SECOND_BITES | code & UTF8_MASK];
+	if (code < 0x10000) return [UTF8_FIRST_BITES[1] | code >> 12, UTF8_SECOND_BITES | code >> 6 & UTF8_MASK, UTF8_SECOND_BITES | code & UTF8_MASK];
 	return [UTF8_FIRST_BITES[2] | code >> 18, UTF8_SECOND_BITES | code >> 12 & UTF8_MASK, UTF8_SECOND_BITES | code >> 6 & UTF8_MASK, UTF8_SECOND_BITES | code & UTF8_MASK];
 }
 
 function UTF16Encode(code) {
-	//0x0000 ~ 0xFFFF
-	if (code < 0xFFFF) return [code]; //0x10000 ~
-
+	if (code < 0xFFFF) return [code];
 	code -= 0x10000;
 	return [UTF16_BITES[0] | code >> 10 & UTF16_MASK, UTF16_BITES[1] | code & UTF16_MASK];
 }
@@ -45,16 +39,13 @@ function UTF8Decode(codeSet) {
 
 	if (typeof codeSet === "number") codeSet = [codeSet];
 	if (!((_codeSet = codeSet) !== null && _codeSet !== void 0 && _codeSet.length)) throw new Error("Invalid codeset!");
-	const codeSetRange = codeSet.length; //0x0000 ~ 0x007F
-
-	if (codeSetRange === 1) return codeSet[0]; //0x0080 ~ 0x07FF
-
-	if (codeSetRange === 2) return ((codeSet[0] ^ UTF8_FIRST_BITES[0]) << 6) + (codeSet[1] ^ UTF8_SECOND_BITES); //0x0800 ~ 0xFFFF
+	const codeSetRange = codeSet.length;
+	if (codeSetRange === 1) return codeSet[0];
+	if (codeSetRange === 2) return ((codeSet[0] ^ UTF8_FIRST_BITES[0]) << 6) + (codeSet[1] ^ UTF8_SECOND_BITES);
 
 	if (codeSetRange === 3) {
 		return ((codeSet[0] ^ UTF8_FIRST_BITES[1]) << 12) + ((codeSet[1] ^ UTF8_SECOND_BITES) << 6) + (codeSet[2] ^ UTF8_SECOND_BITES);
-	} //0x10000 ~
-
+	}
 
 	return ((codeSet[0] ^ UTF8_FIRST_BITES[2]) << 18) + ((codeSet[1] ^ UTF8_SECOND_BITES) << 12) + ((codeSet[2] ^ UTF8_SECOND_BITES) << 6) + (codeSet[3] ^ UTF8_SECOND_BITES);
 }
@@ -64,10 +55,8 @@ function UTF16Decode(codeSet) {
 
 	if (typeof codeSet === "number") codeSet = [codeSet];
 	if (!((_codeSet2 = codeSet) !== null && _codeSet2 !== void 0 && _codeSet2.length)) throw new Error("Invalid codeset!");
-	const codeSetRange = codeSet.length; //0x0000 ~ 0xFFFF
-
-	if (codeSetRange === 1) return codeSet[0]; //0x10000 ~
-
+	const codeSetRange = codeSet.length;
+	if (codeSetRange === 1) return codeSet[0];
 	return ((codeSet[0] & UTF16_MASK) << 10) + (codeSet[1] & UTF16_MASK) + 0x10000;
 }
 
@@ -134,8 +123,7 @@ function UnicodeToString(unicodeArr) {
 
 	for (let code of unicodeArr) {
 		result.push(...UTF16Encode(code));
-	} //for bigger strings
-
+	}
 
 	const blockSize = 65536;
 	let resultStr = "";
@@ -158,56 +146,14 @@ function UTF8ToString(utf8Array) {
 const LITTLE_ENDIAN = true;
 
 class BufferReader {
-	/**
-	 * Creates instance of Reader class.
-	 * @constructor
-	 * @param {ArrayBuffer} target buffer to trace
-	 */
 	constructor(buffer) {
 		let endianus = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : LITTLE_ENDIAN;
-
-		/**
-		 * Sets the endianness of the buffer stream
-		 * @private
-		 * @type {Number}
-		 */
 		this._endianus = endianus;
-		/**
-		 * internal buffer for the reader
-		 * @private
-		 * @type {ArrayBuffer}
-		 */
-
 		this._buffer = buffer.slice();
-		/**
-		 * internal buffer for the reader
-		 * @private
-		 * @type {DataView}
-		 */
-
 		this._dataView = new DataView(this._buffer);
-		/**
-		 * Seek index for the internal buffer.
-		 * @private
-		 * @type {Number}
-		 */
-
 		this._offset = 0;
-		/**
-		 * Bit offset for bit reading.
-		 * @private
-		 * @type {Number}
-		 */
-
 		this._bitOffset = 0;
 	}
-	/**
-	* Seeks to a specific index in the buffer.
-	* @public
-	* @param {Number} index Sets the buffer seek index.
-	* @param {Number} origin Location to seek from
-	*/
-
 
 	seek(index) {
 		let origin = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : this._offset;
@@ -216,89 +162,33 @@ class BufferReader {
 		if (this._offset < 0 || this._offset > this.buffer.length) throw new RangeError("Buffer seek out of bounds! ".concat(this._offset, " ").concat(this.buffer.length));
 		return this._offset - offset;
 	}
-	/**
-	 * Gets the seek index of the buffer.
-	 * @public
-	 * @property bytePosition
-	 * @return {Number} Reurns the buffer seek index.
-	 */
-
 
 	get bytePosition() {
 		return Number.parseInt(this._offset);
 	}
-	/**
-	 * Sets the seek index of the buffer.
-	 * @public
-	 * @property bytePosition
-	 * @param {Number} value
-	 */
-
 
 	set bytePosition(value) {
 		this._offset = value;
 	}
-	/**
-	 * Gets the current position for bit reading.
-	 * @public
-	 * @property _bitPosition
-	 * @returns {Number}
-	 */
-
 
 	get bitPosition() {
 		return Number.parseInt(this._bitOffset);
 	}
-	/**
-	 * Sets the bit position clamped at 16-bit frames
-	 * @public
-	 * @property bitPosition
-	 * @param {Number} offset
-	 */
-
 
 	set bitPosition(offset) {
-		// when rewinding, reset it back to
-		if (offset < 0) offset = 16 - offset; // set the offset and clamp to 16-bit frame
-
-		this._bitOffset = offset % 16; // get byte seek for bit ranges that wrap past 16-bit frames
-
-		const byteSeek = (offset - Math.abs(offset) % 16) / 16 * 2; // seek ahead for overflow on 16-bit frames
-
+		if (offset < 0) offset = 16 - offset;
+		this._bitOffset = offset % 16;
+		const byteSeek = (offset - Math.abs(offset) % 16) / 16 * 2;
 		this.seek(byteSeek);
 	}
-	/**
-	 * Get the buffer size.
-	 * @public
-	 * @property size
-	 * @return {Number} Returns the size of the buffer.
-	 */
-
 
 	get size() {
 		return this.buffer.byteLength;
 	}
-	/**
-	 * Returns the buffer.
-	 * @public
-	 * @property buffer
-	 * @returns {Buffer} Returns the internal buffer.
-	 */
-
 
 	get buffer() {
 		return this._buffer;
 	}
-	/**
-	 * Writes another buffer into this buffer.
-	 * @public
-	 * @method write
-	 * @param {Buffer} buffer
-	 * @param {Number} targetIndex
-	 * @param {Number} sourceIndex
-	 * @param {Number} length
-	 */
-
 
 	copyFrom(buffer) {
 		let targetIndex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
@@ -307,62 +197,36 @@ class BufferReader {
 		const sourceView = new Uint8Array(buffer);
 		const isOverflow = this.buffer.byteLength < length + targetIndex;
 		let targetBuffer = this.buffer;
-		let targetView = this._dataView; // we need to resize the buffer to fit the contents
+		let targetView = this._dataView;
 
 		if (isOverflow) {
-			// create a temporary buffer of the new size
 			targetBuffer = new ArrayBuffer(this.buffer.byteLength + (length + targetIndex - this.buffer.byteLength));
-			targetView = new DataView(targetBuffer); // copy our buffer into the temp buffer
+			targetView = new DataView(targetBuffer);
 
 			for (let i = 0; i < this.buffer.byteLength; i++) {
 				targetView.setUint8(i, this._dataView.getUint8(i));
 			}
-		} // copy the buffer into our buffer
-
+		}
 
 		for (let i = sourceIndex, j = targetIndex; i < length; i++, j++) {
 			targetView.setUint8(j, sourceView[i]);
-		} // assign our buffer to the temporary buffer
-
+		}
 
 		if (isOverflow) {
 			this._buffer = targetBuffer;
 			this._dataView = targetView;
 		}
 	}
-	/**
-	 * Reads a specific number of bytes.
-	 * @public
-	 * @method read
-	 * @param {Number} count Number of bytes to read.
-	 * @returns {Buffer} Contents of the buffer.
-	 */
-
 
 	read(count) {
-		// read from the buffer
-		const buffer = this.buffer.slice(this._offset, this._offset + count); // advance seek offset
-
-		this.seek(count); // return the read buffer
-
+		const buffer = this.buffer.slice(this._offset, this._offset + count);
+		this.seek(count);
 		return buffer;
 	}
-	/**
-	 * Reads a single byte
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	readByte() {
 		return this.readUInt();
 	}
-	/**
-	 * Reads an int8
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	readInt() {
 		const value = this._dataView.getInt8(this._offset);
@@ -370,12 +234,6 @@ class BufferReader {
 		this.seek(1);
 		return value;
 	}
-	/**
-	 * Reads an uint8
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	readUInt() {
 		const value = this._dataView.getUint8(this._offset);
@@ -383,12 +241,6 @@ class BufferReader {
 		this.seek(1);
 		return value;
 	}
-	/**
-	 * Reads a uint16
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	readUInt16() {
 		const value = this._dataView.getUint16(this._offset, this._endianus);
@@ -396,12 +248,6 @@ class BufferReader {
 		this.seek(2);
 		return value;
 	}
-	/**
-	 * Reads a uint32
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	readUInt32() {
 		const value = this._dataView.getUint32(this._offset, this._endianus);
@@ -409,12 +255,6 @@ class BufferReader {
 		this.seek(4);
 		return value;
 	}
-	/**
-	 * Reads an int16
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	readInt16() {
 		const value = this._dataView.getInt16(this._offset, this._endianus);
@@ -422,12 +262,6 @@ class BufferReader {
 		this.seek(2);
 		return value;
 	}
-	/**
-	 * Reads an int32
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	readInt32() {
 		const value = this._dataView.getInt32(this._offset, this._endianus);
@@ -435,12 +269,6 @@ class BufferReader {
 		this.seek(4);
 		return value;
 	}
-	/**
-	 * Reads a float
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	readSingle() {
 		const value = this._dataView.getFloat32(this._offset, this._endianus);
@@ -448,12 +276,6 @@ class BufferReader {
 		this.seek(4);
 		return value;
 	}
-	/**
-	 * Reads a double
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	readDouble() {
 		const value = this._dataView.getFloat32(this._offset, this._endianus);
@@ -461,13 +283,6 @@ class BufferReader {
 		this.seek(8);
 		return value;
 	}
-	/**
-	 * Reads a string
-	 * @public
-	 * @param {Number} [count]
-	 * @returns {String}
-	 */
-
 
 	readString() {
 		let count = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
@@ -484,136 +299,64 @@ class BufferReader {
 
 		return UTF8ToString(chars);
 	}
-	/**
-	 * Peeks ahead in the buffer without actually seeking ahead.
-	 * @public
-	 * @method peek
-	 * @param {Number} count Number of bytes to peek.
-	 * @returns {Buffer} Contents of the buffer.
-	 */
-
 
 	peek(count) {
-		// read from the buffer
-		const buffer = this.read(count); // rewind the buffer
-
-		this.seek(-count); // return the buffer
-
+		const buffer = this.read(count);
+		this.seek(-count);
 		return buffer;
 	}
-	/**
-	 * Peeks a single byte
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	peekByte() {
 		return this.peekUInt();
 	}
-	/**
-	 * Peeks an int8
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	peekInt() {
 		const value = this._dataView.getInt8(this._offset);
 
 		return value;
 	}
-	/**
-	 * Peeks an uint8
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	peekUInt() {
 		const value = this._dataView.getUint8(this._offset);
 
 		return value;
 	}
-	/**
-	 * Peeks a uint16
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	peekUInt16() {
 		const value = this._dataView.getUint16(this._offset, this._endianus);
 
 		return value;
 	}
-	/**
-	 * Peeks a uint32
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	peekUInt32() {
 		const value = this._dataView.getUint32(this._offset, this._endianus);
 
 		return value;
 	}
-	/**
-	 * Peeks an int16
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	peekInt16() {
 		const value = this._dataView.getInt16(this._offset, this._endianus);
 
 		return value;
 	}
-	/**
-	 * Peeks an int32
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	peekInt32() {
 		const value = this._dataView.getInt32(this._offset, this._endianus);
 
 		return value;
 	}
-	/**
-	 * Peeks a float
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	peekSingle() {
 		const value = this._dataView.getFloat32(this._offset, this._endianus);
 
 		return value;
 	}
-	/**
-	 * Peeks a double
-	 * @public
-	 * @returns {Number}
-	 */
-
 
 	peekDouble() {
 		const value = this._dataView.getFloat64(this._offset, this._endianus);
 
 		return value;
 	}
-	/**
-	 * Peeks a string
-	 * @public
-	 * @param {Number} [count]
-	 * @returns {String}
-	 */
-
 
 	peekString() {
 		let count = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
@@ -626,24 +369,16 @@ class BufferReader {
 			for (let i = 0; i < count; i++) {
 				chars.push(this.readByte());
 			}
-		} // restore the byte position
-
+		}
 
 		this.bytePosition = startOffset;
 		return UTF8ToString(chars);
 	}
-	/**
-	 * Reads a 7-bit number.
-	 * @public
-	 * @method read7BitNumber
-	 * @returns {Number} Returns the number read.
-	 */
-
 
 	read7BitNumber() {
 		let result = 0;
 		let bitsRead = 0;
-		let value; // loop over bits
+		let value;
 
 		do {
 			value = this.readByte();
@@ -653,155 +388,69 @@ class BufferReader {
 
 		return result;
 	}
-	/**
-	 * Reads bits used for LZX compression.
-	 * @public
-	 * @method readLZXBits
-	 * @param {Number} bits
-	 * @returns {Number}
-	 */
-
 
 	readLZXBits(bits) {
-		// initialize values for the loop
 		let bitsLeft = bits;
-		let read = 0; // read bits in 16-bit chunks
+		let read = 0;
 
 		while (bitsLeft > 0) {
-			// peek in a 16-bit value
-			const peek = this._dataView.getUint16(this._offset, true); // clamp bits into the 16-bit frame we have left only read in as much as we have left
+			const peek = this._dataView.getUint16(this._offset, true);
 
-
-			const bitsInFrame = Math.min(Math.max(bitsLeft, 0), 16 - this.bitPosition); // set the offset based on current position in and bit count
-
-			const offset = 16 - this.bitPosition - bitsInFrame; // create mask and shift the mask up to the offset <<
-			// and then shift the return back down into mask space >>
-
-			const value = (peek & 2 ** bitsInFrame - 1 << offset) >> offset; // remove the bits we read from what we have left
-
-			bitsLeft -= bitsInFrame; // add the bits read to the bit position
-
-			this.bitPosition += bitsInFrame; // assign read with the value shifted over for reading in loops
-
+			const bitsInFrame = Math.min(Math.max(bitsLeft, 0), 16 - this.bitPosition);
+			const offset = 16 - this.bitPosition - bitsInFrame;
+			const value = (peek & 2 ** bitsInFrame - 1 << offset) >> offset;
+			bitsLeft -= bitsInFrame;
+			this.bitPosition += bitsInFrame;
 			read |= value << bitsLeft;
-		} // return the read bits
-
+		}
 
 		return read;
 	}
-	/**
-	 * Used to peek bits.
-	 * @public
-	 * @method peekLZXBits
-	 * @param {Number} bits
-	 * @returns {Number}
-	 */
-
 
 	peekLZXBits(bits) {
-		// get the current bit position to store
-		let bitPosition = this.bitPosition; // get the current byte position to store
-
-		let bytePosition = this.bytePosition; // read the bits like normal
-
-		const read = this.readLZXBits(bits); // just rewind the bit position, this will also rewind bytes where needed
-
-		this.bitPosition = bitPosition; // restore the byte position
-
-		this.bytePosition = bytePosition; // return the peeked value
-
+		let bitPosition = this.bitPosition;
+		let bytePosition = this.bytePosition;
+		const read = this.readLZXBits(bits);
+		this.bitPosition = bitPosition;
+		this.bytePosition = bytePosition;
 		return read;
 	}
-	/**
-	 * Reads a 16-bit integer from a LZX bitstream
-	 *
-	 * bytes are reverse as the bitstream sequences 16 bit integers stored as LSB -> MSB (bytes)
-	 * abc[...]xyzABCDEF as bits would be stored as:
-	 * [ijklmnop][abcdefgh][yzABCDEF][qrstuvwx]
-	 *
-	 * @public
-	 * @method readLZXInt16
-	 * @param {Boolean} seek
-	 * @returns {Number}
-	 */
-
 
 	readLZXInt16() {
 		let seek = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-		// read in the next two bytes worth of data
 		const lsB = this.readByte();
-		const msB = this.readByte(); // rewind the seek head
-
-		if (!seek) this.seek(-2); // set the value
-
+		const msB = this.readByte();
+		if (!seek) this.seek(-2);
 		return lsB << 8 | msB;
 	}
-	/**
-	 * Aligns to 16-bit offset.
-	 * @public
-	 * @method align
-	 */
-
 
 	align() {
 		if (this.bitPosition > 0) this.bitPosition += 16 - this.bitPosition;
 	}
 
-} // export the BufferReader class
+}
 
 class BufferWriter {
 	constructor() {
 		let size = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2048;
-
-		/**
-		 * internal buffer for the writer
-		 * @private
-		 * @type {ArrayBuffer}
-		 */
 		this._buffer = new ArrayBuffer(size);
-		/**
-		 * internal buffer for the reader
-		 * @private
-		 * @type {DataView}
-		 */
-
 		this._dataView = new DataView(this._buffer);
-		/**
-		 * Seek index for the internal buffer.
-		 * @private
-		 * @type {Number}
-		 */
-
 		this.bytePosition = 0;
 	}
-	/**
-	 * Returns the buffer.
-	 * @public
-	 * @property buffer
-	 * @returns {Buffer} Returns the internal buffer.
-	 */
-
 
 	get buffer() {
 		return this._buffer;
-	} //Reconnect the DataView to the current ArrayBuffer
-
+	}
 
 	reconnectDataView() {
 		this._dataView = new DataView(this._buffer);
-	} // trim the buffer to the byte position
-
+	}
 
 	trim() {
 		let pending = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 		this._buffer = this.buffer.slice(0, this.bytePosition);
 		if (!pending) this.reconnectDataView();
 	}
-	/**
-	 * Allocates number of bytes into the buffer and assigns more space if needed
-	 * @param {Number} bytes Number of bytes to allocate into the buffer
-	 */
-
 
 	alloc(bytes) {
 		if (this._buffer.byteLength <= this.bytePosition + bytes) {
@@ -831,11 +480,6 @@ class BufferWriter {
 		this.bytePosition = newPosition;
 		this.trim();
 	}
-	/**
-	 * Writes bytes to the buffer
-	 * @param {Mixed} bytes 
-	 */
-
 
 	write(bytes) {
 		const targetBufferView = new Uint8Array(bytes);
@@ -848,120 +492,65 @@ class BufferWriter {
 
 		this.bytePosition = newPosition;
 	}
-	/**
-	 * Writes string to the buffer
-	 * @param {String} string 
-	 */
-
 
 	writeString(str) {
 		let utf8Data = stringToUTF8(str);
 		this.write(utf8Data);
 	}
-	/**
-	 * Write a byte to the buffer
-	 * @param {Mixed} byte 
-	 */
-
 
 	writeByte(byte) {
 		this.alloc(1)._dataView.setUint8(this.bytePosition, byte);
 
 		this.bytePosition++;
 	}
-	/**
-	 * Write an int8 to the buffer
-	 * @param {Number} number 
-	 */
-
 
 	writeInt(number) {
 		this.alloc(1)._dataView.setInt8(this.bytePosition, number);
 
 		this.bytePosition++;
 	}
-	/**
-	 * Write a uint8 to the buffer
-	 * @param {Number} number 
-	 */
-
 
 	writeUInt(number) {
 		this.alloc(1)._dataView.setUint8(this.bytePosition, number);
 
 		this.bytePosition++;
 	}
-	/**
-	 * Write a int16 to the buffer
-	 * @param {Number} number 
-	 */
-
 
 	writeInt16(number) {
 		this.alloc(2)._dataView.setInt16(this.bytePosition, number, true);
 
 		this.bytePosition += 2;
 	}
-	/**
-	 * Write a uint16 to the buffer
-	 * @param {Number} number 
-	 */
-
 
 	writeUInt16(number) {
 		this.alloc(2)._dataView.setUint16(this.bytePosition, number, true);
 
 		this.bytePosition += 2;
 	}
-	/**
-	 * Write a int32 to the buffer
-	 * @param {Number} number 
-	 */
-
 
 	writeInt32(number) {
 		this.alloc(4)._dataView.setInt32(this.bytePosition, number, true);
 
 		this.bytePosition += 4;
 	}
-	/**
-	 * Write a uint32 to the buffer
-	 * @param {Number} number 
-	 */
-
 
 	writeUInt32(number) {
 		this.alloc(4)._dataView.setUint32(this.bytePosition, number, true);
 
 		this.bytePosition += 4;
 	}
-	/**
-	 * Write a float to the buffer
-	 * @param {Number} number 
-	 */
-
 
 	writeSingle(number) {
 		this.alloc(4)._dataView.setFloat32(this.bytePosition, number, true);
 
 		this.bytePosition += 4;
 	}
-	/**
-	 * Write a double to the buffer
-	 * @param {Number} number 
-	 */
-
 
 	writeDouble(number) {
 		this.alloc(8)._dataView.setFloat64(this.bytePosition, number, true);
 
 		this.bytePosition += 8;
 	}
-	/**
-	 * Write a 7-bit number to the buffer
-	 * @param {Number} number 
-	 */
-
 
 	write7BitNumber(number) {
 		this.alloc(2);
@@ -977,7 +566,7 @@ class BufferWriter {
 		} while (number);
 	}
 
-} // export the BufferWriter class
+}
 
 class XnbError extends Error {
 	constructor() {
@@ -990,23 +579,8 @@ class XnbError extends Error {
 
 }
 
-/**
- *
- * This file is heavily based on MonoGame's implementation of their LzxDecoder attributed to Ali Scissons
- * which is derived from libmspack by Stuart Cole.
- *
- * (C) 2003-2004 Stuart Caie.
- * (C) 2011 Ali Scissons.
- * (C) 2017 James Stine.
- *
- * The LZX method was created by Johnathan Forbes and Tomi Poutanen, adapted by Microsoft Corporation.
- *
- */
-
-const MIN_MATCH = 2; // smallest allowable match length
-
-const NUM_CHARS = 256; // number of uncompressed character types
-
+const MIN_MATCH = 2;
+const NUM_CHARS = 256;
 const BLOCKTYPE = {
 	INVALID: 0,
 	VERBATIM: 1,
@@ -1014,12 +588,9 @@ const BLOCKTYPE = {
 	UNCOMPRESSED: 3
 };
 const PRETREE_NUM_ELEMENTS = 20;
-const ALIGNED_NUM_ELEMENTS = 8; // aligned offset tree elements
-
+const ALIGNED_NUM_ELEMENTS = 8;
 const NUM_PRIMARY_LENGTHS = 7;
-const NUM_SECONDARY_LENGTHS = 249; // number of elements in length tree
-// LZX Huffman Constants
-
+const NUM_SECONDARY_LENGTHS = 249;
 const PRETREE_MAXSYMBOLS = PRETREE_NUM_ELEMENTS;
 const PRETREE_TABLEBITS = 6;
 const MAINTREE_MAXSYMBOLS = NUM_CHARS + 50 * 8;
@@ -1029,35 +600,10 @@ const LENGTH_TABLEBITS = 12;
 const ALIGNED_MAXSYMBOLS = ALIGNED_NUM_ELEMENTS;
 const ALIGNED_TABLEBITS = 7;
 
-/**
- * LZX Static Data Tables
- *
- * LZX uses 'position slots' to represent match offsets.	For every match,
- * a small 'position slot' number and a small offset from that slot are
- * encoded instead of one large offset.
- *
- * Lzx.position_base[] is an index to the position slot bases
- *
- * Lzx.extra_bits[] states how many bits of offset-from-base data is needed.
- */
-
-/**
- * Used to compress and decompress LZX format buffer.
- * @class
- * @public
- */
-
 class Lzx {
-	/**
-	 * Creates an instance of LZX with a given window frame.
-	 * @constructor
-	 * @param {Number} window_bits
-	 */
 	constructor(window_bits) {
-		// get the window size from window bits
-		this.window_size = 1 << window_bits; // LZX supports window sizes of 2^15 (32 KB) to 2^21 (2 MB)
-
-		if (window_bits < 15 || window_bits > 21) throw new XnbError('Window size out of range!'); // initialize static tables
+		this.window_size = 1 << window_bits;
+		if (window_bits < 15 || window_bits > 21) throw new XnbError('Window size out of range!');
 
 		if (!Lzx.extra_bits.length) {
 			for (let i = 0, j = 0; i <= 50; i += 2) {
@@ -1072,28 +618,14 @@ class Lzx {
 				j += 1 << Lzx.extra_bits[i];
 			}
 		}
-		/**
-		 * calculate required position slots
-		 *
-		 * window bits:		 15 16 17 18 19 20 21
-		 * position slots:	30 32 34 36 38 42 50
-		 */
 
-
-		const posn_slots = window_bits == 21 ? 50 : window_bits == 20 ? 42 : window_bits << 1; // repeated offsets
-
-		this.R0 = this.R1 = this.R2 = 1; // set the number of main elements
-
-		this.main_elements = NUM_CHARS + (posn_slots << 3); // state of header being read used for when looping over multiple blocks
-
-		this.header_read = false; // set the block remaining
-
-		this.block_remaining = 0; // set the default block type
-
-		this.block_type = BLOCKTYPE.INVALID; // window position
-
-		this.window_posn = 0; // frequently used tables
-
+		const posn_slots = window_bits == 21 ? 50 : window_bits == 20 ? 42 : window_bits << 1;
+		this.R0 = this.R1 = this.R2 = 1;
+		this.main_elements = NUM_CHARS + (posn_slots << 3);
+		this.header_read = false;
+		this.block_remaining = 0;
+		this.block_type = BLOCKTYPE.INVALID;
+		this.window_posn = 0;
 		this.pretree_table = [];
 		this.pretree_len = [];
 		this.aligned_table = [];
@@ -1101,75 +633,47 @@ class Lzx {
 		this.length_table = [];
 		this.length_len = [];
 		this.maintree_table = [];
-		this.maintree_len = []; // initialize main tree and length tree for use with delta operations
+		this.maintree_len = [];
 
 		for (let i = 0; i < MAINTREE_MAXSYMBOLS; i++) this.maintree_len[i] = 0;
 
-		for (let i = 0; i < NUM_SECONDARY_LENGTHS; i++) this.length_len[i] = 0; // the decompression window
-
+		for (let i = 0; i < NUM_SECONDARY_LENGTHS; i++) this.length_len[i] = 0;
 
 		this.win = [];
 	}
-	/**
-	 * Decompress the buffer with given frame and block size
-	 * @param {BufferReader} buffer
-	 * @param {Number} frame_size
-	 * @param {Number} block_size
-	 * @returns {Number[]}
-	 */
-
 
 	decompress(buffer, frame_size, block_size) {
-		// read header if we haven't already
 		if (!this.header_read) {
-			// read the intel call
-			const intel = buffer.readLZXBits(1); // don't care about intel e8
-
-			if (intel != 0) throw new XnbError("Intel E8 Call found, invalid for XNB files."); // the header has been read
-
+			const intel = buffer.readLZXBits(1);
+			if (intel != 0) throw new XnbError("Intel E8 Call found, invalid for XNB files.");
 			this.header_read = true;
-		} // set what's left to go to the frame size
+		}
 
-
-		let togo = frame_size; // loop over what's left of the frame
+		let togo = frame_size;
 
 		while (togo > 0) {
-			// this is a new block
 			if (this.block_remaining == 0) {
-				// read in the block type
-				this.block_type = buffer.readLZXBits(3); // read 24-bit value for uncompressed bytes in this block
-
+				this.block_type = buffer.readLZXBits(3);
 				const hi = buffer.readLZXBits(16);
-				const lo = buffer.readLZXBits(8); // number of uncompressed bytes for this block left
-
-				this.block_remaining = hi << 8 | lo; // switch over the valid block types
+				const lo = buffer.readLZXBits(8);
+				this.block_remaining = hi << 8 | lo;
 
 				switch (this.block_type) {
 					case BLOCKTYPE.ALIGNED:
-						// aligned offset tree
-						for (let i = 0; i < 8; i++) this.aligned_len[i] = buffer.readLZXBits(3); // decode table for aligned tree
-
+						for (let i = 0; i < 8; i++) this.aligned_len[i] = buffer.readLZXBits(3);
 
 						this.aligned_table = this.decodeTable(ALIGNED_MAXSYMBOLS, ALIGNED_TABLEBITS, this.aligned_len);
-					// NOTE: rest of aligned block type is the same as verbatim block type
 
 					case BLOCKTYPE.VERBATIM:
-						// read the first 256 elements for main tree
-						this.readLengths(buffer, this.maintree_len, 0, 256); // read the rest of the elements for the main tree
-
-						this.readLengths(buffer, this.maintree_len, 256, this.main_elements); // decode the main tree into a table
-
-						this.maintree_table = this.decodeTable(MAINTREE_MAXSYMBOLS, MAINTREE_TABLEBITS, this.maintree_len); // read path lengths for the length tree
-
-						this.readLengths(buffer, this.length_len, 0, NUM_SECONDARY_LENGTHS); // decode the length tree
-
+						this.readLengths(buffer, this.maintree_len, 0, 256);
+						this.readLengths(buffer, this.maintree_len, 256, this.main_elements);
+						this.maintree_table = this.decodeTable(MAINTREE_MAXSYMBOLS, MAINTREE_TABLEBITS, this.maintree_len);
+						this.readLengths(buffer, this.length_len, 0, NUM_SECONDARY_LENGTHS);
 						this.length_table = this.decodeTable(LENGTH_MAXSYMBOLS, LENGTH_TABLEBITS, this.length_len);
 						break;
 
 					case BLOCKTYPE.UNCOMPRESSED:
-						// align the bit buffer to byte range
-						buffer.align(); // read the offsets
-
+						buffer.align();
 						this.R0 = buffer.readInt32();
 						this.R1 = buffer.readInt32();
 						this.R2 = buffer.readInt32();
@@ -1178,27 +682,21 @@ class Lzx {
 					default:
 						throw new XnbError("Invalid Blocktype Found: ".concat(this.block_type));
 				}
-			} // iterate over the block remaining
+			}
 
-
-			let this_run = this.block_remaining; // loop over the bytes left in the buffer to run out our output
+			let this_run = this.block_remaining;
 
 			while ((this_run = this.block_remaining) > 0 && togo > 0) {
-				// if this run is somehow higher than togo then just cap it
-				if (this_run > togo) this_run = togo; // reduce togo and block remaining by this iteration
-
+				if (this_run > togo) this_run = togo;
 				togo -= this_run;
-				this.block_remaining -= this_run; // apply 2^x-1 mask
-
-				this.window_posn &= this.window_size - 1; // run cannot exceed frame size
-
+				this.block_remaining -= this_run;
+				this.window_posn &= this.window_size - 1;
 				if (this.window_posn + this_run > this.window_size) throw new XnbError('Cannot run outside of window frame.');
 
 				switch (this.block_type) {
 					case BLOCKTYPE.ALIGNED:
 						while (this_run > 0) {
-							// get the element of this run
-							let main_element = this.readHuffSymbol(buffer, this.maintree_table, this.maintree_len, MAINTREE_MAXSYMBOLS, MAINTREE_TABLEBITS); // main element is an unmatched character
+							let main_element = this.readHuffSymbol(buffer, this.maintree_table, this.maintree_len, MAINTREE_MAXSYMBOLS, MAINTREE_TABLEBITS);
 
 							if (main_element < NUM_CHARS) {
 								this.win[this.window_posn++] = main_element;
@@ -1211,93 +709,6 @@ class Lzx {
 							let match_length = main_element & NUM_PRIMARY_LENGTHS;
 
 							if (match_length == NUM_PRIMARY_LENGTHS) {
-								// get the length footer
-								length_footer = this.readHuffSymbol(buffer, this.length_table, this.length_len, LENGTH_MAXSYMBOLS, LENGTH_TABLEBITS); // increase match length by the footer
-
-								match_length += length_footer;
-							}
-
-							match_length += MIN_MATCH;
-							let match_offset = main_element >> 3;
-
-							if (match_offset > 2) {
-								// not repeated offset
-								let extra = Lzx.extra_bits[match_offset];
-								match_offset = Lzx.position_base[match_offset] - 2;
-
-								if (extra > 3) {
-									// verbatim and aligned bits
-									extra -= 3;
-									let verbatim_bits = buffer.readLZXBits(extra);
-									match_offset += verbatim_bits << 3;
-									let aligned_bits = this.readHuffSymbol(buffer, this.aligned_table, this.aligned_len, ALIGNED_MAXSYMBOLS, ALIGNED_TABLEBITS);
-									match_offset += aligned_bits;
-								} else if (extra == 3) {
-									// aligned bits only
-									match_offset += this.readHuffSymbol(buffer, this.aligned_table, this.aligned_len, ALIGNED_MAXSYMBOLS, ALIGNED_TABLEBITS);
-								} else if (extra > 0) // verbatim bits only
-									match_offset += buffer.readLZXBits(extra);else match_offset = 1; // ???
-								// update repeated offset LRU queue
-
-
-								this.R2 = this.R1;
-								this.R1 = this.R0;
-								this.R0 = match_offset;
-							} else if (match_offset === 0) {
-								match_offset = this.R0;
-							} else if (match_offset == 1) {
-								match_offset = this.R1;
-								this.R1 = this.R0;
-								this.R0 = match_offset;
-							} else {
-								match_offset = this.R2;
-								this.R2 = this.R0;
-								this.R0 = match_offset;
-							}
-
-							let rundest = this.window_posn;
-							let runsrc;
-							this_run -= match_length; // copy any wrapped around source data
-
-							if (this.window_posn >= match_offset) runsrc = rundest - match_offset; // no wrap
-							else {
-								runsrc = rundest + (this.window_size - match_offset);
-								let copy_length = match_offset - this.window_posn;
-
-								if (copy_length < match_length) {
-									match_length -= copy_length;
-									this.window_posn += copy_length;
-
-									while (copy_length-- > 0) this.win[rundest++] = this.win[runsrc++];
-
-									runsrc = 0;
-								}
-							}
-							this.window_posn += match_length; // copy match data - no worrries about destination wraps
-
-							while (match_length-- > 0) this.win[rundest++] = this.win[runsrc++];
-						}
-
-						break;
-
-					case BLOCKTYPE.VERBATIM:
-						while (this_run > 0) {
-							// get the element of this run
-							let main_element = this.readHuffSymbol(buffer, this.maintree_table, this.maintree_len, MAINTREE_MAXSYMBOLS, MAINTREE_TABLEBITS); // main element is an unmatched character
-
-							if (main_element < NUM_CHARS) {
-								this.win[this.window_posn++] = main_element;
-								this_run--;
-								continue;
-							} // match: NUM_CHARS + ((slot << 3) | length_header (3 bits))
-
-
-							main_element -= NUM_CHARS;
-							let length_footer;
-							let match_length = main_element & NUM_PRIMARY_LENGTHS;
-
-							if (match_length == NUM_PRIMARY_LENGTHS) {
-								// read the length footer
 								length_footer = this.readHuffSymbol(buffer, this.length_table, this.length_len, LENGTH_MAXSYMBOLS, LENGTH_TABLEBITS);
 								match_length += length_footer;
 							}
@@ -1306,13 +717,18 @@ class Lzx {
 							let match_offset = main_element >> 3;
 
 							if (match_offset > 2) {
-								// not repeated offset
-								if (match_offset != 3) {
-									let extra = Lzx.extra_bits[match_offset];
-									let verbatim_bits = buffer.readLZXBits(extra);
-									match_offset = Lzx.position_base[match_offset] - 2 + verbatim_bits;
-								} else match_offset = 1; // update repeated offset LRU queue
+								let extra = Lzx.extra_bits[match_offset];
+								match_offset = Lzx.position_base[match_offset] - 2;
 
+								if (extra > 3) {
+									extra -= 3;
+									let verbatim_bits = buffer.readLZXBits(extra);
+									match_offset += verbatim_bits << 3;
+									let aligned_bits = this.readHuffSymbol(buffer, this.aligned_table, this.aligned_len, ALIGNED_MAXSYMBOLS, ALIGNED_TABLEBITS);
+									match_offset += aligned_bits;
+								} else if (extra == 3) {
+									match_offset += this.readHuffSymbol(buffer, this.aligned_table, this.aligned_len, ALIGNED_MAXSYMBOLS, ALIGNED_TABLEBITS);
+								} else if (extra > 0) match_offset += buffer.readLZXBits(extra);else match_offset = 1;
 
 								this.R2 = this.R1;
 								this.R1 = this.R0;
@@ -1331,10 +747,8 @@ class Lzx {
 
 							let rundest = this.window_posn;
 							let runsrc;
-							this_run -= match_length; // copy any wrapped around source data
-
-							if (this.window_posn >= match_offset) runsrc = rundest - match_offset; // no wrap
-							else {
+							this_run -= match_length;
+							if (this.window_posn >= match_offset) runsrc = rundest - match_offset;else {
 								runsrc = rundest + (this.window_size - match_offset);
 								let copy_length = match_offset - this.window_posn;
 
@@ -1347,7 +761,74 @@ class Lzx {
 									runsrc = 0;
 								}
 							}
-							this.window_posn += match_length; // copy match data - no worrries about destination wraps
+							this.window_posn += match_length;
+
+							while (match_length-- > 0) this.win[rundest++] = this.win[runsrc++];
+						}
+
+						break;
+
+					case BLOCKTYPE.VERBATIM:
+						while (this_run > 0) {
+							let main_element = this.readHuffSymbol(buffer, this.maintree_table, this.maintree_len, MAINTREE_MAXSYMBOLS, MAINTREE_TABLEBITS);
+
+							if (main_element < NUM_CHARS) {
+								this.win[this.window_posn++] = main_element;
+								this_run--;
+								continue;
+							}
+
+							main_element -= NUM_CHARS;
+							let length_footer;
+							let match_length = main_element & NUM_PRIMARY_LENGTHS;
+
+							if (match_length == NUM_PRIMARY_LENGTHS) {
+								length_footer = this.readHuffSymbol(buffer, this.length_table, this.length_len, LENGTH_MAXSYMBOLS, LENGTH_TABLEBITS);
+								match_length += length_footer;
+							}
+
+							match_length += MIN_MATCH;
+							let match_offset = main_element >> 3;
+
+							if (match_offset > 2) {
+								if (match_offset != 3) {
+									let extra = Lzx.extra_bits[match_offset];
+									let verbatim_bits = buffer.readLZXBits(extra);
+									match_offset = Lzx.position_base[match_offset] - 2 + verbatim_bits;
+								} else match_offset = 1;
+
+								this.R2 = this.R1;
+								this.R1 = this.R0;
+								this.R0 = match_offset;
+							} else if (match_offset === 0) {
+								match_offset = this.R0;
+							} else if (match_offset == 1) {
+								match_offset = this.R1;
+								this.R1 = this.R0;
+								this.R0 = match_offset;
+							} else {
+								match_offset = this.R2;
+								this.R2 = this.R0;
+								this.R0 = match_offset;
+							}
+
+							let rundest = this.window_posn;
+							let runsrc;
+							this_run -= match_length;
+							if (this.window_posn >= match_offset) runsrc = rundest - match_offset;else {
+								runsrc = rundest + (this.window_size - match_offset);
+								let copy_length = match_offset - this.window_posn;
+
+								if (copy_length < match_length) {
+									match_length -= copy_length;
+									this.window_posn += copy_length;
+
+									while (copy_length-- > 0) this.win[rundest++] = this.win[runsrc++];
+
+									runsrc = 0;
+								}
+							}
+							this.window_posn += match_length;
 
 							while (match_length-- > 0) this.win[rundest++] = this.win[runsrc++];
 						}
@@ -1367,177 +848,110 @@ class Lzx {
 						throw new XnbError('Invalid blocktype specified!');
 				}
 			}
-		} // there is still more left
+		}
 
-
-		if (togo != 0) throw new XnbError('EOF reached with data left to go.'); // ensure the buffer is aligned
-
-		buffer.align(); // get the start window position
-
-		const start_window_pos = (this.window_posn == 0 ? this.window_size : this.window_posn) - frame_size; // return the window
-
+		if (togo != 0) throw new XnbError('EOF reached with data left to go.');
+		buffer.align();
+		const start_window_pos = (this.window_posn == 0 ? this.window_size : this.window_posn) - frame_size;
 		return this.win.slice(start_window_pos, start_window_pos + frame_size);
 	}
-	/**
-	 * Reads in code lengths for symbols first to last in the given table
-	 * The code lengths are stored in their own special LZX way.
-	 * @public
-	 * @method readLengths
-	 * @param {BufferReader} buffer
-	 * @param {Array} table
-	 * @param {Number} first
-	 * @param {Number} last
-	 * @returns {Array}
-	 */
-
 
 	readLengths(buffer, table, first, last) {
-		// read in the 4-bit pre-tree deltas
-		for (let i = 0; i < 20; i++) this.pretree_len[i] = buffer.readLZXBits(4); // create pre-tree table from lengths
+		for (let i = 0; i < 20; i++) this.pretree_len[i] = buffer.readLZXBits(4);
 
-
-		this.pretree_table = this.decodeTable(PRETREE_MAXSYMBOLS, PRETREE_TABLEBITS, this.pretree_len); // loop through the lengths from first to last
+		this.pretree_table = this.decodeTable(PRETREE_MAXSYMBOLS, PRETREE_TABLEBITS, this.pretree_len);
 
 		for (let i = first; i < last;) {
-			// read in the huffman symbol
-			let symbol = this.readHuffSymbol(buffer, this.pretree_table, this.pretree_len, PRETREE_MAXSYMBOLS, PRETREE_TABLEBITS); // code = 17, run of ([read 4 bits] + 4) zeros
+			let symbol = this.readHuffSymbol(buffer, this.pretree_table, this.pretree_len, PRETREE_MAXSYMBOLS, PRETREE_TABLEBITS);
 
 			if (symbol == 17) {
-				// read in number of zeros as a 4-bit number + 4
-				let zeros = buffer.readLZXBits(4) + 4; // iterate over zeros counter and add them to the table
+				let zeros = buffer.readLZXBits(4) + 4;
 
 				while (zeros-- != 0) table[i++] = 0;
-			} // code = 18, run of ([read 5 bits] + 20) zeros
-			else if (symbol == 18) {
-				// read in number of zeros as a 5-bit number + 20
-				let zeros = buffer.readLZXBits(5) + 20; // add the number of zeros into the table array
+			} else if (symbol == 18) {
+				let zeros = buffer.readLZXBits(5) + 20;
 
 				while (zeros-- != 0) table[i++] = 0;
-			} // code = 19 run of ([read 1 bit] + 4) [read huffman symbol]
-			else if (symbol == 19) {
-				// read for how many of the same huffman symbol to repeat
-				let same = buffer.readLZXBits(1) + 4; // read another huffman symbol
-
+			} else if (symbol == 19) {
+				let same = buffer.readLZXBits(1) + 4;
 				symbol = this.readHuffSymbol(buffer, this.pretree_table, this.pretree_len, PRETREE_MAXSYMBOLS, PRETREE_TABLEBITS);
 				symbol = table[i] - symbol;
 				if (symbol < 0) symbol += 17;
 
 				while (same-- != 0) table[i++] = symbol;
-			} // code 0 -> 16, delta current length entry
-			else {
+			} else {
 				symbol = table[i] - symbol;
 				if (symbol < 0) symbol += 17;
 				table[i++] = symbol;
 			}
-		} // return the table created
-
+		}
 
 		return table;
 	}
-	/**
-	 * Build a decode table from a canonical huffman lengths table
-	 * @public
-	 * @method makeDecodeTable
-	 * @param {Number} symbols Total number of symbols in tree.
-	 * @param {Number} bits Any symbols less than this can be decoded in one lookup of table.
-	 * @param {Number[]} length Table for lengths of given table to decode.
-	 * @returns {Number[]} Decoded table, length should be ((1<<nbits) + (nsyms*2))
-	 */
-
 
 	decodeTable(symbols, bits, length) {
-		// decoded table to act on and return
 		let table = [];
 		let pos = 0;
 		let table_mask = 1 << bits;
-		let bit_mask = table_mask >> 1; // loop across all bit positions
+		let bit_mask = table_mask >> 1;
 
 		for (let bit_num = 1; bit_num <= bits; bit_num++) {
-			// loop over the symbols we're decoding
 			for (let symbol = 0; symbol < symbols; symbol++) {
-				// if the symbol isn't in this iteration of length then just ignore
 				if (length[symbol] == bit_num) {
-					let leaf = pos; // if the position has gone past the table mask then we're overrun
+					let leaf = pos;
 
 					if ((pos += bit_mask) > table_mask) {
 						throw new XnbError('Overrun table!');
-					} // fill all possible lookups of this symbol with the symbol itself
-
+					}
 
 					let fill = bit_mask;
 
 					while (fill-- > 0) table[leaf++] = symbol;
 				}
-			} // advance bit mask down the bit positions
-
+			}
 
 			bit_mask >>= 1;
-		} // exit with success if table is complete
+		}
 
+		if (pos == table_mask) return table;
 
-		if (pos == table_mask) return table; // mark all remaining table entries as unused
+		for (let symbol = pos; symbol < table_mask; symbol++) table[symbol] = 0xFFFF;
 
-		for (let symbol = pos; symbol < table_mask; symbol++) table[symbol] = 0xFFFF; // next_symbol = base of allocation for long codes
-
-
-		let next_symbol = table_mask >> 1 < symbols ? symbols : table_mask >> 1; // allocate space for 16-bit values
-
+		let next_symbol = table_mask >> 1 < symbols ? symbols : table_mask >> 1;
 		pos <<= 16;
 		table_mask <<= 16;
-		bit_mask = 1 << 15; // loop again over the bits
+		bit_mask = 1 << 15;
 
 		for (let bit_num = bits + 1; bit_num <= 16; bit_num++) {
-			// loop over the symbol range
 			for (let symbol = 0; symbol < symbols; symbol++) {
-				// if the current length iteration doesn't mach our bit then just ignore
-				if (length[symbol] != bit_num) continue; // get leaf shifted away from 16 bit padding
-
-				let leaf = pos >> 16; // loop over fill to flood table with
+				if (length[symbol] != bit_num) continue;
+				let leaf = pos >> 16;
 
 				for (let fill = 0; fill < bit_num - bits; fill++) {
-					// if this path hasn't been taken yet, 'allocate' two entries
 					if (table[leaf] == 0xFFFF) {
 						table[next_symbol << 1] = 0xFFFF;
 						table[(next_symbol << 1) + 1] = 0xFFFF;
 						table[leaf] = next_symbol++;
-					} // follow the path and select either left or right for the next bit
-
+					}
 
 					leaf = table[leaf] << 1;
 					if (pos >> 15 - fill & 1) leaf++;
 				}
 
-				table[leaf] = symbol; // bit position has overun the table mask
-
+				table[leaf] = symbol;
 				if ((pos += bit_mask) > table_mask) throw new XnbError('Overrun table during decoding.');
 			}
 
 			bit_mask >>= 1;
-		} // we have reached table mask
+		}
 
-
-		if (pos == table_mask) return table; // something else went wrong
-
+		if (pos == table_mask) return table;
 		throw new XnbError('Decode table did not reach table mask.');
 	}
-	/**
-	 * Decodes the next huffman symbol from the bitstream.
-	 * @public
-	 * @method readHuffSymbol
-	 * @param {BufferReader} buffer
-	 * @param {Number[]} table
-	 * @param {Number[]} length
-	 * @param {Number} symbols
-	 * @param {Number} bits
-	 * @returns {Number}
-	 */
-
 
 	readHuffSymbol(buffer, table, length, symbols, bits) {
-		// peek the specified bits ahead
-		let bit = buffer.peekLZXBits(32) >>> 0; // (>>> 0) allows us to get a 32-bit uint
-
-		let i = table[buffer.peekLZXBits(bits)]; // if our table is accessing a symbol beyond our range
+		let bit = buffer.peekLZXBits(32) >>> 0;
+		let i = table[buffer.peekLZXBits(bits)];
 
 		if (i >= symbols) {
 			let j = 1 << 32 - bits;
@@ -1548,33 +962,22 @@ class Lzx {
 				i |= (bit & j) != 0 ? 1 : 0;
 				if (j == 0) return 0;
 			} while ((i = table[i]) >= symbols);
-		} // seek past this many bits
+		}
 
-
-		buffer.bitPosition += length[i]; // return the symbol
-
+		buffer.bitPosition += length[i];
 		return i;
 	}
-	/**
-	 * Sets the shortest match.
-	 * @param {Number} X
-	 */
-
 
 	set RRR(X) {
-		// No match, R2 <- R1, R1 <- R0, R0 <- X
 		if (this.R0 != X && this.R1 != X && this.R2 != X) {
-			// shift all offsets down
 			this.R2 = this.R1;
 			this.R1 = this.R0;
 			this.R0 = X;
-		} // X = R1, Swap R0 <-> R1
-		else if (this.R1 == X) {
+		} else if (this.R1 == X) {
 			let R1 = this.R1;
 			this.R1 = this.R0;
 			this.R0 = R1;
-		} // X = R2, Swap R0 <-> R2
-		else if (this.R2 == X) {
+		} else if (this.R2 == X) {
 			let R2 = this.R2;
 			this.R2 = this.R0;
 			this.R0 = R2;
@@ -1586,76 +989,42 @@ class Lzx {
 Lzx.position_base = [];
 Lzx.extra_bits = [];
 
-/**
- * Used to compress and decompress LZX.
- * @class
- * @public
- */
-
 class Presser {
-	/**
-	 * Decompress a certain amount of bytes.
-	 * @public
-	 * @static
-	 * @param {BufferReader} buffer
-	 * @returns {Buffer}
-	 */
 	static decompress(buffer, compressedTodo, decompressedTodo) {
-		// current index into the buffer
-		let pos = 0; // allocate variables for block and frame size
-
+		let pos = 0;
 		let block_size;
-		let frame_size; // create the LZX instance with 16-bit window frame
-
-		const lzx = new Lzx(16); // the full decompressed array
-
+		let frame_size;
+		const lzx = new Lzx(16);
 		let decompressed = new BufferWriter(decompressedTodo);
 
 		while (pos < compressedTodo) {
-			// flag is for determining if frame_size is fixed or not
-			const flag = buffer.readByte(); // if flag is set to 0xFF that means we will read in frame size
+			const flag = buffer.readByte();
 
 			if (flag == 0xFF) {
-				// read in the frame size
-				frame_size = buffer.readLZXInt16(); // read in the block size
-
-				block_size = buffer.readLZXInt16(); // advance the byte position forward
-
+				frame_size = buffer.readLZXInt16();
+				block_size = buffer.readLZXInt16();
 				pos += 5;
 			} else {
-				// rewind the buffer
-				buffer.seek(-1); // read in the block size
-
-				block_size = buffer.readLZXInt16(this.buffer); // set the frame size
-
-				frame_size = 0x8000; // advance byte position forward
-
+				buffer.seek(-1);
+				block_size = buffer.readLZXInt16(this.buffer);
+				frame_size = 0x8000;
 				pos += 2;
-			} // ensure the block and frame size aren't empty
+			}
 
-
-			if (block_size == 0 || frame_size == 0) break; // ensure the block and frame size don't exceed size of integers
-
-			if (block_size > 0x10000 || frame_size > 0x10000) throw new XnbError('Invalid size read in compression content.'); // decompress the file based on frame and block size
-
-			decompressed.write(lzx.decompress(buffer, frame_size, block_size)); // increase position counter
-
+			if (block_size == 0 || frame_size == 0) break;
+			if (block_size > 0x10000 || frame_size > 0x10000) throw new XnbError('Invalid size read in compression content.');
+			decompressed.write(lzx.decompress(buffer, frame_size, block_size));
 			pos += block_size;
-		} // we have finished decompressing the file
+		}
 
-
-		console.log('File has been successfully decompressed!'); // return a decompressed buffer
-
+		console.log('File has been successfully decompressed!');
 		decompressed.trim();
 		return decompressed.buffer;
 	}
 
 }
 
-// Original Code by: https://github.com/Benzinga/lz4js/
 class LZ4Utils {
-	// Simple hash function, from: http://burtleburtle.net/bob/hash/integer.html.
-	// Chosen because it doesn't use multiply and achieves full avalanche.
 	static hashU32(a) {
 		a = a | 0;
 		a = a + 2127912214 + (a << 12) | 0;
@@ -1664,8 +1033,7 @@ class LZ4Utils {
 		a = a + -744332180 ^ a << 9;
 		a = a + -42973499 + (a << 3) | 0;
 		return a ^ -1252372727 ^ a >>> 16 | 0;
-	} // Reads a 64-bit little-endian integer from an array.
-
+	}
 
 	static readU64(b, n) {
 		var x = 0;
@@ -1678,8 +1046,7 @@ class LZ4Utils {
 		x |= b[n++] << 48;
 		x |= b[n++] << 56;
 		return x;
-	} // Reads a 32-bit little-endian integer from an array.
-
+	}
 
 	static readU32(b, n) {
 		var x = 0;
@@ -1688,17 +1055,14 @@ class LZ4Utils {
 		x |= b[n++] << 16;
 		x |= b[n++] << 24;
 		return x;
-	} // Writes a 32-bit little-endian integer from an array.
-
+	}
 
 	static writeU32(b, n, x) {
 		b[n++] = x >> 0 & 0xff;
 		b[n++] = x >> 8 & 0xff;
 		b[n++] = x >> 16 & 0xff;
 		b[n++] = x >> 24 & 0xff;
-	} // Multiplies two numbers using 32-bit integer multiplication.
-	// Algorithm from Emscripten.
-
+	}
 
 	static imul(a, b) {
 		var ah = a >>> 16;
@@ -1710,14 +1074,11 @@ class LZ4Utils {
 
 }
 
-// xxh32.js - implementation of xxhash32 in plain JavaScript
-
 const prime1 = 0x9e3779b1;
 const prime2 = 0x85ebca77;
 const prime3 = 0xc2b2ae3d;
 const prime4 = 0x27d4eb2f;
-const prime5 = 0x165667b1; // Utility functions/primitives
-// --
+const prime5 = 0x165667b1;
 
 function rotl32(x, r) {
 	x = x | 0;
@@ -1736,9 +1097,7 @@ function shiftxor32(h, s) {
 	h = h | 0;
 	s = s | 0;
 	return h >>> s ^ h | 0;
-} // Implementation
-// --
-
+}
 
 function xxhapply(h, src, m0, s, m1) {
 	return rotmul32(LZ4Utils.imul(src, m0) + h, s, m1);
@@ -1790,33 +1149,23 @@ function xxh32(seed, src, index, len) {
 	return h >>> 0;
 }
 
-// Original Code by: https://github.com/Benzinga/lz4js/
-// --
-// Compression format parameters/constants.
-
 const minMatch = 4;
 const minLength = 13;
 const searchLimit = 5;
 const skipTrigger = 6;
-const hashSize = 1 << 16; // Token constants.
-
+const hashSize = 1 << 16;
 const mlBits = 4;
 const mlMask = (1 << mlBits) - 1;
 const runBits = 4;
-const runMask = (1 << runBits) - 1; // Shared buffers
-
+const runMask = (1 << runBits) - 1;
 const blockBuf = makeBuffer(5 << 20);
-const hashTable = makeHashTable(); // Frame constants.
-
-const magicNum = 0x184D2204; // Frame descriptor flags.
-
+const hashTable = makeHashTable();
+const magicNum = 0x184D2204;
 const fdContentChksum = 0x4;
 const fdContentSize = 0x8;
-const fdBlockChksum = 0x10; // const fdBlockIndep = 0x20;
-
+const fdBlockChksum = 0x10;
 const fdVersion = 0x40;
-const fdVersionMask = 0xC0; // Block sizes.
-
+const fdVersionMask = 0xC0;
 const bsUncompressed = 0x80000000;
 const bsDefault = 7;
 const bsShift = 4;
@@ -1826,9 +1175,7 @@ const bsMap = {
 	5: 0x40000,
 	6: 0x100000,
 	7: 0x400000
-}; // Utility functions/primitives
-// --
-// Makes our hashtable. On older browsers, may return a plain array.
+};
 
 function makeHashTable() {
 	try {
@@ -1842,15 +1189,13 @@ function makeHashTable() {
 
 		return hashTable;
 	}
-} // Clear hashtable.
-
+}
 
 function clearHashTable(table) {
 	for (var i = 0; i < hashSize; i++) {
 		hashTable[i] = 0;
 	}
-} // Makes a byte buffer. On older browsers, may return a plain array.
-
+}
 
 function makeBuffer(size) {
 	try {
@@ -1871,15 +1216,11 @@ function sliceArray(array, start, end) {
 		if (Uint8Array.prototype.slice) {
 			return array.slice(start, end);
 		} else {
-			// Uint8Array#slice polyfill.
-			var len = array.length; // Calculate start.
-
+			var len = array.length;
 			start = start | 0;
-			start = start < 0 ? Math.max(len + start, 0) : Math.min(start, len); // Calculate end.
-
+			start = start < 0 ? Math.max(len + start, 0) : Math.min(start, len);
 			end = end === undefined ? len : end | 0;
-			end = end < 0 ? Math.max(len + end, 0) : Math.min(end, len); // Copy into new array.
-
+			end = end < 0 ? Math.max(len + end, 0) : Math.min(end, len);
 			var arraySlice = new Uint8Array(end - start);
 
 			for (var i = start, n = 0; i < end;) {
@@ -1889,52 +1230,43 @@ function sliceArray(array, start, end) {
 			return arraySlice;
 		}
 	} else {
-		// Assume normal array.
 		return array.slice(start, end);
 	}
-} // Implementation
-// --
-// Calculates an upper bound for lz4 compression.
-
+}
 
 function compressBound(n) {
 	return n + n / 255 + 16 | 0;
 }
 
 function decompressBound(src) {
-	var sIndex = 0; // Read magic number
+	var sIndex = 0;
 
 	if (LZ4Utils.readU32(src, sIndex) !== magicNum) {
 		throw new Error('invalid magic number');
 	}
 
-	sIndex += 4; // Read descriptor
-
-	var descriptor = src[sIndex++]; // Check version
+	sIndex += 4;
+	var descriptor = src[sIndex++];
 
 	if ((descriptor & fdVersionMask) !== fdVersion) {
 		throw new Error('incompatible descriptor version ' + (descriptor & fdVersionMask));
-	} // Read flags
-
+	}
 
 	var useBlockSum = (descriptor & fdBlockChksum) !== 0;
-	var useContentSize = (descriptor & fdContentSize) !== 0; // Read block size
-
+	var useContentSize = (descriptor & fdContentSize) !== 0;
 	var bsIdx = src[sIndex++] >> bsShift & bsMask;
 
 	if (bsMap[bsIdx] === undefined) {
 		throw new Error('invalid block size ' + bsIdx);
 	}
 
-	var maxBlockSize = bsMap[bsIdx]; // Get content size
+	var maxBlockSize = bsMap[bsIdx];
 
 	if (useContentSize) {
 		return LZ4Utils.readU64(src, sIndex);
-	} // Checksum
+	}
 
-
-	sIndex++; // Read blocks.
-
+	sIndex++;
 	var maxSize = 0;
 
 	while (true) {
@@ -1962,17 +1294,14 @@ function decompressBound(src) {
 
 function decompressBlock$1(src, dst, sIndex, sLength, dIndex) {
 	var mLength, mOffset, sEnd, n, i;
-	var hasCopyWithin = dst.copyWithin !== undefined && dst.fill !== undefined; // Setup initial state.
-
-	sEnd = sIndex + sLength; // Consume entire input block.
+	var hasCopyWithin = dst.copyWithin !== undefined && dst.fill !== undefined;
+	sEnd = sIndex + sLength;
 
 	while (sIndex < sEnd) {
-		var token = src[sIndex++]; // Copy literals.
-
+		var token = src[sIndex++];
 		var literalCount = token >> 4;
 
 		if (literalCount > 0) {
-			// Parse length.
 			if (literalCount === 0xf) {
 				while (true) {
 					literalCount += src[sIndex];
@@ -1981,8 +1310,7 @@ function decompressBlock$1(src, dst, sIndex, sLength, dIndex) {
 						break;
 					}
 				}
-			} // Copy literals
-
+			}
 
 			for (n = sIndex + literalCount; sIndex < n;) {
 				dst[dIndex++] = src[sIndex++];
@@ -1991,12 +1319,10 @@ function decompressBlock$1(src, dst, sIndex, sLength, dIndex) {
 
 		if (sIndex >= sEnd) {
 			break;
-		} // Copy match.
+		}
 
-
-		mLength = token & 0xf; // Parse offset.
-
-		mOffset = src[sIndex++] | src[sIndex++] << 8; // Parse length.
+		mLength = token & 0xf;
+		mOffset = src[sIndex++] | src[sIndex++] << 8;
 
 		if (mLength === 0xf) {
 			while (true) {
@@ -2008,11 +1334,7 @@ function decompressBlock$1(src, dst, sIndex, sLength, dIndex) {
 			}
 		}
 
-		mLength += minMatch; // Copy match
-		// prefer to use typedarray.copyWithin for larger matches
-		// NOTE: copyWithin doesn't work as required by LZ4 for overlapping sequences
-		// e.g. mOffset=1, mLength=30 (repeach char 30 times)
-		// we special case the repeat char w/ array.fill
+		mLength += minMatch;
 
 		if (hasCopyWithin && mOffset === 1) {
 			dst.fill(dst[dIndex - 1] | 0, dIndex, dIndex + mLength);
@@ -2032,24 +1354,20 @@ function decompressBlock$1(src, dst, sIndex, sLength, dIndex) {
 
 function compressBlock(src, dst, sIndex, sLength, hashTable) {
 	var mIndex, mAnchor, mLength, mOffset, mStep;
-	var literalCount, dIndex, sEnd, n; // Setup initial state.
-
+	var literalCount, dIndex, sEnd, n;
 	dIndex = 0;
 	sEnd = sLength + sIndex;
-	mAnchor = sIndex; // Process only if block is large enough.
+	mAnchor = sIndex;
 
 	if (sLength >= minLength) {
-		var searchMatchCount = (1 << skipTrigger) + 3; // Consume until last n literals (Lz4 spec limitation.)
+		var searchMatchCount = (1 << skipTrigger) + 3;
 
 		while (sIndex + minMatch < sEnd - searchLimit) {
 			var seq = LZ4Utils.readU32(src, sIndex);
-			var hash = LZ4Utils.hashU32(seq) >>> 0; // Crush hash to 16 bits.
-
-			hash = (hash >> 16 ^ hash) >>> 0 & 0xffff; // Look for a match in the hashtable. NOTE: remove one; see below.
-
-			mIndex = hashTable[hash] - 1; // Put pos in hash table. NOTE: add one so that zero = invalid.
-
-			hashTable[hash] = sIndex + 1; // Determine if there is a match (within range.)
+			var hash = LZ4Utils.hashU32(seq) >>> 0;
+			hash = (hash >> 16 ^ hash) >>> 0 & 0xffff;
+			mIndex = hashTable[hash] - 1;
+			hashTable[hash] = sIndex + 1;
 
 			if (mIndex < 0 || sIndex - mIndex >>> 16 > 0 || LZ4Utils.readU32(src, mIndex) !== seq) {
 				mStep = searchMatchCount++ >> skipTrigger;
@@ -2057,16 +1375,11 @@ function compressBlock(src, dst, sIndex, sLength, hashTable) {
 				continue;
 			}
 
-			searchMatchCount = (1 << skipTrigger) + 3; // Calculate literal count and offset.
-
+			searchMatchCount = (1 << skipTrigger) + 3;
 			literalCount = sIndex - mAnchor;
-			mOffset = sIndex - mIndex; // We've already matched one word, so get that out of the way.
-
+			mOffset = sIndex - mIndex;
 			sIndex += minMatch;
-			mIndex += minMatch; // Determine match length.
-			// N.B.: mLength does not include minMatch, Lz4 adds it back
-			// in decoding.
-
+			mIndex += minMatch;
 			mLength = sIndex;
 
 			while (sIndex < sEnd - searchLimit && src[sIndex] === src[mIndex]) {
@@ -2074,8 +1387,7 @@ function compressBlock(src, dst, sIndex, sLength, hashTable) {
 				mIndex++;
 			}
 
-			mLength = sIndex - mLength; // Write token + literal count.
-
+			mLength = sIndex - mLength;
 			var token = mLength < mlMask ? mLength : mlMask;
 
 			if (literalCount >= runMask) {
@@ -2088,16 +1400,14 @@ function compressBlock(src, dst, sIndex, sLength, hashTable) {
 				dst[dIndex++] = n;
 			} else {
 				dst[dIndex++] = (literalCount << mlBits) + token;
-			} // Write literals.
-
+			}
 
 			for (var i = 0; i < literalCount; i++) {
 				dst[dIndex++] = src[mAnchor + i];
-			} // Write offset.
-
+			}
 
 			dst[dIndex++] = mOffset;
-			dst[dIndex++] = mOffset >> 8; // Write match length.
+			dst[dIndex++] = mOffset >> 8;
 
 			if (mLength >= mlMask) {
 				for (n = mLength - mlMask; n >= 0xff; n -= 0xff) {
@@ -2105,19 +1415,15 @@ function compressBlock(src, dst, sIndex, sLength, hashTable) {
 				}
 
 				dst[dIndex++] = n;
-			} // Move the anchor.
-
+			}
 
 			mAnchor = sIndex;
 		}
-	} // Nothing was encoded.
-
+	}
 
 	if (mAnchor === 0) {
 		return 0;
-	} // Write remaining literals.
-	// Write literal token+count.
-
+	}
 
 	literalCount = sEnd - mAnchor;
 
@@ -2131,8 +1437,7 @@ function compressBlock(src, dst, sIndex, sLength, hashTable) {
 		dst[dIndex++] = n;
 	} else {
 		dst[dIndex++] = literalCount << mlBits;
-	} // Write literals.
-
+	}
 
 	sIndex = mAnchor;
 
@@ -2146,25 +1451,22 @@ function compressBlock(src, dst, sIndex, sLength, hashTable) {
 function decompressFrame(src, dst) {
 	var useBlockSum, useContentSum, useContentSize, descriptor;
 	var sIndex = 0;
-	var dIndex = 0; // Read magic number
+	var dIndex = 0;
 
 	if (LZ4Utils.readU32(src, sIndex) !== magicNum) {
 		throw new Error('invalid magic number');
 	}
 
-	sIndex += 4; // Read descriptor
-
-	descriptor = src[sIndex++]; // Check version
+	sIndex += 4;
+	descriptor = src[sIndex++];
 
 	if ((descriptor & fdVersionMask) !== fdVersion) {
 		throw new Error('incompatible descriptor version');
-	} // Read flags
-
+	}
 
 	useBlockSum = (descriptor & fdBlockChksum) !== 0;
 	useContentSum = (descriptor & fdContentChksum) !== 0;
-	useContentSize = (descriptor & fdContentSize) !== 0; // Read block size
-
+	useContentSize = (descriptor & fdContentSize) !== 0;
 	var bsIdx = src[sIndex++] >> bsShift & bsMask;
 
 	if (bsMap[bsIdx] === undefined) {
@@ -2172,11 +1474,10 @@ function decompressFrame(src, dst) {
 	}
 
 	if (useContentSize) {
-		// TODO: read content size
 		sIndex += 8;
 	}
 
-	sIndex++; // Read blocks.
+	sIndex++;
 
 	while (true) {
 		var compSize;
@@ -2188,27 +1489,22 @@ function decompressFrame(src, dst) {
 		}
 
 		if (useBlockSum) {
-			// TODO: read block checksum
 			sIndex += 4;
-		} // Check if block is compressed
-
+		}
 
 		if ((compSize & bsUncompressed) !== 0) {
-			// Mask off the 'uncompressed' bit
-			compSize &= ~bsUncompressed; // Copy uncompressed data into destination buffer.
+			compSize &= ~bsUncompressed;
 
 			for (var j = 0; j < compSize; j++) {
 				dst[dIndex++] = src[sIndex++];
 			}
 		} else {
-			// Decompress into blockBuf
 			dIndex = decompressBlock$1(src, dst, sIndex, compSize, dIndex);
 			sIndex += compSize;
 		}
 	}
 
 	if (useContentSum) {
-		// TODO: read content checksum
 		sIndex += 4;
 	}
 
@@ -2216,22 +1512,17 @@ function decompressFrame(src, dst) {
 }
 
 function compressFrame(src, dst) {
-	var dIndex = 0; // Write magic number.
-
+	var dIndex = 0;
 	LZ4Utils.writeU32(dst, dIndex, magicNum);
-	dIndex += 4; // Descriptor flags.
-
+	dIndex += 4;
 	dst[dIndex++] = fdVersion;
-	dst[dIndex++] = bsDefault << bsShift; // Descriptor checksum.
-
+	dst[dIndex++] = bsDefault << bsShift;
 	dst[dIndex] = xxh32(0, dst, 4, dIndex - 4) >> 8;
-	dIndex++; // Write blocks.
-
+	dIndex++;
 	var maxBlockSize = bsMap[bsDefault];
 	var remaining = src.length;
-	var sIndex = 0; // Clear the hashtable.
-
-	clearHashTable(); // Split input into blocks and write.
+	var sIndex = 0;
+	clearHashTable();
 
 	while (remaining > 0) {
 		var compSize = 0;
@@ -2239,7 +1530,6 @@ function compressFrame(src, dst) {
 		compSize = compressBlock(src, blockBuf, sIndex, blockSize, hashTable);
 
 		if (compSize > blockSize || compSize === 0) {
-			// Output uncompressed.
 			LZ4Utils.writeU32(dst, dIndex, 0x80000000 | blockSize);
 			dIndex += 4;
 
@@ -2249,7 +1539,6 @@ function compressFrame(src, dst) {
 
 			remaining -= blockSize;
 		} else {
-			// Output compressed.
 			LZ4Utils.writeU32(dst, dIndex, compSize);
 			dIndex += 4;
 
@@ -2260,15 +1549,12 @@ function compressFrame(src, dst) {
 			sIndex += blockSize;
 			remaining -= blockSize;
 		}
-	} // Write blank end block.
-
+	}
 
 	LZ4Utils.writeU32(dst, dIndex, 0);
 	dIndex += 4;
 	return dIndex;
 }
-// provided, a maximum size will be determined by examining the data. The
-// buffer returned will always be perfectly-sized.
 
 function decompress$1(src, maxSize) {
 	var dst, size;
@@ -2286,8 +1572,6 @@ function decompress$1(src, maxSize) {
 
 	return dst;
 }
-// a buffer will be created based on the theoretical worst output size for a
-// given input size. The buffer returned will always be perfectly-sized.
 
 function compress$1(src, maxSize) {
 	var dst, size;
@@ -2306,55 +1590,20 @@ function compress$1(src, maxSize) {
 	return dst;
 }
 
-/**
- * Class used to read the XNB types using the readers
- * @class
- */
-
 class ReaderResolver {
-	/**
-	 * Creating a new instance of ReaderResolver
-	 * @constructor
-	 * @param {BaseReader[]} readers Array of BaseReaders
-	 */
 	constructor(readers) {
-		/**
-		 * Array of base readers
-		 * @type {BaseReader[]}
-		 */
 		this.readers = readers;
 	}
-	/**
-	 * Read the XNB file contents
-	 * @method read
-	 * @public
-	 * @param {BufferReader} buffer The buffer to read from.
-	 */
-
 
 	read(buffer) {
-		// read the index of which reader to use
 		let index = buffer.read7BitNumber() - 1;
-		if (this.readers[index] == null) throw new XnbError("Invalid reader index ".concat(index)); // read the buffer using the selected reader
-
+		if (this.readers[index] == null) throw new XnbError("Invalid reader index ".concat(index));
 		return this.readers[index].read(buffer, this);
 	}
-	/**
-	 * Writes the XNB file contents
-	 * @param {BufferWriter} buffer
-	 * @param {Object} content 
-	 */
-
 
 	write(buffer, content) {
 		this.readers[0].write(buffer, content, this);
 	}
-	/**
-	 * Returns the index of the reader
-	 * @param {BaseReader} reader 
-	 * @param {Number}
-	 */
-
 
 	getIndex(reader) {
 		for (let i in this.readers) if (reader.toString() == this.readers[i].toString()) return i;
@@ -2362,71 +1611,26 @@ class ReaderResolver {
 
 }
 
-/**
- * Base class for all readers.
- * @abstract
- * @class
- */
-
 class BaseReader {
-	/**
-	 * Returns if type normally requires a special reader.
-	 * @public
-	 * @method
-	 * @returns {Boolean} Returns true if type is primitive.
-	 */
 	isValueType() {
 		return true;
 	}
-	/**
-	 * Returns string type of reader
-	 * @public
-	 * @property
-	 * @returns {string}
-	 */
-
 
 	get type() {
 		return this.constructor.name.slice(0, -6);
 	}
-	/**
-	 * Reads the buffer by the specification of the type reader.
-	 * @public
-	 * @param {BufferReader} buffer The buffer to read from.
-	 * @param {ReaderResolver} resolver The content reader to resolve readers from.
-	 * @returns {mixed} Returns the type as specified by the type reader.
-	 */
-
 
 	read(buffer, resolver) {
 		throw new XnbError('Cannot invoke methods on abstract class.');
 	}
-	/**
-	 * Writes into the buffer
-	 * @param {BufferWriter} buffer The buffer to write to
-	 * @param {Mixed} data The data to parse to write to the buffer
-	 * @param {ReaderResolver} resolver ReaderResolver to write non-primitive types
-	 */
-
 
 	write(buffer, content, resolver) {
 		throw new XnbError('Cannot invoke methods on abstract class.');
 	}
-	/**
-	 * Writes the index of this reader to the buffer
-	 * @param {BufferWriter} buffer
-	 * @param {ReaderResolver} resolver 
-	 */
-
 
 	writeIndex(buffer, resolver) {
 		if (resolver != null) buffer.write7BitNumber(Number.parseInt(resolver.getIndex(this)) + 1);
 	}
-	/**
-	 * When printing out in a string.
-	 * @returns {String}
-	 */
-
 
 	toString() {
 		return this.type;
@@ -2444,40 +1648,16 @@ function UTF8Length(str) {
 	}, 0);
 }
 
-/**
- * String Reader
- * @class
- * @extends BaseReader
- */
-
 class StringReader extends BaseReader {
-	/**
-	 * Reads String from buffer.
-	 * @param {BufferReader} buffer
-	 * @returns {String}
-	 */
 	read(buffer) {
-		// read in the length of the string
-		let length = buffer.read7BitNumber(); // read in the UTF-8 encoded string
-
+		let length = buffer.read7BitNumber();
 		return buffer.readString(length);
 	}
-	/**
-	 * Writes the string to the buffer.
-	 * @param {BufferWriter} buffer 
-	 * @param {String} string 
-	 * @param {ReaderResolver} resolver
-	 */
-
 
 	write(buffer, string, resolver) {
-		// write the index
-		this.writeIndex(buffer, resolver); // get the size of UTF-8 encoded string
-
-		const size = UTF8Length(string); // write the length of the string
-
-		buffer.write7BitNumber(size); // write the string
-
+		this.writeIndex(buffer, resolver);
+		const size = UTF8Length(string);
+		buffer.write7BitNumber(size);
 		buffer.writeString(string);
 	}
 
@@ -2487,28 +1667,10 @@ class StringReader extends BaseReader {
 
 }
 
-/**
- * UInt32 Reader
- * @class
- * @extends BaseReader
- */
-
 class UInt32Reader extends BaseReader {
-	/**
-	 * Reads UInt32 from buffer.
-	 * @param {BufferReader} buffer
-	 * @returns {Number}
-	 */
 	read(buffer) {
 		return buffer.readUInt32();
 	}
-	/**
-	 * 
-	 * @param {BufferWriter} buffer 
-	 * @param {Number} content 
-	 * @param {ReaderResolver} resolver 
-	 */
-
 
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
@@ -2517,64 +1679,29 @@ class UInt32Reader extends BaseReader {
 
 }
 
-/**
- * Array Reader
- * @class
- * @extends BaseReader
- */
-
 class ArrayReader extends BaseReader {
-	/**
-	 * Constructor for the ArrayReader
-	 * @param {BaseReader} reader The reader used for the array elements
-	 */
 	constructor(reader) {
 		super();
-		/** @type {BaseReader} */
-
 		this.reader = reader;
 	}
-	/**
-	 * Reads Array from buffer.
-	 * @param {BufferReader} buffer
-	 * @param {ReaderResolver} resolver
-	 * @returns {Array}
-	 */
-
 
 	read(buffer, resolver) {
-		// create a uint32 reader
-		const uint32Reader = new UInt32Reader(); // read the number of elements in the array
-
-		let size = uint32Reader.read(buffer); // create local array
-
-		let array = []; // loop size number of times for the array elements
+		const uint32Reader = new UInt32Reader();
+		let size = uint32Reader.read(buffer);
+		let array = [];
 
 		for (let i = 0; i < size; i++) {
-			// get value from buffer
-			let value = this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer); // push into local array
-
+			let value = this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer);
 			array.push(value);
-		} // return the array
-
+		}
 
 		return array;
 	}
-	/**
-	 * Writes Array into buffer
-	 * @param {BufferWriter} buffer
-	 * @param {Array} data
-	 * @param {ReaderResolver} resolver
-	 */
-
 
 	write(buffer, content, resolver) {
-		// write the index
-		this.writeIndex(buffer, resolver); // create a uint32 reader
-
-		const uint32Reader = new UInt32Reader(); // write the number of elements in the array
-
-		uint32Reader.write(buffer, content.length, resolver); // loop over array to write array contents
+		this.writeIndex(buffer, resolver);
+		const uint32Reader = new UInt32Reader();
+		uint32Reader.write(buffer, content.length, resolver);
 
 		for (let i = 0; i < content.length; i++) this.reader.write(buffer, content[i], this.reader.isValueType() ? null : resolver);
 	}
@@ -2589,18 +1716,7 @@ class ArrayReader extends BaseReader {
 
 }
 
-/**
- * BmFont Reader
- * @class
- * @extends BaseReader
- */
-
 class BmFontReader extends BaseReader {
-	/**
-	 * Reads BmFont from buffer.
-	 * @param {BufferReader} buffer
-	 * @returns {Object}
-	 */
 	read(buffer) {
 		const stringReader = new StringReader();
 		const xml = stringReader.read(buffer);
@@ -2611,16 +1727,8 @@ class BmFontReader extends BaseReader {
 			}
 		};
 	}
-	/**
-	 * Writes BmFont into buffer
-	 * @param {BufferWriter} buffer
-	 * @param {Mixed} data
-	 * @param {ReaderResolver}
-	 */
-
 
 	write(buffer, content, resolver) {
-		// write index of reader
 		this.writeIndex(buffer, resolver);
 		const stringReader = new StringReader();
 		stringReader.write(buffer, content.export.data, null);
@@ -2632,28 +1740,10 @@ class BmFontReader extends BaseReader {
 
 }
 
-/**
- * Boolean Reader
- * @class
- * @extends BaseReader
- */
-
 class BooleanReader extends BaseReader {
-	/**
-	 * Reads Boolean from buffer.
-	 * @param {BufferReader} buffer
-	 * @returns {Boolean}
-	 */
 	read(buffer) {
 		return Boolean(buffer.readInt());
 	}
-	/**
-	 * Writes Boolean into buffer
-	 * @param {BufferWriter} buffer
-	 * @param {Mixed} data
-	 * @param {ReaderResolver}
-	 */
-
 
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
@@ -2662,41 +1752,17 @@ class BooleanReader extends BaseReader {
 
 }
 
-/**
- * Char Reader
- * @class
- * @extends BaseReader
- */
-
 class CharReader extends BaseReader {
-	/**
-	 * Reads Char from the buffer.
-	 * @param {BufferReader} buffer
-	 * @returns {String}
-	 */
 	read(buffer) {
 		let charSize = this._getCharSize(buffer.peekInt());
 
 		return buffer.readString(charSize);
 	}
-	/**
-	 * Writes Char into buffer
-	 * @param {BufferWriter} buffer
-	 * @param {Mixed} data
-	 * @param {ReaderResolver}
-	 */
-
 
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		buffer.writeString(content);
 	}
-	/**
-	 * Gets size of char for some special characters that are more than one byte.
-	 * @param {Number} byte
-	 * @returns {Number}
-	 */
-
 
 	_getCharSize(byte) {
 		return (0xE5000000 >> (byte >> 3 & 0x1e) & 3) + 1;
@@ -2704,77 +1770,34 @@ class CharReader extends BaseReader {
 
 }
 
-/**
- * Dictionary Reader
- * @class
- * @extends BaseReader
- */
-
 class DictionaryReader extends BaseReader {
-	/**
-	 * Constructor for DictionaryReader.
-	 * @constructor
-	 * @param {BaseReader} key The BaseReader for the dictionary key.
-	 * @param {BaseReader} value The BaseReader for the dictionary value.
-	 */
 	constructor(key, value) {
-		// verify key and value are specified
-		if (key == undefined || value == undefined) throw new XnbError('Cannot create instance of DictionaryReader without Key and Value.'); // call base constructor
-
+		if (key == undefined || value == undefined) throw new XnbError('Cannot create instance of DictionaryReader without Key and Value.');
 		super();
-		/** @type {BaseReader} */
-
 		this.key = key;
-		/** @type {BaseReader} */
-
 		this.value = value;
 	}
-	/**
-	 * Reads Dictionary from buffer.
-	 * @param {BufferReader} buffer Buffer to read from.
-	 * @param {ReaderResolver} resolver ReaderResolver to read non-primitive types.
-	 * @returns {object}
-	 */
-
 
 	read(buffer, resolver) {
-		// the dictionary to return
-		let dictionary = {}; // read in the size of the dictionary
-
+		let dictionary = {};
 		const uint32Reader = new UInt32Reader();
-		const size = uint32Reader.read(buffer); // loop over the size of the dictionary and read in the data
+		const size = uint32Reader.read(buffer);
 
 		for (let i = 0; i < size; i++) {
-			// get the key
-			let key = this.key.isValueType() ? this.key.read(buffer) : resolver.read(buffer); // get the value
-
-			let value = this.value.isValueType() ? this.value.read(buffer) : resolver.read(buffer); // assign KV pair to the dictionary
-
+			let key = this.key.isValueType() ? this.key.read(buffer) : resolver.read(buffer);
+			let value = this.value.isValueType() ? this.value.read(buffer) : resolver.read(buffer);
 			dictionary[key] = value;
-		} // return the dictionary object
-
+		}
 
 		return dictionary;
 	}
-	/**
-	 * Writes Dictionary into buffer
-	 * @param {BufferWriter} buffer
-	 * @param {Object} data The data to parse for the 
-	 * @param {ReaderResolver} resolver ReaderResolver to write non-primitive types
-	 * @returns {Buffer} buffer instance with the data in it
-	 */
-
 
 	write(buffer, content, resolver) {
-		// write the index
-		this.writeIndex(buffer, resolver); // write the amount of entries in the Dictionary
-
-		buffer.writeUInt32(Object.keys(content).length); // loop over the entries
+		this.writeIndex(buffer, resolver);
+		buffer.writeUInt32(Object.keys(content).length);
 
 		for (let key of Object.keys(content)) {
-			// write the key
-			this.key.write(buffer, key, this.key.isValueType() ? null : resolver); // write the value
-
+			this.key.write(buffer, key, this.key.isValueType() ? null : resolver);
 			this.value.write(buffer, content[key], this.value.isValueType() ? null : resolver);
 		}
 	}
@@ -2789,28 +1812,10 @@ class DictionaryReader extends BaseReader {
 
 }
 
-/**
- * Double Reader
- * @class
- * @extends BaseReader
- */
-
 class DoubleReader extends BaseReader {
-	/**
-	 * Reads Double from buffer.
-	 * @param {BufferReader} buffer
-	 * @returns {Number}
-	 */
 	read(buffer) {
 		return buffer.readDouble();
 	}
-	/**
-	 * Writes Double into buffer
-	 * @param {BufferWriter} buffer
-	 * @param {Mixed} data
-	 * @param {ReaderResolver}
-	 */
-
 
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
@@ -2818,12 +1823,6 @@ class DoubleReader extends BaseReader {
 	}
 
 }
-
-/**
- * Effect Reader
- * @class
- * @extends BaseReader
- */
 
 class EffectReader extends BaseReader {
 	read(buffer) {
@@ -2837,13 +1836,6 @@ class EffectReader extends BaseReader {
 			}
 		};
 	}
-	/**
-	 * Writes Effects into the buffer
-	 * @param {BufferWriter} buffer
-	 * @param {Mixed} data The data
-	 * @param {ReaderResolver} resolver
-	 */
-
 
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
@@ -2859,28 +1851,10 @@ class EffectReader extends BaseReader {
 
 }
 
-/**
- * Int32 Reader
- * @class
- * @extends BaseReader
- */
-
 class Int32Reader extends BaseReader {
-	/**
-	 * Reads Int32 from buffer.
-	 * @param {BufferReader} buffer
-	 * @returns {Number}
-	 */
 	read(buffer) {
 		return buffer.readInt32();
 	}
-	/**
-	 * Writes Int32 and returns buffer
-	 * @param {BufferWriter} buffer
-	 * @param {Number} content
-	 * @param {ReaderResolver} resolver
-	 */
-
 
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
@@ -2889,26 +1863,11 @@ class Int32Reader extends BaseReader {
 
 }
 
-/**
- * List Reader
- * @class
- * @extends BaseReader
- */
-
 class ListReader extends BaseReader {
 	constructor(reader) {
 		super();
-		/** @type {BaseReader} */
-
 		this.reader = reader;
 	}
-	/**
-	 * Reads List from buffer.
-	 * @param {BufferReader} buffer
-	 * @param {ReaderResolver} resolver
-	 * @returns {Array}
-	 */
-
 
 	read(buffer, resolver) {
 		const uint32Reader = new UInt32Reader();
@@ -2922,13 +1881,6 @@ class ListReader extends BaseReader {
 
 		return list;
 	}
-	/**
-	 * Writes List into the buffer
-	 * @param {BufferWriter} buffer
-	 * @param {Mixed} data The data
-	 * @param {ReaderResolver} resolver
-	 */
-
 
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
@@ -2946,49 +1898,17 @@ class ListReader extends BaseReader {
 
 }
 
-/**
- * Nullable Reader
- * @class
- * @extends BaseReader
- */
-
 class NullableReader extends BaseReader {
-	/**
-	 * @constructor
-	 * @param {BaseReader} reader
-	 */
 	constructor(reader) {
 		super();
-		/**
-		 * Nullable type
-		 * @type {BaseReader}
-		 */
-
 		this.reader = reader;
 	}
-	/**
-	 * Reads Nullable type from buffer.
-	 * @param {BufferReader} buffer
-	 * @param {ReaderResolver} resolver
-	 * @returns {mixed|null}
-	 */
-
 
 	read(buffer, resolver) {
-		// get an instance of boolean reader
-		const booleanReader = new BooleanReader(); // read in if the nullable has a value or not
-
-		const hasValue = booleanReader.read(buffer); // return the value
-
+		const booleanReader = new BooleanReader();
+		const hasValue = booleanReader.read(buffer);
 		return hasValue ? this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer) : null;
 	}
-	/**
-	 * Writes Nullable into the buffer
-	 * @param {BufferWriter} buffer
-	 * @param {Mixed} data The data
-	 * @param {ReaderResolver} resolver
-	 */
-
 
 	write(buffer, content, resolver) {
 		buffer.writeByte(content != null);
@@ -3005,18 +1925,7 @@ class NullableReader extends BaseReader {
 
 }
 
-/**
- * Rectangle Reader
- * @class
- * @extends BaseReader
- */
-
 class RectangleReader extends BaseReader {
-	/**
-	 * Reads Rectangle from buffer.
-	 * @param {BufferReader} buffer
-	 * @returns {object}
-	 */
 	read(buffer) {
 		const int32Reader = new Int32Reader();
 		const x = int32Reader.read(buffer);
@@ -3030,13 +1939,6 @@ class RectangleReader extends BaseReader {
 			height
 		};
 	}
-	/**
-	 * Writes Effects into the buffer
-	 * @param {BufferWriter} buffer
-	 * @param {Mixed} data The data
-	 * @param {ReaderResolver} resolver
-	 */
-
 
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
@@ -3049,18 +1951,7 @@ class RectangleReader extends BaseReader {
 
 }
 
-/**
- * Single Reader
- * @class
- * @extends BaseReader
- */
-
 class SingleReader extends BaseReader {
-	/**
-	 * Reads Single from the buffer.
-	 * @param {BufferReader} buffer
-	 * @returns {Number}
-	 */
 	read(buffer) {
 		return buffer.readSingle();
 	}
@@ -3072,24 +1963,15 @@ class SingleReader extends BaseReader {
 
 }
 
-//constant values
-const kDxt1 = 1 << 0; //! Use DXT1 compression.
-
-const kDxt3 = 1 << 1; //! Use DXT3 compression.
-
-const kDxt5 = 1 << 2; //! Use DXT5 compression.
-
-const kColourIterativeClusterFit = 1 << 8; //! Use a very slow but very high quality colour compressor.
-
-const kColourClusterFit = 1 << 3; //! Use a slow but high quality colour compressor (the default).
-
-const kColourRangeFit = 1 << 4; //! Use a fast but low quality colour compressor.
-
-const kColourMetricPerceptual = 1 << 5; //! Use a perceptual metric for colour error (the default).
-
-const kColourMetricUniform = 1 << 6; //! Use a uniform metric for colour error.
-
-const kWeightColourByAlpha = 1 << 7; //! Weight the colour by alpha during cluster fit (disabled by default).
+const kDxt1 = 1 << 0;
+const kDxt3 = 1 << 1;
+const kDxt5 = 1 << 2;
+const kColourIterativeClusterFit = 1 << 8;
+const kColourClusterFit = 1 << 3;
+const kColourRangeFit = 1 << 4;
+const kColourMetricPerceptual = 1 << 5;
+const kColourMetricUniform = 1 << 6;
+const kWeightColourByAlpha = 1 << 7;
 
 function ownKeys(object, enumerableOnly) {
 	var keys = Object.keys(object);
@@ -3132,26 +2014,17 @@ function _defineProperty(obj, key, value) {
 	return obj;
 }
 
-/*
- * get Eigen-values and Eigen-vectors from symmetric matrix
- * I can use it directly because covarience matrix is symmetric - Lybell
- * from DiagonalizeJS : https://github.com/arkajitmandal/DiagonalizeJS
- * made by Arkajit Mandal
- */
-// Rotation Matrix
 function Rot(theta) {
 	let Mat = [[Math.cos(theta), Math.sin(theta)], [-Math.sin(theta), Math.cos(theta)]];
 	return Mat;
-} // Givens Matrix
-
+}
 
 function Rij(k, l, theta, N) {
 	let Mat = Array(N);
 
 	for (let i = 0; i < N; i++) {
 		Mat[i] = Array(N);
-	} // Identity Matrix
-
+	}
 
 	for (let i = 0; i < N; i++) {
 		for (let j = 0; j < N; j++) {
@@ -3159,19 +2032,13 @@ function Rij(k, l, theta, N) {
 		}
 	}
 
-	let Rotij = Rot(theta); // Put Rotation part in i, j
-
-	Mat[k][k] = Rotij[0][0]; // 11
-
-	Mat[l][l] = Rotij[1][1]; // 22
-
-	Mat[k][l] = Rotij[0][1]; // 12
-
-	Mat[l][k] = Rotij[1][0]; // 21
-
+	let Rotij = Rot(theta);
+	Mat[k][k] = Rotij[0][0];
+	Mat[l][l] = Rotij[1][1];
+	Mat[k][l] = Rotij[0][1];
+	Mat[l][k] = Rotij[1][0];
 	return Mat;
-} // get angle
-
+}
 
 function getTheta(aii, ajj, aij) {
 	let th = 0.0;
@@ -3184,8 +2051,7 @@ function getTheta(aii, ajj, aij) {
 	}
 
 	return th;
-} // get max off-diagonal value from Upper Diagonal
-
+}
 
 function getAij(Mij) {
 	let N = Mij.length;
@@ -3202,18 +2068,15 @@ function getAij(Mij) {
 	}
 
 	return [maxIJ, maxMij];
-} // Unitary Rotation UT x H x U
-
+}
 
 function unitary(U, H) {
-	let N = U.length; // empty NxN matrix
-
+	let N = U.length;
 	let Mat = Array(N);
 
 	for (let i = 0; i < N; i++) {
 		Mat[i] = Array(N);
-	} // compute element
-
+	}
 
 	for (let i = 0; i < N; i++) {
 		for (let j = 0; j < N; j++) {
@@ -3228,12 +2091,10 @@ function unitary(U, H) {
 	}
 
 	return Mat;
-} // Matrix Multiplication
-
+}
 
 function AxB(A, B) {
-	let N = A.length; // empty NxN matrix
-
+	let N = A.length;
 	let Mat = Array(N);
 
 	for (let i = 0; i < N; i++) {
@@ -3257,37 +2118,28 @@ function eigens(Hij) {
 	let convergence = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1E-7;
 	let N = Hij.length;
 	let Ei = Array(N);
-	let e0 = Math.abs(convergence / N); // initial vector
-
+	let e0 = Math.abs(convergence / N);
 	let Sij = Array(N);
 
 	for (let i = 0; i < N; i++) {
 		Sij[i] = Array(N);
-	} // Sij is Identity Matrix
-
+	}
 
 	for (let i = 0; i < N; i++) {
 		for (let j = 0; j < N; j++) {
 			Sij[i][j] = (i === j) * 1.0;
 		}
-	} // initial error
+	}
 
-
-	let Vab = getAij(Hij); //	jacobi iterations
+	let Vab = getAij(Hij);
 
 	while (Math.abs(Vab[1]) >= Math.abs(e0)) {
-		// block index to be rotated
 		let i = Vab[0][0];
-		let j = Vab[0][1]; // get theta
-
-		let psi = getTheta(Hij[i][i], Hij[j][j], Hij[i][j]); // Givens matrix
-
-		let Gij = Rij(i, j, psi, N); // rotate Hamiltonian using Givens
-
-		Hij = unitary(Gij, Hij); // Update vectors
-
-		Sij = AxB(Sij, Gij); // update error 
-
+		let j = Vab[0][1];
+		let psi = getTheta(Hij[i][i], Hij[j][j], Hij[i][j]);
+		let Gij = Rij(i, j, psi, N);
+		Hij = unitary(Gij, Hij);
+		Sij = AxB(Sij, Gij);
 		Vab = getAij(Hij);
 	}
 
@@ -3546,8 +2398,7 @@ class Vec4 {
 
 	get xyz() {
 		return new Vec3(this.x, this.y, this.z);
-	} // idk what is "splat", but these functions returns new Vec4 filled with (x,x,x,x).
-
+	}
 
 	get splatX() {
 		return new Vec4(this.x);
@@ -3698,13 +2549,11 @@ class Vec4 {
 		let a_ = Vec4.multScalar(a, 1 - p);
 		let b_ = Vec4.multScalar(b, p);
 		return Vec4.add(a_, b_);
-	} // returns a*b + c
-
+	}
 
 	static multiplyAdd(a, b, c) {
 		return new Vec4(a.x * b.x + c.x, a.y * b.y + c.y, a.z * b.z + c.z, a.w * b.w + c.w);
-	} // returns c - a*b
-
+	}
 
 	static negativeMultiplySubtract(a, b, c) {
 		return new Vec4(c.x - a.x * b.x, c.y - a.y * b.y, c.z - a.z * b.z, c.w - a.w * b.w);
@@ -3717,19 +2566,13 @@ class Vec4 {
 }
 
 function computeWeightedCovariance(values, weights) {
-	//compute the mean vector
 	let total = 0;
 	let mean = values.reduce((sum, value, i) => {
 		total += weights[i];
 		sum.addScaledVector(value, weights[i]);
 		return sum;
 	}, new Vec3(0));
-	mean.mult(1 / total); //compute the covariance matrix
-	//sigma( (x-m)*(x-m)^T )
-	// [0(xx) 1(xy) 2(xz)]
-	// [1(xy) 3(yy) 4(yz)]
-	// [2(xz) 4(yz) 5(zz)]
-
+	mean.mult(1 / total);
 	let covariance = values.reduce((sum, value, i) => {
 		let weight = weights[i];
 		let v = Vec3.sub(value, mean);
@@ -3740,13 +2583,10 @@ function computeWeightedCovariance(values, weights) {
 		sum[1][2] += v.y * v.z * weight;
 		sum[2][2] += v.z * v.z * weight;
 		return sum;
-	}, [[0, 0, 0], [0, 0, 0], [0, 0, 0]]); //post-processing
-
+	}, [[0, 0, 0], [0, 0, 0], [0, 0, 0]]);
 	covariance[1][0] = covariance[0][1];
 	covariance[2][0] = covariance[0][2];
-	covariance[2][1] = covariance[1][2]; // there is no need to divide by total since the eigenvector of the scalar multiplied matrix
-	// is the same as the eigenvector of the original matrix.
-
+	covariance[2][1] = covariance[1][2];
 	return covariance;
 }
 
@@ -3761,192 +2601,112 @@ const lookup_5_4 = [[[0, 0, 0], [0, 0, 0]], [[0, 0, 1], [0, 1, 1]], [[0, 0, 2], 
 const lookup_6_4 = [[[0, 0, 0], [0, 0, 0]], [[0, 0, 1], [0, 1, 0]], [[0, 0, 2], [0, 2, 0]], [[1, 0, 1], [0, 3, 1]], [[1, 0, 0], [0, 3, 0]], [[1, 0, 1], [0, 4, 0]], [[1, 0, 2], [0, 5, 0]], [[2, 0, 1], [0, 6, 1]], [[2, 0, 0], [0, 6, 0]], [[2, 0, 1], [0, 7, 0]], [[2, 0, 2], [0, 8, 0]], [[3, 0, 1], [0, 9, 1]], [[3, 0, 0], [0, 9, 0]], [[3, 0, 1], [0, 10, 0]], [[3, 0, 2], [0, 11, 0]], [[4, 0, 1], [0, 12, 1]], [[4, 0, 0], [0, 12, 0]], [[4, 0, 1], [0, 13, 0]], [[4, 0, 2], [0, 14, 0]], [[5, 0, 1], [0, 15, 1]], [[5, 0, 0], [0, 15, 0]], [[5, 0, 1], [0, 16, 0]], [[5, 0, 2], [1, 15, 0]], [[6, 0, 1], [0, 17, 0]], [[6, 0, 0], [0, 18, 0]], [[6, 0, 1], [0, 19, 0]], [[6, 0, 2], [3, 14, 0]], [[7, 0, 1], [0, 20, 0]], [[7, 0, 0], [0, 21, 0]], [[7, 0, 1], [0, 22, 0]], [[7, 0, 2], [4, 15, 0]], [[8, 0, 1], [0, 23, 0]], [[8, 0, 0], [0, 24, 0]], [[8, 0, 1], [0, 25, 0]], [[8, 0, 2], [6, 14, 0]], [[9, 0, 1], [0, 26, 0]], [[9, 0, 0], [0, 27, 0]], [[9, 0, 1], [0, 28, 0]], [[9, 0, 2], [7, 15, 0]], [[10, 0, 1], [0, 29, 0]], [[10, 0, 0], [0, 30, 0]], [[10, 0, 1], [0, 31, 0]], [[10, 0, 2], [9, 14, 0]], [[11, 0, 1], [0, 32, 0]], [[11, 0, 0], [0, 33, 0]], [[11, 0, 1], [2, 30, 0]], [[11, 0, 2], [0, 34, 0]], [[12, 0, 1], [0, 35, 0]], [[12, 0, 0], [0, 36, 0]], [[12, 0, 1], [3, 31, 0]], [[12, 0, 2], [0, 37, 0]], [[13, 0, 1], [0, 38, 0]], [[13, 0, 0], [0, 39, 0]], [[13, 0, 1], [5, 30, 0]], [[13, 0, 2], [0, 40, 0]], [[14, 0, 1], [0, 41, 0]], [[14, 0, 0], [0, 42, 0]], [[14, 0, 1], [6, 31, 0]], [[14, 0, 2], [0, 43, 0]], [[15, 0, 1], [0, 44, 0]], [[15, 0, 0], [0, 45, 0]], [[15, 0, 1], [8, 30, 0]], [[15, 0, 2], [0, 46, 0]], [[16, 0, 2], [0, 47, 0]], [[16, 0, 1], [1, 46, 0]], [[16, 0, 0], [0, 48, 0]], [[16, 0, 1], [0, 49, 0]], [[16, 0, 2], [0, 50, 0]], [[17, 0, 1], [2, 47, 0]], [[17, 0, 0], [0, 51, 0]], [[17, 0, 1], [0, 52, 0]], [[17, 0, 2], [0, 53, 0]], [[18, 0, 1], [4, 46, 0]], [[18, 0, 0], [0, 54, 0]], [[18, 0, 1], [0, 55, 0]], [[18, 0, 2], [0, 56, 0]], [[19, 0, 1], [5, 47, 0]], [[19, 0, 0], [0, 57, 0]], [[19, 0, 1], [0, 58, 0]], [[19, 0, 2], [0, 59, 0]], [[20, 0, 1], [7, 46, 0]], [[20, 0, 0], [0, 60, 0]], [[20, 0, 1], [0, 61, 0]], [[20, 0, 2], [0, 62, 0]], [[21, 0, 1], [8, 47, 0]], [[21, 0, 0], [0, 63, 0]], [[21, 0, 1], [1, 62, 0]], [[21, 0, 2], [1, 63, 0]], [[22, 0, 1], [10, 46, 0]], [[22, 0, 0], [2, 62, 0]], [[22, 0, 1], [2, 63, 0]], [[22, 0, 2], [3, 62, 0]], [[23, 0, 1], [11, 47, 0]], [[23, 0, 0], [3, 63, 0]], [[23, 0, 1], [4, 62, 0]], [[23, 0, 2], [4, 63, 0]], [[24, 0, 1], [13, 46, 0]], [[24, 0, 0], [5, 62, 0]], [[24, 0, 1], [5, 63, 0]], [[24, 0, 2], [6, 62, 0]], [[25, 0, 1], [14, 47, 0]], [[25, 0, 0], [6, 63, 0]], [[25, 0, 1], [7, 62, 0]], [[25, 0, 2], [7, 63, 0]], [[26, 0, 1], [16, 45, 0]], [[26, 0, 0], [8, 62, 0]], [[26, 0, 1], [8, 63, 0]], [[26, 0, 2], [9, 62, 0]], [[27, 0, 1], [16, 48, 0]], [[27, 0, 0], [9, 63, 0]], [[27, 0, 1], [10, 62, 0]], [[27, 0, 2], [10, 63, 0]], [[28, 0, 1], [16, 51, 0]], [[28, 0, 0], [11, 62, 0]], [[28, 0, 1], [11, 63, 0]], [[28, 0, 2], [12, 62, 0]], [[29, 0, 1], [16, 54, 0]], [[29, 0, 0], [12, 63, 0]], [[29, 0, 1], [13, 62, 0]], [[29, 0, 2], [13, 63, 0]], [[30, 0, 1], [16, 57, 0]], [[30, 0, 0], [14, 62, 0]], [[30, 0, 1], [14, 63, 0]], [[30, 0, 2], [15, 62, 0]], [[31, 0, 1], [16, 60, 0]], [[31, 0, 0], [15, 63, 0]], [[31, 0, 1], [24, 46, 0]], [[31, 0, 2], [16, 62, 0]], [[32, 0, 2], [16, 63, 0]], [[32, 0, 1], [17, 62, 0]], [[32, 0, 0], [25, 47, 0]], [[32, 0, 1], [17, 63, 0]], [[32, 0, 2], [18, 62, 0]], [[33, 0, 1], [18, 63, 0]], [[33, 0, 0], [27, 46, 0]], [[33, 0, 1], [19, 62, 0]], [[33, 0, 2], [19, 63, 0]], [[34, 0, 1], [20, 62, 0]], [[34, 0, 0], [28, 47, 0]], [[34, 0, 1], [20, 63, 0]], [[34, 0, 2], [21, 62, 0]], [[35, 0, 1], [21, 63, 0]], [[35, 0, 0], [30, 46, 0]], [[35, 0, 1], [22, 62, 0]], [[35, 0, 2], [22, 63, 0]], [[36, 0, 1], [23, 62, 0]], [[36, 0, 0], [31, 47, 0]], [[36, 0, 1], [23, 63, 0]], [[36, 0, 2], [24, 62, 0]], [[37, 0, 1], [24, 63, 0]], [[37, 0, 0], [32, 47, 0]], [[37, 0, 1], [25, 62, 0]], [[37, 0, 2], [25, 63, 0]], [[38, 0, 1], [26, 62, 0]], [[38, 0, 0], [32, 50, 0]], [[38, 0, 1], [26, 63, 0]], [[38, 0, 2], [27, 62, 0]], [[39, 0, 1], [27, 63, 0]], [[39, 0, 0], [32, 53, 0]], [[39, 0, 1], [28, 62, 0]], [[39, 0, 2], [28, 63, 0]], [[40, 0, 1], [29, 62, 0]], [[40, 0, 0], [32, 56, 0]], [[40, 0, 1], [29, 63, 0]], [[40, 0, 2], [30, 62, 0]], [[41, 0, 1], [30, 63, 0]], [[41, 0, 0], [32, 59, 0]], [[41, 0, 1], [31, 62, 0]], [[41, 0, 2], [31, 63, 0]], [[42, 0, 1], [32, 61, 0]], [[42, 0, 0], [32, 62, 0]], [[42, 0, 1], [32, 63, 0]], [[42, 0, 2], [41, 46, 0]], [[43, 0, 1], [33, 62, 0]], [[43, 0, 0], [33, 63, 0]], [[43, 0, 1], [34, 62, 0]], [[43, 0, 2], [42, 47, 0]], [[44, 0, 1], [34, 63, 0]], [[44, 0, 0], [35, 62, 0]], [[44, 0, 1], [35, 63, 0]], [[44, 0, 2], [44, 46, 0]], [[45, 0, 1], [36, 62, 0]], [[45, 0, 0], [36, 63, 0]], [[45, 0, 1], [37, 62, 0]], [[45, 0, 2], [45, 47, 0]], [[46, 0, 1], [37, 63, 0]], [[46, 0, 0], [38, 62, 0]], [[46, 0, 1], [38, 63, 0]], [[46, 0, 2], [47, 46, 0]], [[47, 0, 1], [39, 62, 0]], [[47, 0, 0], [39, 63, 0]], [[47, 0, 1], [40, 62, 0]], [[47, 0, 2], [48, 46, 0]], [[48, 0, 2], [40, 63, 0]], [[48, 0, 1], [41, 62, 0]], [[48, 0, 0], [41, 63, 0]], [[48, 0, 1], [48, 49, 0]], [[48, 0, 2], [42, 62, 0]], [[49, 0, 1], [42, 63, 0]], [[49, 0, 0], [43, 62, 0]], [[49, 0, 1], [48, 52, 0]], [[49, 0, 2], [43, 63, 0]], [[50, 0, 1], [44, 62, 0]], [[50, 0, 0], [44, 63, 0]], [[50, 0, 1], [48, 55, 0]], [[50, 0, 2], [45, 62, 0]], [[51, 0, 1], [45, 63, 0]], [[51, 0, 0], [46, 62, 0]], [[51, 0, 1], [48, 58, 0]], [[51, 0, 2], [46, 63, 0]], [[52, 0, 1], [47, 62, 0]], [[52, 0, 0], [47, 63, 0]], [[52, 0, 1], [48, 61, 0]], [[52, 0, 2], [48, 62, 0]], [[53, 0, 1], [56, 47, 0]], [[53, 0, 0], [48, 63, 0]], [[53, 0, 1], [49, 62, 0]], [[53, 0, 2], [49, 63, 0]], [[54, 0, 1], [58, 46, 0]], [[54, 0, 0], [50, 62, 0]], [[54, 0, 1], [50, 63, 0]], [[54, 0, 2], [51, 62, 0]], [[55, 0, 1], [59, 47, 0]], [[55, 0, 0], [51, 63, 0]], [[55, 0, 1], [52, 62, 0]], [[55, 0, 2], [52, 63, 0]], [[56, 0, 1], [61, 46, 0]], [[56, 0, 0], [53, 62, 0]], [[56, 0, 1], [53, 63, 0]], [[56, 0, 2], [54, 62, 0]], [[57, 0, 1], [62, 47, 0]], [[57, 0, 0], [54, 63, 0]], [[57, 0, 1], [55, 62, 0]], [[57, 0, 2], [55, 63, 0]], [[58, 0, 1], [56, 62, 1]], [[58, 0, 0], [56, 62, 0]], [[58, 0, 1], [56, 63, 0]], [[58, 0, 2], [57, 62, 0]], [[59, 0, 1], [57, 63, 1]], [[59, 0, 0], [57, 63, 0]], [[59, 0, 1], [58, 62, 0]], [[59, 0, 2], [58, 63, 0]], [[60, 0, 1], [59, 62, 1]], [[60, 0, 0], [59, 62, 0]], [[60, 0, 1], [59, 63, 0]], [[60, 0, 2], [60, 62, 0]], [[61, 0, 1], [60, 63, 1]], [[61, 0, 0], [60, 63, 0]], [[61, 0, 1], [61, 62, 0]], [[61, 0, 2], [61, 63, 0]], [[62, 0, 1], [62, 62, 1]], [[62, 0, 0], [62, 62, 0]], [[62, 0, 1], [62, 63, 0]], [[62, 0, 2], [63, 62, 0]], [[63, 0, 1], [63, 63, 1]], [[63, 0, 0], [63, 63, 0]]];
 
 function floatToInt(value, limit) {
-	// use ANSI round-to-zero behaviour to get round-to-nearest
-	const integer = parseInt(value + 0.5); // clamp to the limit
-
+	const integer = parseInt(value + 0.5);
 	if (integer < 0) return 0;
 	if (integer > limit) return integer;
 	return integer;
 }
 
 function floatTo565(color) {
-	// get the components in the correct range
 	const r = floatToInt(31.0 * color.x, 31);
 	const g = floatToInt(63.0 * color.y, 63);
-	const b = floatToInt(31.0 * color.z, 31); // pack into a single value
-
+	const b = floatToInt(31.0 * color.z, 31);
 	return r << 11 | g << 5 | b;
 }
-/**
- * @param {int} packed 16bit first color
- * @param {int} packed 16bit second color
- * @param {Array(int)} each pixel block's index data
- * @param {Uint8Array} the array to save result
- * @param {int} the array's offset
- */
-
 
 function writeColourBlock(firstColor, secondColor, indices, result, blockOffset) {
-	// write the endpoints as little endian
 	result[blockOffset + 0] = firstColor & 0xff;
 	result[blockOffset + 1] = firstColor >> 8;
 	result[blockOffset + 2] = secondColor & 0xff;
-	result[blockOffset + 3] = secondColor >> 8; // write the indices as big endian like [33221100]
+	result[blockOffset + 3] = secondColor >> 8;
 
 	for (let y = 0; y < 4; y++) {
 		result[blockOffset + 4 + y] = indices[4 * y + 0] | indices[4 * y + 1] << 2 | indices[4 * y + 2] << 4 | indices[4 * y + 3] << 6;
 	}
 }
-/**
- * @param {Vec3} first color
- * @param {Vec3} second color
- * @param {Array(int)} each pixel block's index data
- * @param {Uint8Array} the array to save result
- * @param {int} the array's offset
- */
-
 
 function writeColourBlock3(start, end, indices, result, blockOffset) {
-	// get the packed values
 	let firstColor = floatTo565(start);
-	let secondColor = floatTo565(end); // remap the indices
-
+	let secondColor = floatTo565(end);
 	let remapped;
 
 	if (firstColor <= secondColor) {
-		// use the indices directly
 		remapped = indices.slice();
 	} else {
-		// swap a and b
 		[firstColor, secondColor] = [secondColor, firstColor];
 		remapped = indices.map(index => index === 0 ? 1 : index === 1 ? 0 : index);
-	} // write the block
-
+	}
 
 	writeColourBlock(firstColor, secondColor, remapped, result, blockOffset);
 }
 
 function writeColourBlock4(start, end, indices, result, blockOffset) {
-	// get the packed values
 	let firstColor = floatTo565(start);
-	let secondColor = floatTo565(end); // remap the indices
-
+	let secondColor = floatTo565(end);
 	let remapped;
 
 	if (firstColor < secondColor) {
-		// swap a and b
 		[firstColor, secondColor] = [secondColor, firstColor];
 		remapped = indices.map(index => (index ^ 0x1) & 0x3);
 	} else if (firstColor == secondColor) {
-		// use index 0
 		remapped = new Array(16).fill(0);
 	} else {
-		// use the indices directly
 		remapped = indices.slice();
-	} // write the block
-
+	}
 
 	writeColourBlock(firstColor, secondColor, remapped, result, blockOffset);
 }
 
 class ColorSet {
 	constructor(rgba, mask, flags) {
-		/**
-		 * this colorset's flags
-		 * @public
-		 * @type {Number}
-		 */
 		this.flags = flags;
-		/**
-		 * the number of colors
-		 * @private
-		 * @type {Number}
-		 */
-
 		this._count = 0;
-		/**
-		 * the number of colors
-		 * @private
-		 * @type {boolean}
-		 */
-
 		this._transparent = false;
-		/**
-		 * the indices of color
-		 * @private
-		 * @type {Array(Number)}
-		 */
-
 		this._remap = [];
-		/**
-		 * Weighted by how many colors there are
-		 * @private
-		 * @type {Array(Number)}
-		 */
-
 		this._weights = [];
-		/**
-		 * the color data
-		 * @private
-		 * @type {Array(Vec3)}
-		 */
-
 		this._points = [];
 		const isDxt1 = (this.flags & kDxt1) != 0;
-		const weightByAlpha = (this.flags & kWeightColourByAlpha) != 0; // create the minimal set
+		const weightByAlpha = (this.flags & kWeightColourByAlpha) != 0;
 
 		for (let i = 0; i < 16; i++) {
-			// check this pixel is enabled
 			const bit = 1 << i;
 
 			if ((mask & bit) == 0) {
 				this._remap[i] = -1;
 				continue;
-			} // check for transparent pixels when using dxt1
-
+			}
 
 			if (isDxt1 && rgba[4 * i + 3] < 128) {
 				this._remap[i] = -1;
 				this._transparent = true;
 				continue;
-			} // loop over previous points for a match
-
+			}
 
 			for (let j = 0;; j++) {
-				// allocate a new point
 				if (j == i) {
-					// normalise coordinates to [0,1]
 					const r = rgba[4 * i] / 255.0;
 					const g = rgba[4 * i + 1] / 255.0;
-					const b = rgba[4 * i + 2] / 255.0; // ensure there is always non-zero weight even for zero alpha
-
-					const a = (rgba[4 * i + 3] + 1) / 256.0; // add the point
-
+					const b = rgba[4 * i + 2] / 255.0;
+					const a = (rgba[4 * i + 3] + 1) / 256.0;
 					this._points[this._count] = new Vec3(r, g, b);
 					this._weights[this._count] = weightByAlpha ? a : 1.0;
-					this._remap[i] = this._count; // advance
-
+					this._remap[i] = this._count;
 					this._count++;
 					break;
-				} // check for a match
-
+				}
 
 				const oldbit = 1 << j;
 				const match = (mask & oldbit) != 0 && rgba[4 * i] == rgba[4 * j] && rgba[4 * i + 1] == rgba[4 * j + 1] && rgba[4 * i + 2] == rgba[4 * j + 2] && (rgba[4 * j + 3] >= 128 || !isDxt1);
 
 				if (match) {
-					// get the index of the match
-					const index = this._remap[j]; // ensure there is always non-zero weight even for zero alpha
-
-					const w = (rgba[4 * i + 3] + 1) / 256.0; // map to this point and increase the weight
-
+					const index = this._remap[j];
+					const w = (rgba[4 * i + 3] + 1) / 256.0;
 					this._weights[index] += weightByAlpha ? w : 1.0;
 					this._remap[i] = index;
 					break;
 				}
 			}
-		} // square root the weights
-
+		}
 
 		for (let i = 0; i < this._count; ++i) this._weights[i] = Math.sqrt(this._weights[i]);
 	}
@@ -3966,26 +2726,12 @@ class ColorSet {
 	get weights() {
 		return Object.freeze(this._weights.slice());
 	}
-	/**
-	 * @param {int} index no
-	 * @param {Uint8Array} Colormap index to store the result
-	 */
-
 
 	remapIndicesSingle(singleIndex, target) {
 		const result = this._remap.map(index => index === -1 ? 3 : singleIndex);
 
 		target.forEach((_, i) => target[i] = result[i]);
 	}
-	/**
-	 * @example
-	 * 	this.remap=[0,1,2,3, 2,2,3,4, 3,4,6,6, 7,5,5,0]
-	 *	indexMap = [0,0,1,1,2,2,3,3]
-	 *	target(result) => [0,0,1,1, 1,1,1,2, 1,1,3,3, 3,2,2,0]
-	 * @param {Uint8Array} map of index numbers to fill
-	 * @param {Uint8Array} Colormap index to store the result
-	 */
-
 
 	remapIndices(indexMap, target) {
 		const result = this._remap.map(index => index === -1 ? 3 : indexMap[index]);
@@ -4018,11 +2764,9 @@ class ColorFit {
 
 class SingleColourFit extends ColorFit {
 	constructor(colorSet) {
-		super(colorSet); // grab the single colour
-
+		super(colorSet);
 		const singleColor = colorSet.points[0];
-		this.color = singleColor.colorInt; // private property
-
+		this.color = singleColor.colorInt;
 		this.start = new Vec3(0);
 		this.end = new Vec3(0);
 		this.index = 0;
@@ -4058,33 +2802,24 @@ class SingleColourFit extends ColorFit {
 	}
 
 	computeEndPoints(lookups) {
-		// check each index combination (endpoint or intermediate)
 		this.error = Infinity;
 
 		for (let index = 0; index < 2; index++) {
-			// check the error for this codebook index
-			const sources = []; //source : [channel][start/end/error]
-
+			const sources = [];
 			let error = 0;
 
 			for (let channel = 0; channel < 3; channel++) {
-				// grab the lookup table and index for this channel
-				const lookup = lookups[channel]; //lookup : [rgb-raw index][startpoint/midpoint]
-
-				const target = this.color[channel]; // store a pointer to the source for this channel
-
-				sources[channel] = lookup[target][index]; // accumulate the error
-
+				const lookup = lookups[channel];
+				const target = this.color[channel];
+				sources[channel] = lookup[target][index];
 				const diff = sources[channel][2];
 				error += diff * diff;
-			} // keep it if the error is lower
-
+			}
 
 			if (error < this.error) {
 				this.start = new Vec3(sources[0][0] / 31.0, sources[1][0] / 63.0, sources[2][0] / 31.0);
 				this.end = new Vec3(sources[0][1] / 31.0, sources[1][1] / 63.0, sources[2][1] / 31.0);
-				this.index = 2 * index; // 0:startpoint, 2:midpoint
-
+				this.index = 2 * index;
 				this.error = error;
 			}
 		}
@@ -4099,13 +2834,11 @@ class RangeFit extends ColorFit {
 
 		if ((this.flags & kColourMetricPerceptual) !== 0) {
 			this.metric.set(0.2126, 0.7152, 0.0722);
-		} // private property
-
+		}
 
 		this.start = new Vec3(0);
 		this.end = new Vec3(0);
-		this.bestError = Infinity; //compute start&end points
-
+		this.bestError = Infinity;
 		this.computePoints();
 	}
 
@@ -4113,30 +2846,23 @@ class RangeFit extends ColorFit {
 		const {
 			points: values
 		} = this.colors;
-		let error = 0; // Map the closest code of each color
-
+		let error = 0;
 		const closest = values.map(color => {
-			let minDist = Infinity; // find the closest code
-
+			let minDist = Infinity;
 			const packedIndex = codes.reduce((idx, code, j) => {
 				const dist = Vec3.sub(color, code).multVector(this.metric).lengthSq;
 				if (dist >= minDist) return idx;
 				minDist = dist;
 				return j;
-			}, 0); // accumulate the error
-
-			error += minDist; // save the index
-
+			}, 0);
+			error += minDist;
 			return packedIndex;
-		}); // save this scheme if it wins
+		});
 
 		if (error < this.bestError) {
-			// remap the indices
 			let indices = new Uint8Array(16);
-			this.colors.remapIndices(closest, indices); // save the block
-
-			saveFunc(this.start, this.end, indices); // save the error
-
+			this.colors.remapIndices(closest, indices);
+			saveFunc(this.start, this.end, indices);
 			this.bestError = error;
 		}
 	}
@@ -4163,12 +2889,11 @@ class RangeFit extends ColorFit {
 			points: values,
 			weights
 		} = this.colors;
-		if (count <= 0) return; //dimension regression
-
+		if (count <= 0) return;
 		const principle = computePCA(values, weights);
 		let start, end, min, max;
 		start = end = values[0];
-		min = max = Vec3.dot(start, principle); //compute the range
+		min = max = Vec3.dot(start, principle);
 
 		for (let i = 1; i < count; i++) {
 			let value = Vec3.dot(values[i], principle);
@@ -4180,8 +2905,7 @@ class RangeFit extends ColorFit {
 				end = values[i];
 				max = value;
 			}
-		} // clamp to the grid and save
-
+		}
 
 		this.start = start.clampGrid().clone();
 		this.end = end.clampGrid().clone();
@@ -4191,35 +2915,25 @@ class RangeFit extends ColorFit {
 
 class ClusterFit extends ColorFit {
 	constructor(colorSet) {
-		super(colorSet); // set the iteration count
-
+		super(colorSet);
 		const kMaxIterations = 8;
-		this.iterationCount = colorSet.flags & kColourIterativeClusterFit ? kMaxIterations : 1; // initialise the best error
-
-		this.bestError = Infinity; // initialise the metric
-
+		this.iterationCount = colorSet.flags & kColourIterativeClusterFit ? kMaxIterations : 1;
+		this.bestError = Infinity;
 		this.metric = new Vec4(1);
 
 		if ((this.flags & kColourMetricPerceptual) !== 0) {
 			this.metric.set(0.2126, 0.7152, 0.0722, 0);
-		} // dimension regression
-
+		}
 
 		const {
 			points: values,
 			weights
 		} = this.colors;
-		this.principle = computePCA(values, weights); // private property
-
+		this.principle = computePCA(values, weights);
 		this.order = new Uint8Array(16 * kMaxIterations);
-		this.pointsWeights = []; //Array(Vec4)[16]
-
-		this.xSum_wSum = new Vec4(0); //Vec4
+		this.pointsWeights = [];
+		this.xSum_wSum = new Vec4(0);
 	}
-	/*
-	 * main Logics
-	 */
-
 
 	constructOrdering(axis, iteration) {
 		const currentOrder = this.makeOrder(axis);
@@ -4280,9 +2994,7 @@ class ClusterFit extends ColorFit {
 
 	compressBase(aabbFunc, saveFunc) {
 		let repeater = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 2;
-		// prepare an ordering using the principle axis
-		this.constructOrdering(this.principle, 0); // check all possible clusters and iterate on the total order
-
+		this.constructOrdering(this.principle, 0);
 		let best = {
 			start: new Vec4(0),
 			end: new Vec4(0),
@@ -4291,49 +3003,37 @@ class ClusterFit extends ColorFit {
 			bestI: 0,
 			bestJ: 0
 		};
-		if (repeater === 3) best.bestK = 0; // inner least squares terms function
+		if (repeater === 3) best.bestK = 0;
 
 		const leastSquares = (parts, internalIndices) => {
 			const aabbx = aabbFunc(parts);
 			const internalBest = this.computeOptimalPoints(aabbx);
 
 			if (internalBest.error < best.error) {
-				// keep the solution if it wins
 				best = _objectSpread2(_objectSpread2({}, internalBest), internalIndices);
 				return true;
 			}
 
 			return false;
-		}; // loop over iterations (we avoid the case that all points in first or last cluster)
-
+		};
 
 		for (let iterationIndex = 0;;) {
-			this.clusterIterate(iterationIndex, leastSquares, repeater); // stop if we didn't improve in this iteration
-
-			if (best.iteration != iterationIndex) break; // advance if possible
-
+			this.clusterIterate(iterationIndex, leastSquares, repeater);
+			if (best.iteration != iterationIndex) break;
 			iterationIndex++;
-			if (iterationIndex == this.iterationCount) break; // stop if a new iteration is an ordering that has already been tried
-
+			if (iterationIndex == this.iterationCount) break;
 			const newAxis = Vec4.sub(best.end, best.start).xyz;
 			if (!this.constructOrdering(newAxis, iterationIndex)) break;
-		} // save the block if win
-
+		}
 
 		if (best.error < this.bestError) this.saveBlock(best, saveFunc);
 	}
-	/*
-	 * for constructOrdering function
-	 */
-
 
 	makeOrder(axis) {
 		const {
 			count,
 			points: values
-		} = this.colors; // map dot products and stable sort
-		// result : [1st index of color, 2nd index of color, ...]
-
+		} = this.colors;
 		const dotProducts = values.map((color, i) => Vec3.dot(color, axis));
 		return Array.from({
 			length: count
@@ -4344,7 +3044,6 @@ class ClusterFit extends ColorFit {
 	}
 
 	copyOrderToThisOrder(order, iteration) {
-		//copy currentOrder array to this.order
 		const orderOffset = iteration * 16;
 		order.forEach((ord, i) => {
 			this.order[orderOffset + i] = ord;
@@ -4352,7 +3051,6 @@ class ClusterFit extends ColorFit {
 	}
 
 	checkOrderUnique(order, iteration) {
-		// check this ordering is unique
 		const {
 			count
 		} = this.colors;
@@ -4375,7 +3073,6 @@ class ClusterFit extends ColorFit {
 	}
 
 	copyOrderWeight(order) {
-		// copy the ordering and weight all the points
 		const {
 			count,
 			points: unweighted,
@@ -4392,25 +3089,18 @@ class ClusterFit extends ColorFit {
 			this.xSum_wSum.addVector(x);
 		}
 	}
-	/*
-	 * for compress function
-	 */
-
 
 	computeOptimalPoints(vectorPoint) {
-		// constant vectors
 		const {
 			ax,
 			bx,
 			aa,
 			bb,
 			ab
-		} = vectorPoint; // compute the least-squares optimal points
-
+		} = vectorPoint;
 		const factor = Vec4.negativeMultiplySubtract(ab, ab, Vec4.multVector(aa, bb)).reciprocal();
 		let a = Vec4.negativeMultiplySubtract(bx, ab, Vec4.multVector(ax, bb)).multVector(factor);
-		let b = Vec4.negativeMultiplySubtract(ax, ab, Vec4.multVector(bx, aa)).multVector(factor); // clamp to the grid
-
+		let b = Vec4.negativeMultiplySubtract(ax, ab, Vec4.multVector(bx, aa)).multVector(factor);
 		a.clampGrid();
 		b.clampGrid();
 		let error = this.computeError(_objectSpread2({
@@ -4434,13 +3124,11 @@ class ClusterFit extends ColorFit {
 			bb,
 			ab
 		} = _ref3;
-		const two = new Vec4(2); // compute the error (we skip the constant xxsum)
-
+		const two = new Vec4(2);
 		const e1 = Vec4.multiplyAdd(Vec4.multVector(a, a), aa, Vec4.multVector(b, b).multVector(bb));
 		const e2 = Vec4.negativeMultiplySubtract(a, ax, Vec4.multVector(a, b).multVector(ab));
 		const e3 = Vec4.negativeMultiplySubtract(b, bx, e2);
-		const e4 = Vec4.multiplyAdd(two, e3, e1); // apply the metric to the error term
-
+		const e4 = Vec4.multiplyAdd(two, e3, e1);
 		const e5 = Vec4.multVector(e4, this.metric);
 		return e5.x + e5.y + e5.z;
 	}
@@ -4458,8 +3146,7 @@ class ClusterFit extends ColorFit {
 			bestJ,
 			bestK = -1
 		} = best;
-		const orderOffset = iteration * 16; // remap the indices
-
+		const orderOffset = iteration * 16;
 		const unordered = new Uint8Array(16);
 
 		const mapper = m => {
@@ -4474,10 +3161,8 @@ class ClusterFit extends ColorFit {
 		}
 
 		const bestIndices = new Uint8Array(16);
-		this.colors.remapIndices(unordered, bestIndices); // save the block
-
-		writeFunc(start.xyz, end.xyz, bestIndices); // save the error
-
+		this.colors.remapIndices(unordered, bestIndices);
+		writeFunc(start.xyz, end.xyz, bestIndices);
 		this.bestError = error;
 	}
 
@@ -4495,38 +3180,30 @@ class ClusterFit extends ColorFit {
 			};
 			if (iterCount === 3) mapper.bestK = k;
 			return mapper;
-		}; // first cluster [0,i) is at the start
-
+		};
 
 		let part0 = new Vec4(0.0);
 
 		for (let i = 0; i < count; i++) {
-			// second cluster [i,j) is half along
 			let part1 = new Vec4(0.0);
 
 			for (let j = i;;) {
-				// third cluster [j,k) is two thirds along
 				let preLastPart = j == 0 ? this.pointsWeights[0].clone() : new Vec4(0.0);
 				const kmin = j == 0 ? 1 : j;
 
 				for (let k = kmin;;) {
-					// last cluster [k,count) is at the end
 					const restPart = Vec4.sub(this.xSum_wSum, preLastPart).subVector(part1).subVector(part0);
-					func([part0, part1, preLastPart, restPart], indexMapper(i, j, k)); // advance
-
+					func([part0, part1, preLastPart, restPart], indexMapper(i, j, k));
 					if (k == count) break;
 					preLastPart.addVector(this.pointsWeights[k]);
 					k++;
-				} // if iterCount === 2(=using Compress3), j iteration is not used
+				}
 
-
-				if (iterCount === 2) break; // advance
-
+				if (iterCount === 2) break;
 				if (j === count) break;
 				part1.addVector(this.pointsWeights[j]);
 				j++;
-			} // advance
-
+			}
 
 			part0.addVector(this.pointsWeights[i]);
 		}
@@ -4543,26 +3220,20 @@ function quantise(alpha) {
 }
 
 function compressAlphaDxt3(rgba, mask, result, offset) {
-	// quantise and pack the alpha values pairwise
-	// repeat by 1byte (= 4bit * 2)
 	for (let i = 0; i < 8; i++) {
-		// quantise down to 4 bits
 		let quant1 = quantise(rgba[8 * i + 3]);
-		let quant2 = quantise(rgba[8 * i + 7]); // set alpha to zero where masked
-
+		let quant2 = quantise(rgba[8 * i + 7]);
 		const bit1 = 1 << 2 * i;
 		const bit2 = 1 << 2 * i + 1;
 		if ((mask & bit1) == 0) quant1 = 0;
-		if ((mask & bit2) == 0) quant2 = 0; // pack into the byte
-
+		if ((mask & bit2) == 0) quant2 = 0;
 		result[offset + i] = quant1 | quant2 << 4;
 	}
 }
 
 function compressAlphaDxt5(rgba, mask, result, offset) {
 	let step5 = interpolateAlpha(rgba, mask, 5);
-	let step7 = interpolateAlpha(rgba, mask, 7); // save the block with least error
-
+	let step7 = interpolateAlpha(rgba, mask, 7);
 	if (step5.error <= step7.error) writeAlphaBlock5(step5, result, offset);else writeAlphaBlock7(step7, result, offset);
 }
 
@@ -4587,10 +3258,8 @@ function setAlphaRange(rgba, mask, steps) {
 	let max = 0;
 
 	for (let i = 0; i < 16; i++) {
-		// check this pixel is valid
 		let bit = 1 << i;
-		if ((mask & bit) == 0) continue; // incorporate into the min/max
-
+		if ((mask & bit) == 0) continue;
 		let value = rgba[4 * i + 3];
 
 		if (steps === 5) {
@@ -4600,11 +3269,9 @@ function setAlphaRange(rgba, mask, steps) {
 			if (value < min) min = value;
 			if (value > max) max = value;
 		}
-	} // handle the case that no valid range was found
+	}
 
-
-	if (min > max) min = max; // fix range
-
+	if (min > max) min = max;
 	if (max - min < steps) max = Math.min(min + steps, 255);
 	if (max - min < steps) min = Math.max(max - steps, 0);
 	return {
@@ -4614,7 +3281,6 @@ function setAlphaRange(rgba, mask, steps) {
 }
 
 function setAlphaCodeBook(min, max, steps) {
-	// set up the alpha code book
 	let codes = [min, max, ...Array.from({
 		length: steps - 1
 	}, (_, i) => {
@@ -4630,40 +3296,33 @@ function setAlphaCodeBook(min, max, steps) {
 }
 
 function fitCodes(rgba, mask, codes, indices) {
-	// fit each alpha value to the codebook
 	let err = 0;
 
 	for (let i = 0; i < 16; ++i) {
-		// check this pixel is valid
 		let bit = 1 << i;
 
 		if ((mask & bit) == 0) {
-			// use the first code
 			indices[i] = 0;
 			continue;
-		} // find the least error and corresponding index
-
+		}
 
 		let value = rgba[4 * i + 3];
 		let least = Infinity;
 		let index = 0;
 
 		for (let j = 0; j < 8; ++j) {
-			// get the squared error from this code
 			let dist = value - codes[j];
-			dist *= dist; // compare with the best so far
+			dist *= dist;
 
 			if (dist < least) {
 				least = dist;
 				index = j;
 			}
-		} // save this index and accumulate the error
-
+		}
 
 		indices[i] = index;
 		err += least;
-	} // return the total error
-
+	}
 
 	return err;
 }
@@ -4675,9 +3334,7 @@ function writeAlphaBlock5(_ref, result, offset) {
 		indices
 	} = _ref;
 
-	// check the relative values of the endpoints
 	if (alpha0 > alpha1) {
-		//swap the indices;
 		const swapped = indices.map(index => {
 			if (index === 0) return 1;
 			if (index === 1) return 0;
@@ -4695,9 +3352,7 @@ function writeAlphaBlock7(_ref2, result, offset) {
 		indices
 	} = _ref2;
 
-	// check the relative values of the endpoints
 	if (alpha0 > alpha1) {
-		//swap the indices;
 		const swapped = indices.map(index => {
 			if (index === 0) return 1;
 			if (index === 1) return 0;
@@ -4708,23 +3363,19 @@ function writeAlphaBlock7(_ref2, result, offset) {
 }
 
 function writeAlphaBlock(alpha0, alpha1, indices, result, offset) {
-	// write the first two bytes
 	result[offset] = alpha0;
-	result[offset + 1] = alpha1; // pack the indices with 3 bits each
-
+	result[offset + 1] = alpha1;
 	let indicesPointer = 0;
 	let resultPointer = offset + 2;
 
 	for (let i = 0; i < 2; i++) {
-		// pack 8 3-bit values
 		let value = 0;
 
 		for (let j = 0; j < 8; ++j) {
 			let index = indices[indicesPointer];
 			value |= index << 3 * j;
 			indicesPointer++;
-		} // store in 3 bytes
-
+		}
 
 		for (let j = 0; j < 3; ++j) {
 			let byte = value >> 8 * j & 0xff;
@@ -4735,11 +3386,9 @@ function writeAlphaBlock(alpha0, alpha1, indices, result, offset) {
 }
 
 function unpack565(color16bit) {
-	// get the components in the stored range
 	const red = color16bit >> 11 & 0x1f;
 	const green = color16bit >> 5 & 0x3f;
-	const blue = color16bit & 0x1f; // scale up to 8 bits
-
+	const blue = color16bit & 0x1f;
 	return [red << 3 | red >> 2, green << 2 | green >> 4, blue << 3 | blue >> 2, 255];
 }
 
@@ -4758,7 +3407,6 @@ function unpackColorCodes(block, offset, isDxt1) {
 }
 
 function unpackIndices(block, blockOffset) {
-	// unpack the indices
 	let offset = blockOffset + 4;
 	let result = new Uint8Array(16);
 
@@ -4772,17 +3420,10 @@ function unpackIndices(block, blockOffset) {
 
 	return result;
 }
-/**
- * @param {Uint8Array} Buffer in which the decompressed result will be stored
- * @param {Uint8Array} compressed data
- * @param {int} compressed data's offset
- * @param {boolean} is using DXT1
- */
-
 
 function decompressColor(rgba, block, offset, isDxt1) {
 	const colorCode = unpackColorCodes(block, offset, isDxt1);
-	const indices = unpackIndices(block, offset); // store out the colours
+	const indices = unpackIndices(block, offset);
 
 	for (let i = 0; i < 16; i++) {
 		for (let j = 0; j < 4; j++) {
@@ -4790,112 +3431,50 @@ function decompressColor(rgba, block, offset, isDxt1) {
 		}
 	}
 }
-/*
-	compressed color bites are like this:
-	[color1(low)]
-	[color1(high)]
-	[color2(low)]
-	[color2(high)]
-	[id3|id2|id1|id0]
-	[id7|id6|id5|id4]
-	[id11|id10|id9|id8]
-	[id15|id14|id13|id12]
-*/
-
-/**
- * @param {Uint8Array} Buffer in which the decompressed result will be stored
- * @param {Uint8Array} compressed data
- * @param {int} compressed data's offset
- */
-
 
 function decompressAlphaDxt3(rgba, block, offset) {
-	// unpack the alpha values pairwise
 	for (let i = 0; i < 8; ++i) {
-		// quantise down to 4 bits
-		let quant = block[offset + i]; // unpack the values
-
+		let quant = block[offset + i];
 		let lo = quant & 0x0f;
-		let hi = quant & 0xf0; // convert back up to bytes
-
+		let hi = quant & 0xf0;
 		rgba[8 * i + 3] = lo | lo << 4;
 		rgba[8 * i + 7] = hi | hi >> 4;
 	}
 }
-/**
- * @param {Uint8Array} Buffer in which the decompressed result will be stored
- * @param {Uint8Array} compressed data
- * @param {int} compressed data's offset
- */
-
 
 function decompressAlphaDxt5(rgba, block, offset) {
-	// get the two alpha values
 	let alpha0 = block[offset + 0];
-	let alpha1 = block[offset + 1]; // compare the values to build the codebook
-
-	let codes = setAlphaCodeBook(alpha0, alpha1, alpha0 <= alpha1 ? 5 : 7); // decode the indices
-
+	let alpha1 = block[offset + 1];
+	let codes = setAlphaCodeBook(alpha0, alpha1, alpha0 <= alpha1 ? 5 : 7);
 	let indices = new Uint8Array(16);
 	let indicePointer = 0;
 	let bytePointer = 2;
 
 	for (let i = 0; i < 2; i++) {
-		// grab 3 bytes
 		let value = 0;
 
 		for (let j = 0; j < 3; j++) {
 			let byte = block[offset + bytePointer];
 			value |= byte << 8 * j;
 			bytePointer++;
-		} // unpack 8 3-bit values from it
-
+		}
 
 		for (let j = 0; j < 8; j++) {
 			let index = value >> 3 * j & 0x7;
 			indices[indicePointer] = index;
 			indicePointer++;
 		}
-	} // write out the indexed codebook values
-
+	}
 
 	for (let i = 0; i < 16; ++i) {
 		rgba[4 * i + 3] = codes[indices[i]];
 	}
 }
 
-/* -----------------------------------------------------------------------------
-	Copyright (c) 2006 Simon Brown													si@sjbrown.co.uk
-	Permission is hereby granted, free of charge, to any person obtaining
-	a copy of this software and associated documentation files (the 
-	"Software"), to	deal in the Software without restriction, including
-	without limitation the rights to use, copy, modify, merge, publish,
-	distribute, sublicense, and/or sell copies of the Software, and to 
-	permit persons to whom the Software is furnished to do so, subject to 
-	the following conditions:
-	The above copyright notice and this permission notice shall be included
-	in all copies or substantial portions of the Software.
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-	OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
-	MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
-	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
-	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
-	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-	
-	 -------------------------------------------------------------------------- */
-
 const DXT1_COMPRESSED_BYTES = 8;
 const DXT5_COMPRESSED_BYTES = 16;
 const COLORS = 4;
-const DECOMPRESSED_BLOCK_SIZE = 16; //---------------------------------------------------------------------------//
-
-/**
- * image-block repeat function
- * @param {function(int, int)} callback function to perform per iteration
- * 	@param {int} x-coord
- *	@param {int} y-coord
- */
+const DECOMPRESSED_BLOCK_SIZE = 16;
 
 function blockRepeat(width, height, func) {
 	for (let y = 0; y < height; y += 4) {
@@ -4904,13 +3483,6 @@ function blockRepeat(width, height, func) {
 		}
 	}
 }
-/**
- * 4x4 block repeat function
- * @param {function(int, int)} callback function to perform per iteration
- * 	@param {int} x-coord
- *	@param {int} y-coord
- */
-
 
 function rectRepeat(func) {
 	for (let y = 0; y < 4; y++) {
@@ -4921,34 +3493,22 @@ function rectRepeat(func) {
 }
 
 function FixFlags(flags) {
-	// grab the flag bits
 	let method = flags & (kDxt1 | kDxt3 | kDxt5);
 	let fit = flags & (kColourIterativeClusterFit | kColourClusterFit | kColourRangeFit);
 	let metric = flags & (kColourMetricPerceptual | kColourMetricUniform);
-	const extra = flags & kWeightColourByAlpha; // set defaults
-
+	const extra = flags & kWeightColourByAlpha;
 	if (method != kDxt3 && method != kDxt5) method = kDxt1;
 	if (fit != kColourRangeFit && fit != kColourIterativeClusterFit) fit = kColourClusterFit;
-	if (metric != kColourMetricUniform) metric = kColourMetricPerceptual; // done
-
+	if (metric != kColourMetricUniform) metric = kColourMetricPerceptual;
 	return method | fit | metric | extra;
 }
 
 function GetStorageRequirements(width, height, flags) {
-	// fix any bad flags
-	flags = FixFlags(flags); // compute the storage requirements
-
-	const blockcount = Math.floor((width + 3) / 4) * Math.floor((height + 3) / 4); // if it uses dxt1 compression, blocksize is 8, else it is 16
-
+	flags = FixFlags(flags);
+	const blockcount = Math.floor((width + 3) / 4) * Math.floor((height + 3) / 4);
 	const blocksize = (flags & kDxt1) !== 0 ? DXT1_COMPRESSED_BYTES : DXT5_COMPRESSED_BYTES;
 	return blockcount * blocksize;
-} //---------------------------------------------------------------------------//
-
-/**
- * @param {Uint8Array} image data
- * @param {object} result data's position data
- */
-
+}
 
 function extractColorBlock(img) {
 	let {
@@ -4962,16 +3522,14 @@ function extractColorBlock(img) {
 	let blockColorOffset = 0;
 	rectRepeat(function (px, py) {
 		let sx = x + px;
-		let sy = y + py; //if (sx, sy) is in range, copy the rgba value
+		let sy = y + py;
 
 		if (sx < width && sy < height) {
-			// copy the rgba value
 			let sourceColorOffset = COLORS * (width * sy + sx);
 
 			for (let i = 0; i < COLORS; i++) {
 				block[blockColorOffset++] = img[sourceColorOffset++];
-			} // enable this pixel
-
+			}
 
 			mask |= 1 << 4 * py + px;
 		} else blockColorOffset += COLORS;
@@ -4981,12 +3539,6 @@ function extractColorBlock(img) {
 		mask
 	};
 }
-/**
- * @param {Uint8Array} Buffer in which the decompressed result will be stored
- * @param {Uint8Array} decompressed block
- * @param {object} result data's position data
- */
-
 
 function copyBuffer(result, block) {
 	let {
@@ -4998,7 +3550,7 @@ function copyBuffer(result, block) {
 	let blockColorOffset = 0;
 	rectRepeat(function (px, py) {
 		let sx = x + px;
-		let sy = y + py; //if (sx, sy) is in range, copy the color
+		let sy = y + py;
 
 		if (sx < width && sy < height) {
 			let resultColorOffset = COLORS * (width * sy + sx);
@@ -5008,75 +3560,35 @@ function copyBuffer(result, block) {
 			}
 		} else blockColorOffset += COLORS;
 	});
-} //---------------------------------------------------------------------------//
-
+}
 
 function getCompressor(colorSet) {
-	// check the compression type and compress colour
-	if (colorSet.count === 1) return new SingleColourFit(colorSet); // always do a single colour fit
-
-	if ((colorSet.flags & kColourRangeFit) != 0 || colorSet.count == 0) return new RangeFit(colorSet); // do a range fit
-
-	return new ClusterFit(colorSet); // default to a cluster fit (could be iterative or not)
+	if (colorSet.count === 1) return new SingleColourFit(colorSet);
+	if ((colorSet.flags & kColourRangeFit) != 0 || colorSet.count == 0) return new RangeFit(colorSet);
+	return new ClusterFit(colorSet);
 }
-/**
- * @param {Uint8Array} Buffer in which the uncompressed result will be stored
- * @param {Uint8Array} compressed data
- * @param {int} compressed data's offset
- * @param {int} flags
- */
-
 
 function CompressMasked(rgba, mask, result, offset, flags) {
-	// fix any bad flags
-	flags = FixFlags(flags); // if data using dxt3/dxt5 compression, data structure is [alpha][color] - idk
-
-	let colorOffset = (flags & (kDxt3 | kDxt5)) !== 0 ? 8 : 0; // create the minimal point set
-
+	flags = FixFlags(flags);
+	let colorOffset = (flags & (kDxt3 | kDxt5)) !== 0 ? 8 : 0;
 	const colors = new ColorSet(rgba, mask, flags);
 	const compressor = getCompressor(colors);
-	compressor.compress(result, offset + colorOffset); // compress alpha separately if necessary
-
+	compressor.compress(result, offset + colorOffset);
 	if ((flags & kDxt3) !== 0) compressAlphaDxt3(rgba, mask, result, offset);else if ((flags & kDxt5) !== 0) compressAlphaDxt5(rgba, mask, result, offset);
 }
-/**
- * @param {Uint8Array} Buffer in which the decompressed result will be stored
- * @param {Uint8Array} compressed data
- * @param {int} compressed data's offset
- * @param {int} flags
- */
-
 
 function decompressBlock(result, block, offset, flags) {
-	// fix any bad flags
-	flags = FixFlags(flags); // if data using dxt3/dxt5 compression, data structure is [alpha][color] - idk
-
-	let colorOffset = (flags & (kDxt3 | kDxt5)) !== 0 ? 8 : 0; // decompress color
-
-	decompressColor(result, block, offset + colorOffset, (flags & kDxt1) !== 0); // decompress alpha
-
+	flags = FixFlags(flags);
+	let colorOffset = (flags & (kDxt3 | kDxt5)) !== 0 ? 8 : 0;
+	decompressColor(result, block, offset + colorOffset, (flags & kDxt1) !== 0);
 	if ((flags & kDxt3) !== 0) decompressAlphaDxt3(result, block, offset);else if ((flags & kDxt5) !== 0) decompressAlphaDxt5(result, block, offset);
-} //---------------------------------------------------------------------------//
-
-/**
- * @param {Uint8Array} image data
- * @param {int} width
- * @param {int} height
- * @param {Uint8Array} Buffer in which the compressed result will be stored
- * @param {int} flags
- * @return {Uint8Array}
- */
-
+}
 
 function compressImage(source, width, height, result, flags) {
-	// fix any bad flags
-	flags = FixFlags(flags); // initialise the block input
-
+	flags = FixFlags(flags);
 	const bytesPerBlock = (flags & kDxt1) !== 0 ? DXT1_COMPRESSED_BYTES : DXT5_COMPRESSED_BYTES;
-	let targetBlockPointer = 0; // loop over blocks
-
+	let targetBlockPointer = 0;
 	blockRepeat(width, height, function (x, y) {
-		// build the 4x4 block of pixels
 		const {
 			block: sourceRGBA,
 			mask
@@ -5085,47 +3597,31 @@ function compressImage(source, width, height, result, flags) {
 			y,
 			width,
 			height
-		}); // compress it into the output
-
-		CompressMasked(sourceRGBA, mask, result, targetBlockPointer, flags); // advance
-
+		});
+		CompressMasked(sourceRGBA, mask, result, targetBlockPointer, flags);
 		targetBlockPointer += bytesPerBlock;
 	});
 }
-/**
- * @param {Uint8Array} Buffer in which the decompressed result will be stored
- * @param {int} width
- * @param {int} height
- * @param {Uint8Array} compressed data
- * @param {int} flags
- */
-
 
 function decompressImage(result, width, height, source, flags) {
-	// fix any bad flags
-	flags = FixFlags(flags); // initialise the block input
-
+	flags = FixFlags(flags);
 	const bytesPerBlock = (flags & kDxt1) !== 0 ? DXT1_COMPRESSED_BYTES : DXT5_COMPRESSED_BYTES;
-	let sourceBlockPointer = 0; // loop over blocks
+	let sourceBlockPointer = 0;
 
 	for (let y = 0; y < height; y += 4) {
 		for (let x = 0; x < width; x += 4) {
-			//decompress the block
 			const targetRGBA = new Uint8Array(DECOMPRESSED_BLOCK_SIZE * COLORS);
-			decompressBlock(targetRGBA, source, sourceBlockPointer, flags); //copy the block to result buffer
-
+			decompressBlock(targetRGBA, source, sourceBlockPointer, flags);
 			copyBuffer(result, targetRGBA, {
 				x,
 				y,
 				width,
 				height
-			}); // advance
-
+			});
 			sourceBlockPointer += bytesPerBlock;
 		}
 	}
-} //---------------------------------------------------------------------------//
-
+}
 
 const flags = {
 	DXT1: kDxt1,
@@ -5138,13 +3634,6 @@ const flags = {
 	ColourMetricUniform: kColourMetricUniform,
 	WeightColourByAlpha: kWeightColourByAlpha
 };
-/**
- * @param {Uint8Array / ArrayBuffer} inputData to compress
- * @param {int} width
- * @param {int} height
- * @param {int} flags
- * @return {Uint8Array}
- */
 
 function compress(inputData, width, height, flags) {
 	let source = inputData instanceof ArrayBuffer ? new Uint8Array(inputData) : inputData;
@@ -5153,14 +3642,6 @@ function compress(inputData, width, height, flags) {
 	compressImage(source, width, height, result, flags);
 	return result;
 }
-/**
- * @param {Uint8Array / ArrayBuffer} inputData to decompress
- * @param {int} width
- * @param {int} height
- * @param {int} flags
- * @return {Uint8Array}
- */
-
 
 function decompress(inputData, width, height, flags) {
 	let source = inputData instanceof ArrayBuffer ? new Uint8Array(inputData) : inputData;
@@ -5170,18 +3651,7 @@ function decompress(inputData, width, height, flags) {
 	return result;
 }
 
-/**
- * Texture2D Reader
- * @class
- * @extends BaseReader
- */
-
 class Texture2DReader extends BaseReader {
-	/**
-	 * Reads Texture2D from buffer.
-	 * @param {BufferReader} buffer
-	 * @returns {object}
-	 */
 	read(buffer) {
 		const int32Reader = new Int32Reader();
 		const uint32Reader = new UInt32Reader();
@@ -5193,9 +3663,8 @@ class Texture2DReader extends BaseReader {
 		let dataSize = uint32Reader.read(buffer);
 		let data = buffer.read(dataSize);
 		if (format == 4) data = decompress(data, width, height, flags.DXT1);else if (format == 5) data = decompress(data, width, height, flags.DXT3);else if (format == 6) data = decompress(data, width, height, flags.DXT5);else if (format == 2) {
-			// require('fs').writeFileSync('texture.bin', data);
 			throw new XnbError('Texture2D format type ECT1 not implemented!');
-		} else if (format != 0) throw new XnbError("Non-implemented Texture2D format type (".concat(format, ") found.")); // add the alpha channel into the image
+		} else if (format != 0) throw new XnbError("Non-implemented Texture2D format type (".concat(format, ") found."));
 
 		for (let i = 0; i < data.length; i += 4) {
 			let inverseAlpha = 255 / data[i + 3];
@@ -5214,13 +3683,6 @@ class Texture2DReader extends BaseReader {
 			}
 		};
 	}
-	/**
-	 * Writes Texture2D into the buffer
-	 * @param {BufferWriter} buffer
-	 * @param {Mixed} data The data
-	 * @param {ReaderResolver} resolver
-	 */
-
 
 	write(buffer, content, resolver) {
 		const int32Reader = new Int32Reader();
@@ -5252,18 +3714,7 @@ class Texture2DReader extends BaseReader {
 
 }
 
-/**
- * Vector3 Reader
- * @class
- * @extends BaseReader
- */
-
 class Vector3Reader extends BaseReader {
-	/**
-	 * Reads Vector3 from buffer.
-	 * @param {BufferReader} buffer
-	 * @returns {object}
-	 */
 	read(buffer) {
 		const singleReader = new SingleReader();
 		let x = singleReader.read(buffer);
@@ -5286,19 +3737,7 @@ class Vector3Reader extends BaseReader {
 
 }
 
-/**
- * SpriteFont Reader
- * @class
- * @extends BaseReader
- */
-
 class SpriteFontReader extends BaseReader {
-	/**
-	 * Reads SpriteFont from buffer.
-	 * @param {BufferReader} buffer
-	 * @param {ReaderResolver} resolver
-	 * @returns {object}
-	 */
 	read(buffer, resolver) {
 		const int32Reader = new Int32Reader();
 		const singleReader = new SingleReader();
@@ -5335,8 +3774,7 @@ class SpriteFontReader extends BaseReader {
 		this.writeIndex(buffer, resolver);
 
 		try {
-			texture2DReader.write(buffer, content.texture, resolver); // Allocate space in the buffer in advance to minimize reallocation to improve performance.
-
+			texture2DReader.write(buffer, content.texture, resolver);
 			buffer.alloc(100000);
 			rectangleListReader.write(buffer, content.glyphs, resolver);
 			rectangleListReader.write(buffer, content.cropping, resolver);
@@ -5358,20 +3796,11 @@ class SpriteFontReader extends BaseReader {
 
 }
 
-/**
- * TBin Reader
- * @class
- * @extends BaseReader
- */
-
 class TBinReader extends BaseReader {
 	read(buffer) {
-		const int32Reader = new Int32Reader(); // read in the size of the data block
-
-		let size = int32Reader.read(buffer); // read in the data block
-
-		let data = buffer.read(size); // return the data
-
+		const int32Reader = new Int32Reader();
+		let size = int32Reader.read(buffer);
+		let data = buffer.read(size);
 		return {
 			export: {
 				type: this.type,
@@ -5394,18 +3823,7 @@ class TBinReader extends BaseReader {
 
 }
 
-/**
- * Vector2 Reader
- * @class
- * @extends BaseReader
- */
-
 class Vector2Reader extends BaseReader {
-	/**
-	 * Reads Vector2 from buffer.
-	 * @param {BufferReader} buffer
-	 * @returns {object}
-	 */
 	read(buffer) {
 		const singleReader = new SingleReader();
 		let x = singleReader.read(buffer);
@@ -5418,18 +3836,7 @@ class Vector2Reader extends BaseReader {
 
 }
 
-/**
- * Vector4 Reader
- * @class
- * @extends BaseReader
- */
-
 class Vector4Reader extends BaseReader {
-	/**
-	 * Reads Vector4 from buffer.
-	 * @param {BufferReader} buffer
-	 * @returns {object}
-	 */
 	read(buffer) {
 		const singleReader = new SingleReader();
 		let x = singleReader.read(buffer);
@@ -5470,167 +3877,106 @@ const Readers = {
 	Vector4Reader
 };
 
-/**
- * Used to simplify type from XNB file.
- * @function simplifyType
- * @param	{String} type The long verbose type read from XNB file.
- * @returns {String} returns shorthand simplified type for use within this tool.
- */
-
 const simplifyType = type => {
-	// gets the first part of the type
-	let simple = type.split(/`|,/)[0]; // check if its an array or not
-
-	let isArray = simple.endsWith('[]'); // if its an array then get the array type
-
-	if (isArray) return "Array<".concat(simplifyType(simple.slice(0, -2)), ">"); // switch over the possible types regisered with this tool
+	let simple = type.split(/`|,/)[0];
+	let isArray = simple.endsWith('[]');
+	if (isArray) return "Array<".concat(simplifyType(simple.slice(0, -2)), ">");
 
 	switch (simple) {
-		// Boolean
 		case 'Microsoft.Xna.Framework.Content.BooleanReader':
 		case 'System.Boolean':
 			return 'Boolean';
-		// Char
 
 		case 'Microsoft.Xna.Framework.Content.CharReader':
 		case 'System.Char':
 			return 'Char';
-		// Int32
 
 		case 'Microsoft.Xna.Framework.Content.Int32Reader':
 		case 'System.Int32':
 			return 'Int32';
-		// String
 
 		case 'Microsoft.Xna.Framework.Content.StringReader':
 		case 'System.String':
 			return 'String';
-		// Dictionary
 
 		case 'Microsoft.Xna.Framework.Content.DictionaryReader':
 			let subtypes = parseSubtypes(type).map(simplifyType);
 			return "Dictionary<".concat(subtypes[0], ",").concat(subtypes[1], ">");
-		// Array
 
 		case 'Microsoft.Xna.Framework.Content.ArrayReader':
 			let arrayType = parseSubtypes(type).map(simplifyType);
 			return "Array<".concat(arrayType, ">");
-		// List
 
 		case 'Microsoft.Xna.Framework.Content.ListReader':
 		case 'System.Collections.Generic.List':
 			let listType = parseSubtypes(type).map(simplifyType);
 			return "List<".concat(listType, ">");
-		// Texture2D
 
 		case 'Microsoft.Xna.Framework.Content.Texture2DReader':
 			return 'Texture2D';
-		// Vector2
 
 		case 'Microsoft.Xna.Framework.Content.Vector2Reader':
 		case 'Microsoft.Xna.Framework.Vector2':
 			return 'Vector2';
-		// Vector3
 
 		case 'Microsoft.Xna.Framework.Content.Vector3Reader':
 		case 'Microsoft.Xna.Framework.Vector3':
 			return 'Vector3';
-		// Vector3
 
 		case 'Microsoft.Xna.Framework.Content.Vector4Reader':
 		case 'Microsoft.Xna.Framework.Vector4':
 			return 'Vector4';
-		// SpriteFont
 
 		case 'Microsoft.Xna.Framework.Content.SpriteFontReader':
 			return 'SpriteFont';
-		// Rectangle
 
 		case 'Microsoft.Xna.Framework.Content.RectangleReader':
 		case 'Microsoft.Xna.Framework.Rectangle':
 			return 'Rectangle';
-		// Effect
 
 		case 'Microsoft.Xna.Framework.Content.EffectReader':
 		case 'Microsoft.Xna.Framework.Graphics.Effect':
 			return 'Effect';
-		// xTile TBin
 
 		case 'xTile.Pipeline.TideReader':
 			return 'TBin';
-		// BmFont
 
 		case 'BmFont.XmlSourceReader':
 			return 'BmFont';
-		// unimplemented type catch
 
 		default:
 			throw new XnbError("Non-implemented type found, cannot resolve type \"".concat(simple, "\", \"").concat(type, "\"."));
 	}
 };
-/**
- * Parses subtypes from a type like Dictionary or List
- * @function parseSubtypes
- * @param	{String} type The type to parse with subtypes in.
- * @returns {String[]} returns an array of subtypes
- */
-
 
 const parseSubtypes = type => {
-	// split the string by the ` after the type
-	let subtype = type.split('`')[1]; // get the number of types following the ` in type string
-
-	subtype.slice(0, 1); // get the contents of the wrapped array
-
-	subtype = subtype.slice(2, -1); // regex pattern to match the subtypes
-
-	let pattern = /\[(([a-zA-Z0-9\.\,\=\`]+)(\[\])?(\, |\])){1,}/g; // get matches
-
+	let subtype = type.split('`')[1];
+	subtype.slice(0, 1);
+	subtype = subtype.slice(2, -1);
+	let pattern = /\[(([a-zA-Z0-9\.\,\=\`]+)(\[\])?(\, |\])){1,}/g;
 	let matches = subtype.match(pattern).map(e => {
 		return e.slice(1, -1);
-	}); // return the matches
-
+	});
 	return matches;
 };
-/**
- * Get type info from simple type
- * @param	 {String} type Simple type to get info from.
- * @returns {Object} returns an object containing information about the type.
- */
-
 
 const getTypeInfo = type => {
-	// get type before angle brackets for complex types
-	let mainType = type.match(/[^<]+/)[0]; // get the subtypes within brackets
-
-	let subtypes = type.match(/<(.+)>/); // if we do have subtypes then split and trim them
-
-	subtypes = subtypes ? subtypes[1].split(',').map(type => type.trim()) : []; // return info object
-
+	let mainType = type.match(/[^<]+/)[0];
+	let subtypes = type.match(/<(.+)>/);
+	subtypes = subtypes ? subtypes[1].split(',').map(type => type.trim()) : [];
 	return {
 		type: mainType,
 		subtypes
 	};
 };
-/**
- * Gets an XnbReader instance based on type.
- * @function getReader
- * @param {String} type The simplified type to get reader based off of.
- * @returns {BaseReader} returns an instance of BaseReader for given type.
- */
-
 
 const getReader = typeString => {
-	// get type info for complex types
 	let {
 		type,
 		subtypes
-	} = getTypeInfo(typeString); // loop over subtypes and resolve readers for them
-
-	subtypes = subtypes.map(getReader); // if we have a reader then use one
-
-	if (Readers.hasOwnProperty("".concat(type, "Reader"))) return new Readers["".concat(type, "Reader")](...subtypes); // throw an error as type is not supported
-
+	} = getTypeInfo(typeString);
+	subtypes = subtypes.map(getReader);
+	if (Readers.hasOwnProperty("".concat(type, "Reader"))) return new Readers["".concat(type, "Reader")](...subtypes);
 	throw new XnbError("Invalid reader type \"".concat(typeString, "\" passed, unable to resolve!"));
 };
 
@@ -5739,136 +4085,105 @@ class XnbData {
 
 }
 
+function extensionToDatatype(extension) {
+	switch (extension) {
+		case "json":
+			return "JSON";
+
+		case "yaml":
+			return "yaml";
+
+		case "png":
+			return "Texture2D";
+
+		case "cso":
+			return "Effect";
+
+		case 'tbin':
+			return "TBin";
+
+		case 'xml':
+			return "BmFont";
+	}
+
+	return "Others";
+}
+
+class XnbContent {
+	constructor(data, ext) {
+		this.type = extensionToDatatype(ext);
+		this.content = data;
+	}
+
+}
+
 const HIDEF_MASK = 0x1;
 const COMPRESSED_LZ4_MASK = 0x40;
 const COMPRESSED_LZX_MASK = 0x80;
 const XNB_COMPRESSED_PROLOGUE_SIZE = 14;
-/**
- * XNB file class used to read and write XNB files
- * @class
- * @public
- */
 
 class XnbConverter {
-	/**
-	 * Creates new instance of Xnb class
-	 * @constructor
-	 */
 	constructor() {
-		// target platform
-		this.target = ''; // format version
-
-		this.formatVersion = 0; // HiDef flag
-
-		this.hidef = false; // Compressed flag
-
-		this.compressed = false; // compression type
-
-		this.compressionType = 0; // the XNB buffer reader
-
-		this.buffer = null; // the file size
-
+		this.target = '';
+		this.formatVersion = 0;
+		this.hidef = false;
+		this.compressed = false;
+		this.compressionType = 0;
+		this.buffer = null;
 		this.fileSize = 0;
-		/**
-		 * Array of readers that are used by the XNB file.
-		 * @type {BaseReader[]}
-		 */
-
 		this.readers = [];
-		/**
-		 * Array of shared resources
-		 * @type {Array}
-		 */
-
 		this.sharedResources = [];
 	}
-	/**
-	 * Loads a file into the XNB class.
-	 * @param {ArrayBuffer} XNB file's array buffer
-	 */
-
 
 	load(arrayBuffer) {
-		// create a new instance of reader
-		this.buffer = new BufferReader(arrayBuffer); // validate the XNB file header
+		this.buffer = new BufferReader(arrayBuffer);
 
-		this._validateHeader(); // we validated the file successfully
+		this._validateHeader();
 
-
-		console.info('XNB file validated successfully!'); // read the file size
-
-		this.fileSize = this.buffer.readUInt32(); // verify the size
-
-		if (this.buffer.size != this.fileSize) throw new XnbError('XNB file has been truncated!'); // print out the file size
-		// if the file is compressed then we need to decompress it
+		console.info('XNB file validated successfully!');
+		this.fileSize = this.buffer.readUInt32();
+		if (this.buffer.size != this.fileSize) throw new XnbError('XNB file has been truncated!');
 
 		if (this.compressed) {
-			// get the decompressed size
-			const decompressedSize = this.buffer.readUInt32(); // decompress LZX format
+			const decompressedSize = this.buffer.readUInt32();
 
 			if (this.compressionType == COMPRESSED_LZX_MASK) {
-				// get the amount of data to compress
-				const compressedTodo = this.fileSize - XNB_COMPRESSED_PROLOGUE_SIZE; // decompress the buffer based on the file size
-
-				const decompressed = Presser.decompress(this.buffer, compressedTodo, decompressedSize); // copy the decompressed buffer into the file buffer
-
-				this.buffer.copyFrom(decompressed, XNB_COMPRESSED_PROLOGUE_SIZE, 0, decompressedSize); // reset the byte seek head to read content
-
+				const compressedTodo = this.fileSize - XNB_COMPRESSED_PROLOGUE_SIZE;
+				const decompressed = Presser.decompress(this.buffer, compressedTodo, decompressedSize);
+				this.buffer.copyFrom(decompressed, XNB_COMPRESSED_PROLOGUE_SIZE, 0, decompressedSize);
 				this.buffer.bytePosition = XNB_COMPRESSED_PROLOGUE_SIZE;
-			} // decompress LZ4 format
-			else if (this.compressionType == COMPRESSED_LZ4_MASK) {
-				// allocate Uint8 Array for LZ4 decode
+			} else if (this.compressionType == COMPRESSED_LZ4_MASK) {
 				const trimmed = this.buffer.buffer.slice(XNB_COMPRESSED_PROLOGUE_SIZE);
-				const trimmedArray = new Uint8Array(trimmed); // decode the trimmed buffer into decompressed buffer
-
+				const trimmedArray = new Uint8Array(trimmed);
 				const {
 					buffer: decompressed
-				} = decompress$1(trimmedArray, decompressedSize); // copy the decompressed buffer into our buffer
-
-				this.buffer.copyFrom(decompressed, XNB_COMPRESSED_PROLOGUE_SIZE, 0, decompressedSize); // reset the byte seek head to read content
-
+				} = decompress$1(trimmedArray, decompressedSize);
+				this.buffer.copyFrom(decompressed, XNB_COMPRESSED_PROLOGUE_SIZE, 0, decompressedSize);
 				this.buffer.bytePosition = XNB_COMPRESSED_PROLOGUE_SIZE;
 			}
-		} // NOTE: assuming the buffer is now decompressed
-		// get the 7-bit value for readers
+		}
 
-
-		let count = this.buffer.read7BitNumber(); // log how many readers there are
-		// create an instance of string reader
-
-		const stringReader = new StringReader(); // a local copy of readers for the export
-
-		const readers = []; // loop over the number of readers we have
+		let count = this.buffer.read7BitNumber();
+		const stringReader = new StringReader();
+		const readers = [];
 
 		for (let i = 0; i < count; i++) {
-			// read the type
-			const type = stringReader.read(this.buffer); // read the version
-
-			const version = this.buffer.readInt32(); // get the reader for this type
-
+			const type = stringReader.read(this.buffer);
+			const version = this.buffer.readInt32();
 			const simpleType = simplifyType(type);
-			const reader = getReader(simpleType); // add reader to the list
-
-			this.readers.push(reader); // add local reader
-
+			const reader = getReader(simpleType);
+			this.readers.push(reader);
 			readers.push({
 				type,
 				version
 			});
-		} // get the 7-bit value for shared resources
+		}
 
-
-		const shared = this.buffer.read7BitNumber(); // log the shared resources count
-		// don't accept shared resources since SDV XNB files don't have any
-
-		if (shared != 0) throw new XnbError("Unexpected (".concat(shared, ") shared resources.")); // create content reader from the readers loaded
-
-		const content = new ReaderResolver(this.readers); // read the content in
-
-		const result = content.read(this.buffer); // we loaded the XNB file successfully
-
-		console.log('Successfuly read XNB file!'); // return the loaded XNB object
-
+		const shared = this.buffer.read7BitNumber();
+		if (shared != 0) throw new XnbError("Unexpected (".concat(shared, ") shared resources."));
+		const content = new ReaderResolver(this.readers);
+		const result = content.read(this.buffer);
+		console.log('Successfuly read XNB file!');
 		return new XnbData({
 			target: this.target,
 			formatVersion: this.formatVersion,
@@ -5876,18 +4191,10 @@ class XnbConverter {
 			compressed: this.compressed
 		}, readers, result);
 	}
-	/**
-	 * Converts JSON into XNB file structure
-	 * @param {Object} The JSON to convert into a XNB file
-	 */
-
 
 	convert(json) {
-		// the output buffer for this file
-		const buffer = new BufferWriter(); // create an instance of string reader
-
-		const stringReader = new StringReader(); // set the header information
-
+		const buffer = new BufferWriter();
+		const stringReader = new StringReader();
 		let {
 			target,
 			formatVersion,
@@ -5898,98 +4205,59 @@ class XnbConverter {
 		this.formatVersion = formatVersion;
 		this.hidef = hidef;
 		const lz4Compression = this.target == 'a' || this.target == 'i' || (compressed & COMPRESSED_LZ4_MASK) != 0;
-		this.compressed = lz4Compression ? true : false; // support android LZ4 compression
-		// write the header into the buffer
-
+		this.compressed = lz4Compression ? true : false;
 		buffer.writeString("XNB");
 		buffer.writeString(this.target);
-		buffer.writeByte(this.formatVersion); // write the LZ4 mask for android compression only
-		// todo:LZX compression. There are currently NO open source libraries implementing the LZX compression algorithm.
-
-		buffer.writeByte(this.hidef | (this.compressed && lz4Compression ? COMPRESSED_LZ4_MASK : 0)); // write temporary filesize
-
-		buffer.writeUInt32(0); // write the decompression size temporarily if android
-
-		if (lz4Compression) buffer.writeUInt32(0); // write the amount of readers
-
-		buffer.write7BitNumber(json.readers.length); // loop over the readers and load the types
+		buffer.writeByte(this.formatVersion);
+		buffer.writeByte(this.hidef | (this.compressed && lz4Compression ? COMPRESSED_LZ4_MASK : 0));
+		buffer.writeUInt32(0);
+		if (lz4Compression) buffer.writeUInt32(0);
+		buffer.write7BitNumber(json.readers.length);
 
 		for (let reader of json.readers) {
-			this.readers.push(getReader(simplifyType(reader.type))); // simplyify the type then get the reader of it
-
+			this.readers.push(getReader(simplifyType(reader.type)));
 			stringReader.write(buffer, reader.type);
 			buffer.writeUInt32(reader.version);
-		} // write 0 shared resources
+		}
 
-
-		buffer.write7BitNumber(0); // create reader resolver for content and write it
-
-		const content = new ReaderResolver(this.readers); // write the content to the reader resolver
-
-		content.write(buffer, json.content); // trim excess space in the buffer 
-		// NOTE: this buffer allocates default with 500 bytes
-
-		buffer.trim(); // LZ4 compression
+		buffer.write7BitNumber(0);
+		const content = new ReaderResolver(this.readers);
+		content.write(buffer, json.content);
+		buffer.trim();
 
 		if (lz4Compression) {
-			// allocate Uint8 Array for LZ4 encode
 			const trimmed = buffer.buffer.slice(XNB_COMPRESSED_PROLOGUE_SIZE);
 			const trimmedArray = new Uint8Array(trimmed);
-			let compressedSize = compressBound(trimmedArray.length); // encode the trimmed buffer into decompressed buffer
-
+			let compressedSize = compressBound(trimmedArray.length);
 			const {
 				buffer: compressed,
 				length: newCompressedSize
 			} = compress$1(trimmedArray, compressedSize);
-			compressedSize = newCompressedSize; // write the file size & decompressed size into the buffer
-
+			compressedSize = newCompressedSize;
 			buffer.bytePosition = 6;
 			buffer.writeUInt32(XNB_COMPRESSED_PROLOGUE_SIZE + compressedSize);
-			buffer.writeUInt32(trimmedArray.length); // write compressed data
-
-			buffer.concat(compressed); // slice off the excess
-
-			let returnBuffer = buffer.buffer.slice(0, XNB_COMPRESSED_PROLOGUE_SIZE + compressedSize); // return the buffer
-
+			buffer.writeUInt32(trimmedArray.length);
+			buffer.concat(compressed);
+			let returnBuffer = buffer.buffer.slice(0, XNB_COMPRESSED_PROLOGUE_SIZE + compressedSize);
 			return returnBuffer;
-		} // write the file size into the buffer
-
+		}
 
 		let fileSize = buffer.bytePosition;
 		buffer.bytePosition = 6;
-		buffer.writeUInt32(fileSize, 6); // return the buffer
-
+		buffer.writeUInt32(fileSize, 6);
 		return buffer.buffer;
 	}
-	/**
-	 * Ensures the XNB file header is valid.
-	 * @private
-	 * @method _validateHeader
-	 */
-
 
 	_validateHeader() {
-		// ensure buffer isn't null
-		if (this.buffer == null) throw new XnbError('Buffer is null'); // get the magic from the beginning of the file
-
-		const magic = this.buffer.readString(3); // check to see if the magic is correct
-
-		if (magic != 'XNB') throw new XnbError("Invalid file magic found, expecting \"XNB\", found \"".concat(magic, "\"")); // debug print that valid XNB magic was found
-		// load the target platform
-
-		this.target = this.buffer.readString(1).toLowerCase(); // read the format version
-
-		this.formatVersion = this.buffer.readByte(); // read the flag bits
-
-		const flags = this.buffer.readByte(1); // get the HiDef flag
-
-		this.hidef = (flags & HIDEF_MASK) != 0; // get the compressed flag
-
-		this.compressed = flags & COMPRESSED_LZX_MASK || (flags & COMPRESSED_LZ4_MASK) != 0; // set the compression type
-		// NOTE: probably a better way to do both lines but sticking with this for now
-
-		this.compressionType = (flags & COMPRESSED_LZX_MASK) != 0 ? COMPRESSED_LZX_MASK : flags & COMPRESSED_LZ4_MASK ? COMPRESSED_LZ4_MASK : 0; // debug content information
-		// log compressed state
+		if (this.buffer == null) throw new XnbError('Buffer is null');
+		const magic = this.buffer.readString(3);
+		if (magic != 'XNB') throw new XnbError("Invalid file magic found, expecting \"XNB\", found \"".concat(magic, "\""));
+		this.target = this.buffer.readString(1).toLowerCase();
+		this.formatVersion = this.buffer.readByte();
+		const flags = this.buffer.readByte(1);
+		this.hidef = (flags & HIDEF_MASK) != 0;
+		this.compressed = flags & COMPRESSED_LZX_MASK || (flags & COMPRESSED_LZ4_MASK) != 0;
+		this.compressionType = (flags & COMPRESSED_LZX_MASK) != 0 ? COMPRESSED_LZX_MASK : flags & COMPRESSED_LZ4_MASK ? COMPRESSED_LZ4_MASK : 0;
 	}
 
 }
@@ -8603,10 +6871,6 @@ var n = {};
 var r = n.P,
 		s = n.m;
 
-/**
- * from https://github.com/draivin/XNBNode
- * XnbExtract is using this code to parse yaml
- */
 function isTypeObject(object) {
 	return object && object.hasOwnProperty('type') && object.hasOwnProperty('data');
 }
@@ -8654,7 +6918,6 @@ function stringify(o, gap, indentation) {
 	} else if ('undefined' === typeof o || o === null) {
 		return 'null';
 	} else if (!!o == o || +o == o) {
-		//boolean & number
 		return JSON.stringify(o);
 	} else {
 		throw new Error('Non-implemented parsing for ' + o);
@@ -8888,7 +7151,7 @@ function convertJsonContentsToXnbNode(raw, readers) {
 		converted
 	} = function recursiveConvert(obj, path) {
 		let index = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
-		const reader = readers[index]; //primitive
+		const reader = readers[index];
 
 		if (isPrimitiveReaderType(reader)) {
 			return {
@@ -8898,16 +7161,14 @@ function convertJsonContentsToXnbNode(raw, readers) {
 				},
 				traversed: index
 			};
-		} //null reader
-
+		}
 
 		if (reader === null) {
 			return {
 				converted: obj,
 				traversed: index
 			};
-		} //nullable
-
+		}
 
 		if (reader.startsWith('Nullable')) {
 			return {
@@ -8922,11 +7183,9 @@ function convertJsonContentsToXnbNode(raw, readers) {
 				},
 				traversed: index + 1
 			};
-		} //exportable
-
+		}
 
 		if (isExportReaderType(reader)) {
-			//texture2D
 			if (reader === 'Texture2D') {
 				extractedImages.push({
 					path: path.join('.')
@@ -8940,8 +7199,7 @@ function convertJsonContentsToXnbNode(raw, readers) {
 					},
 					traversed: index
 				};
-			} //tbin
-
+			}
 
 			if (reader === 'TBin') {
 				extractedMaps.push({
@@ -8956,8 +7214,7 @@ function convertJsonContentsToXnbNode(raw, readers) {
 				},
 				traversed: index
 			};
-		} // complex data(list, dictionary, spritefont, etc...)
-
+		}
 
 		let data;
 		if (Array.isArray(obj)) data = [];else data = {};
@@ -8997,9 +7254,7 @@ function convertJsonContentsToXnbNode(raw, readers) {
 		extractedImages,
 		extractedMaps
 	};
-} // convert from inner json content of XnbExtract
-// remove {type:"aaa" data:"..."} and pick only "..."
-
+}
 
 function convertJsonContentsFromXnbNode(obj) {
 	if (!obj || typeof obj !== "object") return obj;
@@ -9043,8 +7298,7 @@ function convertJsonContentsFromXnbNode(obj) {
 	}
 
 	return null;
-} // convert json file to yaml compatible with XnbExtract
-
+}
 
 function toXnbNodeData(json) {
 	const toYamlJson = {};
@@ -9054,16 +7308,14 @@ function toXnbNodeData(json) {
 		hidef: hiDef,
 		target
 	} = json.header;
-	let readerData = deepCopy(json.readers); // set header
-
+	let readerData = deepCopy(json.readers);
 	toYamlJson.xnbData = {
 		target,
 		compressed: !!compressed,
 		hiDef,
 		readerData,
 		numSharedResources: 0
-	}; // set contents
-
+	};
 	const rawContent = deepCopy(json.content);
 	let readersTypeList = readerData.map(_ref => {
 		let {
@@ -9090,8 +7342,7 @@ function toXnbNodeData(json) {
 }
 
 function fromXnbNodeData(json) {
-	const result = {}; // set header data
-
+	const result = {};
 	const {
 		compressed,
 		readerData,
@@ -9104,9 +7355,8 @@ function fromXnbNodeData(json) {
 		compressed: compressed ? target === 'a' || target === 'i' ? 0x40 : 0x80 : 0,
 		hidef
 	};
-	result.readers = deepCopy(readerData); // set content data
-
-	result.content = convertJsonContentsFromXnbNode(json.content); // this program uses verticalLineSpacing, not verticalSpacing
+	result.readers = deepCopy(readerData);
+	result.content = convertJsonContentsFromXnbNode(json.content);
 
 	if (simplifyType(result.readers[0].type) === 'SpriteFont') {
 		result.content.verticalLineSpacing = result.content.verticalSpacing;
@@ -9117,16 +7367,14 @@ function fromXnbNodeData(json) {
 }
 
 function searchElement(parent, element) {
-	// ensure object is defined and is an object
-	if (!parent || typeof parent != 'object') return; // if property exists then return it
+	if (!parent || typeof parent != 'object') return;
 
 	if (parent.hasOwnProperty(element)) {
 		return {
 			parent,
 			value: parent[element]
 		};
-	} // search the objects for keys
-
+	}
 
 	for (let child of Object.values(parent)) {
 		if (!!child || typeof child == 'object') {
@@ -9146,26 +7394,20 @@ function extractFileName(fullname) {
 
 function getExtension(dataType) {
 	switch (dataType) {
-		// json data
 		case "JSON":
 			return "json";
-		// yaml data
 
 		case "yaml":
 			return "yaml";
-		// png image
 
 		case "Texture2D":
 			return "png";
-		// compiled effects
 
 		case "Effect":
 			return "cso";
-		// tbin map file
 
 		case 'TBin':
 			return "tbin";
-		// BmFont Xml
 
 		case 'BmFont':
 			return "xml";
@@ -9176,22 +7418,17 @@ function getExtension(dataType) {
 
 function getMimeType(dataType) {
 	switch (dataType) {
-		// json data
 		case "JSON":
 			return "application/json";
-		// yaml data
 
 		case "yaml":
 			return "text/plain";
-		// png image
 
 		case "Texture2D":
 			return "image/png";
-		// compiled effects
 
 		case "Effect":
 			return "application/x-cso";
-		// BmFont Xml
 
 		case 'BmFont':
 			return "application/xml";
@@ -9201,7 +7438,6 @@ function getMimeType(dataType) {
 }
 
 function makeBlob(data, dataType) {
-	//blob is avaliable
 	if (typeof Blob === "function") return {
 		data: new Blob([data], {
 			type: getMimeType(dataType)
@@ -9225,15 +7461,14 @@ function exportContent(content) {
 		let {
 			type: dataType,
 			data
-		} = value; // transform to png
+		} = value;
 
 		if (dataType === "Texture2D") {
 			data = s(value.width, value.height, new Uint8Array(data));
 		}
 
 		return makeBlob(data, dataType);
-	} // if contentOnly == true, export json data file
-
+	}
 
 	if (jsonContent) {
 		let contentJson = JSON.stringify(content, null, 4);
@@ -9242,34 +7477,30 @@ function exportContent(content) {
 
 	return null;
 }
-/**
+/** @api
  * decompressed xnb object to real file blobs.
  * @param {XnbData} decompressed xnb objects (returned by bufferToXnb() / Xnb.load())
- * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only) (optional)
- * @param {String} exported file's name (optional)
+ * @param {Object} config (yaml:export file as yaml, 
+ * 					contentOnly:export content file only, 
+ * 					fileName:exported files's name) (optional)
  */
 
 
 function exportFiles(xnbObject) {
-	let configs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-	let fileName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-	// set config
 	let {
 		yaml: isYaml = false,
-		contentOnly = false
-	} = configs;
-	if (isYaml && contentOnly) isYaml = false; // ensure we have content field
-
+		contentOnly = false,
+		fileName = null
+	} = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+	if (isYaml && contentOnly) isYaml = false;
 	if (!xnbObject.hasOwnProperty('content')) throw new XnbError('Invalid object!');
 	const blobs = [];
 	const {
 		content
-	} = xnbObject; // export content files
-
+	} = xnbObject;
 	const contentBlob = exportContent(content, contentOnly);
 	if (contentBlob !== null) blobs.push(contentBlob);
-	if (contentOnly) return blobs; // export json/yaml header files
-
+	if (contentOnly) return blobs;
 	const resultJSON = JSON.stringify(xnbObject, (key, value) => {
 		if (key === "export") {
 			if (typeof fileName == "string" && fileName !== "") {
@@ -9290,35 +7521,21 @@ function exportFiles(xnbObject) {
 function resolveCompression(compressionString) {
 	let str = compressionString.toLowerCase();
 	if (str === "none") return 0;
-	if (str === "lz4") return 0x40; //	if(str === "lzx") return 0x80;
-
+	if (str === "lz4") return 0x40;
 	return null;
 }
-/**
- * @param {Blob/Buffer} input Blob/Buffer
- * @return {Promise} promise returns text
- */
-
 
 async function readBlobasText(blob) {
 	if (typeof Blob === "function" && blob instanceof Blob) return blob.text();else if (typeof Buffer === "function" && blob instanceof Buffer) return blob.toString();
 }
-/**
- * @param {Blob/Buffer} input Blob/Buffer
- * @return {Promise} promise returns text
- */
-
 
 async function readBlobasArrayBuffer(blob) {
 	if (typeof Blob === "function" && blob instanceof Blob) return blob.arrayBuffer();else if (typeof Buffer === "function" && blob instanceof Buffer) return blob.buffer;
 }
 
 async function readExternFiles(extension, files) {
-	// Texture2D to PNG
 	if (extension === "png") {
-		// get binary file
-		const rawPng = await readBlobasArrayBuffer(files.png); // get the png data
-
+		const rawPng = await readBlobasArrayBuffer(files.png);
 		const png = r(new Uint8Array(rawPng));
 		return {
 			type: "Texture2D",
@@ -9326,8 +7543,7 @@ async function readExternFiles(extension, files) {
 			width: png.width,
 			height: png.height
 		};
-	} // Compiled Effects
-
+	}
 
 	if (extension === "cso") {
 		const data = await readBlobasArrayBuffer(files.cso);
@@ -9335,8 +7551,7 @@ async function readExternFiles(extension, files) {
 			type: "Effect",
 			data
 		};
-	} // TBin Map
-
+	}
 
 	if (extension === "tbin") {
 		const data = await readBlobasArrayBuffer(files.tbin);
@@ -9344,8 +7559,7 @@ async function readExternFiles(extension, files) {
 			type: "TBin",
 			data
 		};
-	} // BmFont Xml
-
+	}
 
 	if (extension === "xml") {
 		const data = await readBlobasText(files.xml);
@@ -9355,12 +7569,6 @@ async function readExternFiles(extension, files) {
 		};
 	}
 }
-/**
- * file objects to json file to compress.
- * @param {Object} to compress files
- * @param {Object} config (compression:default, none, LZ4, LZX(currently unsupported)) (optional)
- */
-
 
 async function resolveImports(files) {
 	let configs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -9368,14 +7576,12 @@ async function resolveImports(files) {
 		compression = "default"
 	} = configs;
 	const jsonFile = files.json || files.yaml;
-	if (!jsonFile) throw new XnbError("There is no JSON or YAML file to pack!"); //parse json/yaml data
-
+	if (!jsonFile) throw new XnbError("There is no JSON or YAML file to pack!");
 	const rawText = await readBlobasText(jsonFile);
 	let jsonData = null;
-	if (files.json) jsonData = JSON.parse(rawText);else jsonData = fromXnbNodeData(parse(rawText)); // apply configuration data
-
+	if (files.json) jsonData = JSON.parse(rawText);else jsonData = fromXnbNodeData(parse(rawText));
 	let compressBits = resolveCompression(compression);
-	if (compressBits !== null) jsonData.header.compressed = compressBits; // need content
+	if (compressBits !== null) jsonData.header.compressed = compressBits;
 
 	if (!jsonData.hasOwnProperty('content')) {
 		throw new XnbError("".concat(jsonFile.name, " does not have \"content\"."));
@@ -9395,135 +7601,119 @@ async function resolveImports(files) {
 	return jsonData;
 }
 
-/******************************************************************************/
-
-/*																Unpack XNB																	*/
-
-/*----------------------------------------------------------------------------*/
-
-/**
+/** @api
  * Asynchronously reads the file into binary and then unpacks the json data.
  * XNB -> arrayBuffer -> XnbData
  * @param {File / Buffer} file
  * @return {XnbData} JSON data with headers
  */
-
 async function unpackToXnbData(file) {
-	// browser
 	if (typeof window !== "undefined") {
-		// ensure that the input file has the right extension
 		const [, extension] = extractFileName(file.name);
 
 		if (extension !== "xnb") {
 			return new Error("Invalid XNB File!");
-		} //read the file as a binary file
-
+		}
 
 		const buffer = await file.arrayBuffer();
 		return bufferToXnb(buffer);
-	} // node.js
-
+	}
 
 	return bufferToXnb(file.buffer);
 }
-/**
+
+/** @api
  * Asynchronously reads the file into binary and then return content file.
  * XNB -> arrayBuffer -> XnbData -> Content
  * @param {File / Buffer} file
- * @return {Object} the loaded contents
+ * @return {XnbContent} exported Content Object
  */
-
 
 function unpackToContent(file) {
 	return unpackToXnbData(file).then(xnbDataToContent);
 }
-/**
+
+/** @api
  * Asynchronously reads the file into binary and then unpacks the contents and remake to Blobs array.
  * XNB -> arrayBuffer -> XnbData -> Files
  * @param {File / Buffer} file
- * @param {String} file name(for node.js)
- * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only)
+ * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only, fileName:file name(for node.js))
  * @return {Array<Blobs>} exported Files Blobs
  */
 
-
 function unpackToFiles(file) {
-	let name = null,
-			configs = {};
-
-	if ((arguments.length <= 1 ? 0 : arguments.length - 1) >= 2) {
-		name = arguments.length <= 1 ? undefined : arguments[1];
-		configs = arguments.length <= 2 ? undefined : arguments[2];
-	} else if ((arguments.length <= 1 ? 0 : arguments.length - 1) === 1) {
-		const arg = arguments.length <= 1 ? undefined : arguments[1];
-		if (typeof arg === "string") name = arg;else if (typeof arg === "object") configs = arg;
-	}
-
+	let configs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+	let {
+		yaml = false,
+		contentOnly = false,
+		fileName: name = null
+	} = configs;
 	if (typeof window !== "undefined" && name === null) name = file.name;
 	let [fileName] = extractFileName(name);
 
-	const exporter = xnbObject => exportFiles(xnbObject, configs, fileName);
+	const exporter = xnbObject => exportFiles(xnbObject, {
+		yaml,
+		contentOnly,
+		fileName
+	});
 
 	return unpackToXnbData(file).then(exporter);
 }
-/**
+
+/** @api
  * reads the buffer and then unpacks.
  * arrayBuffer -> XnbData
  * @param {ArrayBuffer} buffer
  * @return {XnbData} the loaded XNB json
  */
 
-
 function bufferToXnb(buffer) {
 	const xnb = new XnbConverter();
 	return xnb.load(buffer);
 }
-/**
+
+/** @api
  * reads the buffer and then unpacks the contents.
  * arrayBuffer -> XnbData -> Content
  * @param {ArrayBuffer} buffer
- * @return {Object} the loaded XNB object(not include headers)
+ * @return {XnbContent} exported Content Object
  */
-
 
 function bufferToContents(buffer) {
 	const xnb = new XnbConverter();
 	const xnbData = xnb.load(buffer);
 	return xnbDataToContent(xnbData);
 }
-/**
+
+/** @api
  * remove header from the loaded XNB Object
  * XnbData -> Content
  * @param {XnbData} the loaded XNB object include headers
- * @return {Array<Blobs>} exported Files Blobs
+ * @return {XnbContent} exported Content Object
  */
-
 
 function xnbDataToContent(loadedXnb) {
 	const {
 		content
 	} = loadedXnb;
-	return exportContent(content, true);
+	const {
+		data,
+		extension
+	} = exportContent(content, true);
+	return new XnbContent(data, extension);
 }
-/******************************************************************************/
 
-/*																 Pack XNB																	 */
-
-/*----------------------------------------------------------------------------*/
-
-/**
+/** @api
  * reads the json and then unpacks the contents.
  * @param {FileList/Array<Object{name, data}>} to pack json data
  * @return {Object<file>/Object<buffer>} packed XNB Array Buffer
  */
 
-
 function fileMapper(files) {
 	let returnMap = {};
 
 	for (let i = 0; i < files.length; i++) {
-		const file = files[i]; // extract file name & extension
-
+		const file = files[i];
 		let [fileName, extension] = extractFileName(file.name);
 		if (extension === null) continue;
 		if (returnMap[fileName] === undefined) returnMap[fileName] = {};
@@ -9533,25 +7723,25 @@ function fileMapper(files) {
 
 	return returnMap;
 }
-/**
+
+/** @api
  * reads the json and then unpacks the contents.
  * @param {json} to pack json data
  * @return {ArrayBuffer} packed XNB Array Buffer
  */
-
 
 function packJsonToBinary(json) {
 	const xnb = new XnbConverter();
 	const buffer = xnb.convert(json);
 	return buffer;
 }
-/**
+
+/** @api
  * Asynchronously reads the file into binary and then pack xnb files.
  * @param {FlieList} files
  * @param {Object} configs(compression:default, none, LZ4, LZX / debug)
  * @return {Array(Blobs)} 
  */
-
 
 function pack(files) {
 	let configs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -9560,7 +7750,6 @@ function pack(files) {
 
 	for (let [fileName, filePack] of Object.entries(groupedFiles)) {
 		promises.push(resolveImports(filePack, configs).then(packJsonToBinary).then(buffer => {
-			//blob is avaliable
 			if (typeof Blob === "function") return {
 				name: fileName,
 				data: new Blob([buffer], {
@@ -9591,4 +7780,4 @@ function pack(files) {
 	});
 }
 
-export { XnbData, bufferToContents, bufferToXnb, pack, unpackToContent, unpackToFiles, unpackToXnbData, xnbDataToContent, exportFiles as xnbDataToFiles };
+export { XnbContent, XnbData, bufferToContents, bufferToXnb, pack, unpackToContent, unpackToFiles, unpackToXnbData, xnbDataToContent, exportFiles as xnbDataToFiles };

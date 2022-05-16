@@ -65,4 +65,26 @@ class XnbData {
 	}
 }
 
-export default XnbData;
+function extensionToDatatype(extension)
+{
+	switch(extension)
+	{
+		case "json": return "JSON";
+		case "yaml": return "yaml";
+		case "png": return "Texture2D";
+		case "cso": return "Effect";
+		case 'tbin': return "TBin";
+		case 'xml': return "BmFont";
+	}
+	return "Others";
+}
+
+class XnbContent {
+	constructor(data, ext)
+	{
+		this.type = extensionToDatatype(ext);
+		this.content = data;
+	}
+}
+
+export {XnbData, XnbContent};
