@@ -100,4 +100,4 @@ The licenses for the original libraries are as follows.
 GNU LGPL 3.0
 
 ## Other language
-- [한국어](https://github.com/lybell-art/xnb-js/readme-ko.md)
+- [한국어](https://github.com/lybell-art/xnb-js/blob/main/readme-ko.md)
