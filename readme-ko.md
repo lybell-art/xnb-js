@@ -93,7 +93,7 @@ xnb.js에는 dxt.js와 lz4.js, png.js가 번들링되어 있으며, dxt.js와 lz
 | 이름 | 소스 코드 | 라이선스 |
 |--|--|--|
 | **dxt.js(Libsquish)** | https://sourceforge.net/projects/libsquish/ | MIT 라이선스 |
-| **LZ4-js** | https://github.com/pierrec/node-lz4 | MIT License |
+| **LZ4-js** | https://github.com/pierrec/node-lz4 | MIT 라이선스 |
 | **png.js** | https://github.com/lukeapage/pngjs | MIT 라이선스 |
 
 ## 라이선스
