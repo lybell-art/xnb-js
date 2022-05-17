@@ -85,7 +85,7 @@ readFile("./Abigail.xnb") // read xnb file as Buffer
 });
 ```
 ## API
-See this [link](https://github.com/lybell-art/xnb-js/api.md).
+See this [link](https://github.com/lybell-art/xnb-js/blob/main/api.md).
 
 ## External resource
 xnb.js contains dxt.js, lz4.js, and png.js as bundle. libsquish(=dxt.js) and lz4.js were rewritten for es6 module system.
