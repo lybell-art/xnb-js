@@ -85,7 +85,7 @@ readFile("./Abigail.xnb") // read xnb file as Buffer
 });
 ```
 ## API
-이 링크를 참조하십시오.
+이 [링크](https://github.com/lybell-art/xnb-js/blob/main/api-ko.md)를 참조하십시오.
 
 ## 외부 리소스
 xnb.js에는 dxt.js와 lz4.js, png.js가 번들링되어 있으며, dxt.js와 lz4.js는 es6 모듈에 최적화되어 재작성되었습니다.
@@ -100,4 +100,4 @@ xnb.js에는 dxt.js와 lz4.js, png.js가 번들링되어 있으며, dxt.js와 lz
 GNU LGPL 3.0
 
 ## Other language
-- [English](https://github.com/lybell-art/xnb-js/readme.md)
+- [English](https://github.com/lybell-art/xnb-js/blob/main/readme.md)
