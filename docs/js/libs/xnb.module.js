@@ -125,7 +125,7 @@ function UnicodeToString(unicodeArr) {
 		result.push(...UTF16Encode(code));
 	}
 
-	const blockSize = 65536;
+	const blockSize = 32768;
 	let resultStr = "";
 
 	for (let i = 0; i < result.length / blockSize; i++) {
@@ -1161,15 +1161,9 @@ const runMask = (1 << runBits) - 1;
 const blockBuf = makeBuffer(5 << 20);
 const hashTable = makeHashTable();
 const magicNum = 0x184D2204;
-const fdContentChksum = 0x4;
-const fdContentSize = 0x8;
-const fdBlockChksum = 0x10;
 const fdVersion = 0x40;
-const fdVersionMask = 0xC0;
-const bsUncompressed = 0x80000000;
 const bsDefault = 7;
 const bsShift = 4;
-const bsMask = 7;
 const bsMap = {
 	4: 0x10000,
 	5: 0x40000,
@@ -1238,61 +1232,10 @@ function compressBound(n) {
 	return n + n / 255 + 16 | 0;
 }
 
-function decompressBound(src) {
-	var sIndex = 0;
-
-	if (LZ4Utils.readU32(src, sIndex) !== magicNum) {
-		throw new Error('invalid magic number');
-	}
-
-	sIndex += 4;
-	var descriptor = src[sIndex++];
-
-	if ((descriptor & fdVersionMask) !== fdVersion) {
-		throw new Error('incompatible descriptor version ' + (descriptor & fdVersionMask));
-	}
-
-	var useBlockSum = (descriptor & fdBlockChksum) !== 0;
-	var useContentSize = (descriptor & fdContentSize) !== 0;
-	var bsIdx = src[sIndex++] >> bsShift & bsMask;
-
-	if (bsMap[bsIdx] === undefined) {
-		throw new Error('invalid block size ' + bsIdx);
-	}
-
-	var maxBlockSize = bsMap[bsIdx];
-
-	if (useContentSize) {
-		return LZ4Utils.readU64(src, sIndex);
-	}
-
-	sIndex++;
-	var maxSize = 0;
-
-	while (true) {
-		var blockSize = LZ4Utils.readU32(src, sIndex);
-		sIndex += 4;
-
-		if (blockSize & bsUncompressed) {
-			blockSize &= ~bsUncompressed;
-			maxSize += blockSize;
-		} else if (blockSize > 0) {
-			maxSize += maxBlockSize;
-		}
-
-		if (blockSize === 0) {
-			return maxSize;
-		}
-
-		if (useBlockSum) {
-			sIndex += 4;
-		}
-
-		sIndex += blockSize;
-	}
-}
-
-function decompressBlock$1(src, dst, sIndex, sLength, dIndex) {
+function decompressBlock$1(src, dst) {
+	let sIndex = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+	let sLength = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : src.length - 2 * sIndex;
+	let dIndex = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
 	var mLength, mOffset, sEnd, n, i;
 	var hasCopyWithin = dst.copyWithin !== undefined && dst.fill !== undefined;
 	sEnd = sIndex + sLength;
@@ -1448,69 +1391,6 @@ function compressBlock(src, dst, sIndex, sLength, hashTable) {
 	return dIndex;
 }
 
-function decompressFrame(src, dst) {
-	var useBlockSum, useContentSum, useContentSize, descriptor;
-	var sIndex = 0;
-	var dIndex = 0;
-
-	if (LZ4Utils.readU32(src, sIndex) !== magicNum) {
-		throw new Error('invalid magic number');
-	}
-
-	sIndex += 4;
-	descriptor = src[sIndex++];
-
-	if ((descriptor & fdVersionMask) !== fdVersion) {
-		throw new Error('incompatible descriptor version');
-	}
-
-	useBlockSum = (descriptor & fdBlockChksum) !== 0;
-	useContentSum = (descriptor & fdContentChksum) !== 0;
-	useContentSize = (descriptor & fdContentSize) !== 0;
-	var bsIdx = src[sIndex++] >> bsShift & bsMask;
-
-	if (bsMap[bsIdx] === undefined) {
-		throw new Error('invalid block size');
-	}
-
-	if (useContentSize) {
-		sIndex += 8;
-	}
-
-	sIndex++;
-
-	while (true) {
-		var compSize;
-		compSize = LZ4Utils.readU32(src, sIndex);
-		sIndex += 4;
-
-		if (compSize === 0) {
-			break;
-		}
-
-		if (useBlockSum) {
-			sIndex += 4;
-		}
-
-		if ((compSize & bsUncompressed) !== 0) {
-			compSize &= ~bsUncompressed;
-
-			for (var j = 0; j < compSize; j++) {
-				dst[dIndex++] = src[sIndex++];
-			}
-		} else {
-			dIndex = decompressBlock$1(src, dst, sIndex, compSize, dIndex);
-			sIndex += compSize;
-		}
-	}
-
-	if (useContentSum) {
-		sIndex += 4;
-	}
-
-	return dIndex;
-}
-
 function compressFrame(src, dst) {
 	var dIndex = 0;
 	LZ4Utils.writeU32(dst, dIndex, magicNum);
@@ -1554,23 +1434,6 @@ function compressFrame(src, dst) {
 	LZ4Utils.writeU32(dst, dIndex, 0);
 	dIndex += 4;
 	return dIndex;
-}
-
-function decompress$1(src, maxSize) {
-	var dst, size;
-
-	if (maxSize === undefined) {
-		maxSize = decompressBound(src);
-	}
-
-	dst = makeBuffer(maxSize);
-	size = decompressFrame(src, dst);
-
-	if (size !== maxSize) {
-		dst = sliceArray(dst, 0, size);
-	}
-
-	return dst;
 }
 
 function compress$1(src, maxSize) {
@@ -4155,9 +4018,8 @@ class XnbConverter {
 			} else if (this.compressionType == COMPRESSED_LZ4_MASK) {
 				const trimmed = this.buffer.buffer.slice(XNB_COMPRESSED_PROLOGUE_SIZE);
 				const trimmedArray = new Uint8Array(trimmed);
-				const {
-					buffer: decompressed
-				} = decompress$1(trimmedArray, decompressedSize);
+				const decompressed = new Uint8Array(decompressedSize);
+				decompressBlock$1(trimmedArray, decompressed);
 				this.buffer.copyFrom(decompressed, XNB_COMPRESSED_PROLOGUE_SIZE, 0, decompressedSize);
 				this.buffer.bytePosition = XNB_COMPRESSED_PROLOGUE_SIZE;
 			}
@@ -7607,6 +7469,7 @@ async function resolveImports(files) {
  * @param {File / Buffer} file
  * @return {XnbData} JSON data with headers
  */
+
 async function unpackToXnbData(file) {
 	if (typeof window !== "undefined") {
 		const [, extension] = extractFileName(file.name);
@@ -7621,7 +7484,6 @@ async function unpackToXnbData(file) {
 
 	return bufferToXnb(file.buffer);
 }
-
 /** @api
  * Asynchronously reads the file into binary and then return content file.
  * XNB -> arrayBuffer -> XnbData -> Content
@@ -7629,10 +7491,10 @@ async function unpackToXnbData(file) {
  * @return {XnbContent} exported Content Object
  */
 
+
 function unpackToContent(file) {
 	return unpackToXnbData(file).then(xnbDataToContent);
 }
-
 /** @api
  * Asynchronously reads the file into binary and then unpacks the contents and remake to Blobs array.
  * XNB -> arrayBuffer -> XnbData -> Files
@@ -7640,6 +7502,7 @@ function unpackToContent(file) {
  * @param {Object} config (yaml:export file as yaml, contentOnly:export content file only, fileName:file name(for node.js))
  * @return {Array<Blobs>} exported Files Blobs
  */
+
 
 function unpackToFiles(file) {
 	let configs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -7659,7 +7522,6 @@ function unpackToFiles(file) {
 
 	return unpackToXnbData(file).then(exporter);
 }
-
 /** @api
  * reads the buffer and then unpacks.
  * arrayBuffer -> XnbData
@@ -7667,11 +7529,11 @@ function unpackToFiles(file) {
  * @return {XnbData} the loaded XNB json
  */
 
+
 function bufferToXnb(buffer) {
 	const xnb = new XnbConverter();
 	return xnb.load(buffer);
 }
-
 /** @api
  * reads the buffer and then unpacks the contents.
  * arrayBuffer -> XnbData -> Content
@@ -7679,18 +7541,19 @@ function bufferToXnb(buffer) {
  * @return {XnbContent} exported Content Object
  */
 
+
 function bufferToContents(buffer) {
 	const xnb = new XnbConverter();
 	const xnbData = xnb.load(buffer);
 	return xnbDataToContent(xnbData);
 }
-
 /** @api
  * remove header from the loaded XNB Object
  * XnbData -> Content
  * @param {XnbData} the loaded XNB object include headers
  * @return {XnbContent} exported Content Object
  */
+
 
 function xnbDataToContent(loadedXnb) {
 	const {
@@ -7702,12 +7565,12 @@ function xnbDataToContent(loadedXnb) {
 	} = exportContent(content, true);
 	return new XnbContent(data, extension);
 }
-
 /** @api
  * reads the json and then unpacks the contents.
  * @param {FileList/Array<Object{name, data}>} to pack json data
  * @return {Object<file>/Object<buffer>} packed XNB Array Buffer
  */
+
 
 function fileMapper(files) {
 	let returnMap = {};
@@ -7723,25 +7586,25 @@ function fileMapper(files) {
 
 	return returnMap;
 }
-
 /** @api
  * reads the json and then unpacks the contents.
  * @param {json} to pack json data
  * @return {ArrayBuffer} packed XNB Array Buffer
  */
 
+
 function packJsonToBinary(json) {
 	const xnb = new XnbConverter();
 	const buffer = xnb.convert(json);
 	return buffer;
 }
-
 /** @api
  * Asynchronously reads the file into binary and then pack xnb files.
  * @param {FlieList} files
  * @param {Object} configs(compression:default, none, LZ4, LZX / debug)
  * @return {Array(Blobs)} 
  */
+
 
 function pack(files) {
 	let configs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};

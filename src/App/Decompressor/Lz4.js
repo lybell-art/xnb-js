@@ -192,7 +192,7 @@ function decompressBound (src) {
 };
 
 // Decompresses a block of Lz4.
-function decompressBlock (src, dst, sIndex, sLength, dIndex) {
+function decompressBlock (src, dst, sIndex=0, sLength=src.length-2*sIndex, dIndex=0) {
 	var mLength, mOffset, sEnd, n, i;
 	var hasCopyWithin = dst.copyWithin !== undefined && dst.fill !== undefined;
 

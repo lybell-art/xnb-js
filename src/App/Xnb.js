@@ -2,7 +2,7 @@ import BufferReader from "./BufferReader.js";
 import BufferWriter from "./BufferWriter.js";
 
 import Presser from "./Decompressor/LZXDecompressor.js";
-import {decompress as LZ4_decompress, 
+import {decompressBlock as LZ4_decompressBlock, 
 	compressBound as LZ4_compressBound, 
 	compress as LZ4_compress} from "./Decompressor/Lz4.js";
 
@@ -108,13 +108,15 @@ class XnbConverter {
 				this.buffer.bytePosition = XNB_COMPRESSED_PROLOGUE_SIZE;
 			}
 			// decompress LZ4 format
+			
 			else if (this.compressionType == COMPRESSED_LZ4_MASK) {
 				// allocate Uint8 Array for LZ4 decode
 				const trimmed = this.buffer.buffer.slice(XNB_COMPRESSED_PROLOGUE_SIZE);
 				const trimmedArray = new Uint8Array(trimmed);
 
 				// decode the trimmed buffer into decompressed buffer
-				const {buffer:decompressed} = LZ4_decompress(trimmedArray, decompressedSize);
+				const decompressed = new Uint8Array(decompressedSize);
+				LZ4_decompressBlock(trimmedArray, decompressed);
 				// copy the decompressed buffer into our buffer
 				this.buffer.copyFrom(decompressed, XNB_COMPRESSED_PROLOGUE_SIZE, 0, decompressedSize);
 				// reset the byte seek head to read content

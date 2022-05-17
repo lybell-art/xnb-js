@@ -150,7 +150,7 @@ function UnicodeToString(unicodeArr)
 	}
 	
 	//for bigger strings
-	const blockSize = 65536;
+	const blockSize = 32768;
 	let resultStr = "";
 	for(let i=0; i<result.length/blockSize; i++)
 	{

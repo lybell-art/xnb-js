@@ -44,7 +44,7 @@ main{
 
 .title-wrapper {
 	display: flex;
-    gap: 20px;
+		gap: 20px;
 }
 
 .title {
@@ -80,15 +80,15 @@ main{
 	box-shadow: inset 5px 5px 8px 0px #0003, inset -5px -5px 10px #0001;
 
 	overflow: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 }
 
 .image-box-aligner {
 	max-width: 50%;
-    max-height: 50%;
-    transform: scale(2);
+		max-height: 50%;
+		transform: scale(2);
 }
 
 .result-img {
@@ -119,8 +119,8 @@ main{
 .checkbox-wrapper {
 	margin-bottom: 5px;
 	display: flex;
-    justify-content: flex-start;
-    gap: 20px;
+		justify-content: flex-start;
+		gap: 20px;
 }
 
 .checkbox-item {
@@ -130,14 +130,15 @@ main{
 .checkbox-desc {
 	position: absolute;
 	width: 200px;
-    top: 20px;
-    left: 25px;
-    background-color: #fffc;
-    padding: 5px;
-    border-radius: 5px;
-    font-size: 12px;
-    opacity: 0;
-    z-index: 10;
+	top: 20px;
+	left: 25px;
+	background-color: #fffc;
+	padding: 5px;
+	border-radius: 5px;
+	font-size: 12px;
+	opacity: 0;
+	z-index: 10;
+	pointer-events: none;
 }
 
 label {
@@ -148,6 +149,7 @@ label {
 
 label:hover + .checkbox-desc, .checkbox-desc:hover{
 	opacity: 1;
+	pointer-events: bounding-box;
 }
 
 .button-wrapper {
@@ -223,8 +225,8 @@ main::-webkit-scrollbar, .result-image-box::-webkit-scrollbar{
 }
 main::-webkit-scrollbar-thumb, .result-image-box::-webkit-scrollbar-thumb{
 	background: linear-gradient(135deg, #009688, #aaaaaa);
-    background-clip: padding-box;
-    border: 3px solid transparent;
+		background-clip: padding-box;
+		border: 3px solid transparent;
 }
 main::-webkit-scrollbar-track, .result-image-box::-webkit-scrollbar-track {
 	background-color: transparent;
@@ -275,8 +277,8 @@ main::-webkit-scrollbar-track, .result-image-box::-webkit-scrollbar-track {
 	main {
 		width: calc(100vw - 60px);
 		justify-content: flex-start;
-    	flex-direction: column;
-    	overflow: auto;
+			flex-direction: column;
+			overflow: auto;
 	}
 
 	.controller-wrapper{
@@ -339,53 +341,53 @@ main::-webkit-scrollbar-track, .result-image-box::-webkit-scrollbar-track {
 /* from https://tobiasahlin.com/spinkit/ */
 
 .spinner {
-  width: 24px;
-  height: 24px;
-  position: relative;
-  visibility: hidden;
+	width: 24px;
+	height: 24px;
+	position: relative;
+	visibility: hidden;
 }
 
 .cube1, .cube2 {
-  background-color: #3b7362;
-  width: 37.5%;
-  height: 37.5%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  
-  -webkit-animation: sk-cubemove 1.8s infinite ease-in-out;
-  animation: sk-cubemove 1.8s infinite ease-in-out;
+	background-color: #3b7362;
+	width: 37.5%;
+	height: 37.5%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	
+	-webkit-animation: sk-cubemove 1.8s infinite ease-in-out;
+	animation: sk-cubemove 1.8s infinite ease-in-out;
 }
 
 .cube2 {
-  -webkit-animation-delay: -0.9s;
-  animation-delay: -0.9s;
+	-webkit-animation-delay: -0.9s;
+	animation-delay: -0.9s;
 }
 
 @-webkit-keyframes sk-cubemove {
-  25% { -webkit-transform: translateX(200%) rotate(-90deg) scale(0.5) }
-  50% { -webkit-transform: translateX(200%) translateY(200%) rotate(-180deg) }
-  75% { -webkit-transform: translateX(0px) translateY(200%) rotate(-270deg) scale(0.5) }
-  100% { -webkit-transform: rotate(-360deg) }
+	25% { -webkit-transform: translateX(200%) rotate(-90deg) scale(0.5) }
+	50% { -webkit-transform: translateX(200%) translateY(200%) rotate(-180deg) }
+	75% { -webkit-transform: translateX(0px) translateY(200%) rotate(-270deg) scale(0.5) }
+	100% { -webkit-transform: rotate(-360deg) }
 }
 
 @keyframes sk-cubemove {
-  25% { 
-    transform: translateX(200%) rotate(-90deg) scale(0.5);
-    -webkit-transform: translateX(200%) rotate(-90deg) scale(0.5);
-  } 50% { 
-    transform: translateX(200%) translateY(200%) rotate(-179deg);
-    -webkit-transform: translateX(200%) translateY(200%) rotate(-179deg);
-  } 50.1% { 
-    transform: translateX(200%) translateY(200%) rotate(-180deg);
-    -webkit-transform: translateX(200%) translateY(200%) rotate(-180deg);
-  } 75% { 
-    transform: translateX(0px) translateY(200%) rotate(-270deg) scale(0.5);
-    -webkit-transform: translateX(0px) translateY(200%) rotate(-270deg) scale(0.5);
-  } 100% { 
-    transform: rotate(-360deg);
-    -webkit-transform: rotate(-360deg);
-  }
+	25% { 
+		transform: translateX(200%) rotate(-90deg) scale(0.5);
+		-webkit-transform: translateX(200%) rotate(-90deg) scale(0.5);
+	} 50% { 
+		transform: translateX(200%) translateY(200%) rotate(-179deg);
+		-webkit-transform: translateX(200%) translateY(200%) rotate(-179deg);
+	} 50.1% { 
+		transform: translateX(200%) translateY(200%) rotate(-180deg);
+		-webkit-transform: translateX(200%) translateY(200%) rotate(-180deg);
+	} 75% { 
+		transform: translateX(0px) translateY(200%) rotate(-270deg) scale(0.5);
+		-webkit-transform: translateX(0px) translateY(200%) rotate(-270deg) scale(0.5);
+	} 100% { 
+		transform: rotate(-360deg);
+		-webkit-transform: rotate(-360deg);
+	}
 }
 
 @keyframes opacity-toggle {
