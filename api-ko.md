@@ -1,17 +1,35 @@
 xnb.js api
 =============
-xnb.js의 사용법 및 프로그래밍 인터페이스를 다룹니다.
+**xnb.js**의 사용법 및 프로그래밍 인터페이스를 다룹니다.
 ## Unpacking
 ### unpackToXnbData( file : File/Buffer )
 - ``file`` (File / Buffer) : 언팩할 xnb 파일
 - Returns : Promise - 언팩한 XnbData를 반환합니다.
 
 xnb 파일을 비동기적으로 읽은 뒤 헤더, 리더가 포함된 XnbData를 반환합니다.
+```js
+// browser usage
+document.getElementById("fileInput").addEventlistener(function(){
+	const file = this.files[0];
+	XNB.unpackToXnbData( file ).then(e=>console.log(e)); // returns XnbData{ header:..., readers:..., content:...}
+})
+// node.js usage
+fs.readFile("./Crobus.xnb").then(unpackToXnbData).then(e=>console.log(e)) // returns XnbData{ header:..., readers:..., content:...}
+```
 ### unpackToContent( file : File/Buffer )
 - ``file`` (File / Buffer) : 언팩할 xnb 파일
 - Returns : Promise - 언팩한 XnbContent를 반환합니다.
 
 xnb 파일을 비동기적으로 읽은 뒤 콘텐츠 데이터만 들어 있는 XnbContent를 반환합니다.
+```js
+// browser usage
+document.getElementById("fileInput").addEventlistener(function(){
+	const file = this.files[0];
+	XNB.unpackToContent( file ).then(e=>console.log(e)); // returns XnbContent{ type:..., content:...}
+})
+// node.js usage
+fs.readFile("./Crobus.xnb").then(unpackToContent).then(e=>console.log(e)) // returns XnbContent{ type:..., content:...}
+```
 ### unpackToFiles( file : File/Buffer, config : Object )
 - ``file`` (File / Buffer) : 언팩할 xnb 파일
 - ``config`` (Object) : 컨피그 설정
@@ -23,14 +41,39 @@ xnb 파일을 비동기적으로 읽은 뒤 콘텐츠 데이터만 들어 있는
 xnb 파일을 비동기적으로 읽은 뒤 Blob 배열을 반환합니다. 텍스트 데이터는 json 형식으로 반환됩니다.
 config 매개변수에서 ``yaml``과 ``contentOnly``가 전부 ``true``이면 ``contentOnly``를 우선합니다.
 배열의 각 원소는 `{data, extension}`으로 구성된 Object입니다. data는 언팩된 파일의 실제 데이터로, Blob 오브젝트(브라우저 환경) 혹은 Uint8Array(node.js 환경)이며, extension은 언팩된 파일의 확장자입니다.
+```js
+// browser usage
+document.getElementById("fileInput").addEventlistener(function(){
+	const file = this.files[0];
+	XNB.unpackToFiles( file ).then(e=>{
+		for(let {data, extension} of e)
+		{
+			console.log(data); // returns Blob()
+			console.log(extension); // returns "png", "json", etc...
+		}
+	});
+})
+// node.js usage
+const fileName = "Crobus.xnb";
+const baseName = path.basename(fileName, ".xnb");
+fs.readFile(`./${fileName}`)
+	.then( e=>XBM.unpackToFiles( file, { fileName:baseName }) )
+	.then( e=>{
+		for(let {data, extension} of e)
+		{
+			console.log(data); // returns UInt8Array()
+			console.log(extension); // returns "png", "json", etc...
+		}
+	} );
+```
 ### bufferToXnb( buffer : ArrayBuffer )
 - ``buffer`` (ArrayBuffer) : xnb 파일의 바이너리 데이터
-- Retrns : XnbData
+- Returns : XnbData
 
 xnb 파일의 버퍼를 받아 헤더, 리더가 포함된 XnbData를 반환합니다.
 ### bufferToContents( buffer : ArrayBuffer )
 - ``buffer`` (ArrayBuffer) : xnb 파일의 바이너리 데이터
-- Retrns : XnbContent
+- Returns : XnbContent
 
 xnb 파일의 버퍼를 받아 콘텐츠 데이터만 들어 있는 XnbContent를 반환합니다.
 ### xnbDataToContent( loadedXnb : XnbData )
@@ -77,8 +120,8 @@ console.log(result);
 
 ## Data Structure
 ### XnbData
-XnbData 객체는 Xnb 파일에서 추출된 헤더와 리더 정보, 컨텐츠가 포함된 오브젝트입니다. worker를 이용해서 데이터를 언팩할 때 결과값 json 데이터를 XnbData로 변환할 수 있습니다.
-#### XnbData( header : Object, readers : Array, contents : Object )
+XnbData 객체는 Xnb 파일에서 추출된 헤더와 리더 정보, 컨텐츠가 포함된 오브젝트입니다. unpackToXnbData(), bufferToXnb()의 반환값입니다. 라이브러리를 worker로 활용해서 데이터를 언팩할 때, json 데이터를 XnbData 객체로 변환할 수 있습니다.
+#### XnbData( header : Object, readers : Array, content : Object )
 - `header` (Object) : xnb의 헤더
 	- `target` (String) : xnb의 타겟. 'w', 'm', 'x', 'a', 'i' 중 하나여야 합니다.
 	- `formatVersion` (Number) : xnb의 포맷 버전. 3,4,5 중 하나여야 합니다.
@@ -87,16 +130,22 @@ XnbData 객체는 Xnb 파일에서 추출된 헤더와 리더 정보, 컨텐츠�
 - `readers` (Array) : xnb의 리더 데이터
 - `contents` (Object) : xnb의 실제 컨텐츠 데이터
 
-새로운 XnbData 객체를 생성합니다.
-#### XnbData.prototype.target
+새로운 `XnbData` 객체를 생성합니다.
+#### XnbData.prototype.header
+xnb의 헤더입니다.
+#### XnbData.prototype.readers
+xnb의 리더 데이터입니다.
+#### XnbData.prototype.content
+xnb의 컨텐츠 데이터입니다.
+#### XnbData.prototype.target *readonly*
 xnb의 타겟 플랫폼을 반환합니다.
-#### XnbData.prototype.formatVersion
+#### XnbData.prototype.formatVersion *readonly*
 xnb의 포맷 버전을 반환합니다.
-#### XnbData.prototype.hidef
+#### XnbData.prototype.hidef *readonly*
 xnb의 hiDef 모드 여부를 반환합니다.
-#### XnbData.prototype.compressed
+#### XnbData.prototype.compressed *readonly*
 xnb의 압축 여부를 반환합니다.
-#### XnbData.prototype.contentType
+#### XnbData.prototype.contentType *readonly*
 xnb의 컨텐츠 타입을 반환합니다. 컨텐츠 타입은 다음의 5개 중 하나가 될 수 있습니다.
 | 컨텐츠 타입 | 설명 |
 |--|--|
@@ -105,16 +154,16 @@ xnb의 컨텐츠 타입을 반환합니다. 컨텐츠 타입은 다음의 5개 �
 | Effect | 이펙트 데이터입니다. |
 | BMFont | 폰트 데이터입니다. |
 | JSON | 오브젝트 데이터입니다. 게임의 아이템 목록, 대사 등 데이터가 포함됩니다. |
-#### XnbData.prototype.rawContent
+#### XnbData.prototype.rawContent *readonly*
 xnb의 실제 컨텐츠를 반환합니다. XnbData.prototype.content에 export가 포함되어 있으면(Texture2D, TBin, Effect, BMFont) 해당 컨텐츠의 바이너리를 반환하고, 그 외에는 json 데이터를 반환합니다. 
 Texture2D 타입의 컨텐츠는 png 형식으로 압축되지 않은 색상 데이터가 반환됩니다.
 #### XnbData.prototype.stringify()
 오브젝트를 json 문자열로 변환합니다.
 
 ### XnbContent
-XnbContent 객체는 Xnb 파일에서 추출된 컨텐츠만 포함된 오브젝트입니다. 
+`XnbContent` 객체는 Xnb 파일에서 추출된 컨텐츠만 포함된 오브젝트입니다. 
 #### XnbContent.prototype.type
 xnb의 컨텐츠 타입을 반환합니다.
 #### XnbContent.prototype.content
-xnb의 실제 컨텐츠 데이터를 Blob/Uint8Array 형식으로 반환합니다. 
+xnb의 실제 컨텐츠 데이터를 `Blob`/`Uint8Array` 형식으로 반환합니다. 
 Texture2D 타입의 컨텐츠는 png 형식으로 압축된 데이터가 반환됩니다. 브라우저 환경에서 Blob URL을 사용하여 이미지를 보여줄 때 쓸 수 있습니다.
