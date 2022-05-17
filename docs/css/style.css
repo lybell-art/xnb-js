@@ -24,14 +24,14 @@ body {
 	align-items: center;
 	gap: 2px;
 	background-color: #a1cf7a;
-	background-image: url(/assets/background.png);
+	background-image: url("./assets/background.png");
 	background-position: center;
 }
 
 main{
 	padding: 30px 60px;
 	border: solid 16px #fff0;
-	border-image: url(/assets/border.png) 16 round;
+	border-image: url("./assets/border.png") 16 round;
 	border-radius: 20px;
 	background-color: white;
 	display: flex;
@@ -75,7 +75,7 @@ main{
 	padding: 10px;
 	box-sizing: border-box;
 	border: solid 9px #fff0;
-	border-image: url(/assets/border-thin.png) 12 round;
+	border-image: url("./assets/border-thin.png") 12 round;
 	border-radius : 9px;
 	box-shadow: inset 5px 5px 8px 0px #0003, inset -5px -5px 10px #0001;
 
