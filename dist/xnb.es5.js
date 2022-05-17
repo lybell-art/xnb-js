@@ -4846,81 +4846,6 @@
 		return LZ4Utils;
 	}();
 
-	var prime1 = 0x9e3779b1;
-	var prime2 = 0x85ebca77;
-	var prime3 = 0xc2b2ae3d;
-	var prime4 = 0x27d4eb2f;
-	var prime5 = 0x165667b1;
-
-	function rotl32(x, r) {
-		x = x | 0;
-		r = r | 0;
-		return x >>> (32 - r | 0) | x << r | 0;
-	}
-
-	function rotmul32(h, r, m) {
-		h = h | 0;
-		r = r | 0;
-		m = m | 0;
-		return LZ4Utils.imul(h >>> (32 - r | 0) | h << r, m) | 0;
-	}
-
-	function shiftxor32(h, s) {
-		h = h | 0;
-		s = s | 0;
-		return h >>> s ^ h | 0;
-	}
-
-	function xxhapply(h, src, m0, s, m1) {
-		return rotmul32(LZ4Utils.imul(src, m0) + h, s, m1);
-	}
-
-	function xxh1(h, src, index) {
-		return rotmul32(h + LZ4Utils.imul(src[index], prime5), 11, prime1);
-	}
-
-	function xxh4(h, src, index) {
-		return xxhapply(h, LZ4Utils.readU32(src, index), prime3, 17, prime4);
-	}
-
-	function xxh16(h, src, index) {
-		return [xxhapply(h[0], LZ4Utils.readU32(src, index + 0), prime2, 13, prime1), xxhapply(h[1], LZ4Utils.readU32(src, index + 4), prime2, 13, prime1), xxhapply(h[2], LZ4Utils.readU32(src, index + 8), prime2, 13, prime1), xxhapply(h[3], LZ4Utils.readU32(src, index + 12), prime2, 13, prime1)];
-	}
-
-	function xxh32(seed, src, index, len) {
-		var h, l;
-		l = len;
-
-		if (len >= 16) {
-			h = [seed + prime1 + prime2, seed + prime2, seed, seed - prime1];
-
-			while (len >= 16) {
-				h = xxh16(h, src, index);
-				index += 16;
-				len -= 16;
-			}
-
-			h = rotl32(h[0], 1) + rotl32(h[1], 7) + rotl32(h[2], 12) + rotl32(h[3], 18) + l;
-		} else {
-			h = seed + prime5 + len >>> 0;
-		}
-
-		while (len >= 4) {
-			h = xxh4(h, src, index);
-			index += 4;
-			len -= 4;
-		}
-
-		while (len > 0) {
-			h = xxh1(h, src, index);
-			index++;
-			len--;
-		}
-
-		h = shiftxor32(LZ4Utils.imul(shiftxor32(LZ4Utils.imul(shiftxor32(h, 15), prime2), 13), prime3), 16);
-		return h >>> 0;
-	}
-
 	var minMatch = 4;
 	var minLength = 13;
 	var searchLimit = 5;
@@ -4930,18 +4855,8 @@
 	var mlMask = (1 << mlBits) - 1;
 	var runBits = 4;
 	var runMask = (1 << runBits) - 1;
-	var blockBuf = makeBuffer(5 << 20);
+	makeBuffer(5 << 20);
 	var hashTable = makeHashTable();
-	var magicNum = 0x184D2204;
-	var fdVersion = 0x40;
-	var bsDefault = 7;
-	var bsShift = 4;
-	var bsMap = {
-		4: 0x10000,
-		5: 0x40000,
-		6: 0x100000,
-		7: 0x400000
-	};
 
 	function makeHashTable() {
 		try {
@@ -4974,29 +4889,6 @@
 			}
 
 			return buf;
-		}
-	}
-
-	function sliceArray(array, start, end) {
-		if (_typeof(array.buffer) !== undefined) {
-			if (Uint8Array.prototype.slice) {
-				return array.slice(start, end);
-			} else {
-				var len = array.length;
-				start = start | 0;
-				start = start < 0 ? Math.max(len + start, 0) : Math.min(start, len);
-				end = end === undefined ? len : end | 0;
-				end = end < 0 ? Math.max(len + end, 0) : Math.min(end, len);
-				var arraySlice = new Uint8Array(end - start);
-
-				for (var i = start, n = 0; i < end;) {
-					arraySlice[n++] = array[i++];
-				}
-
-				return arraySlice;
-			}
-		} else {
-			return array.slice(start, end);
 		}
 	}
 
@@ -5163,66 +5055,9 @@
 		return dIndex;
 	}
 
-	function compressFrame(src, dst) {
-		var dIndex = 0;
-		LZ4Utils.writeU32(dst, dIndex, magicNum);
-		dIndex += 4;
-		dst[dIndex++] = fdVersion;
-		dst[dIndex++] = bsDefault << bsShift;
-		dst[dIndex] = xxh32(0, dst, 4, dIndex - 4) >> 8;
-		dIndex++;
-		var maxBlockSize = bsMap[bsDefault];
-		var remaining = src.length;
-		var sIndex = 0;
+	function compressSingleBlock(src, dst) {
 		clearHashTable();
-
-		while (remaining > 0) {
-			var compSize = 0;
-			var blockSize = remaining > maxBlockSize ? maxBlockSize : remaining;
-			compSize = compressBlock(src, blockBuf, sIndex, blockSize, hashTable);
-
-			if (compSize > blockSize || compSize === 0) {
-				LZ4Utils.writeU32(dst, dIndex, 0x80000000 | blockSize);
-				dIndex += 4;
-
-				for (var z = sIndex + blockSize; sIndex < z;) {
-					dst[dIndex++] = src[sIndex++];
-				}
-
-				remaining -= blockSize;
-			} else {
-				LZ4Utils.writeU32(dst, dIndex, compSize);
-				dIndex += 4;
-
-				for (var j = 0; j < compSize;) {
-					dst[dIndex++] = blockBuf[j++];
-				}
-
-				sIndex += blockSize;
-				remaining -= blockSize;
-			}
-		}
-
-		LZ4Utils.writeU32(dst, dIndex, 0);
-		dIndex += 4;
-		return dIndex;
-	}
-
-	function compress$1(src, maxSize) {
-		var dst, size;
-
-		if (maxSize === undefined) {
-			maxSize = compressBound(src.length);
-		}
-
-		dst = makeBuffer(maxSize);
-		size = compressFrame(src, dst);
-
-		if (size !== maxSize) {
-			dst = sliceArray(dst, 0, size);
-		}
-
-		return dst;
+		return compressBlock(src, dst, 0, src.length, hashTable);
 	}
 
 	var ReaderResolver = function () {
@@ -8408,11 +8243,10 @@
 					var trimmedArray = new Uint8Array(trimmed);
 					var compressedSize = compressBound(trimmedArray.length);
 
-					var _LZ4_compress = compress$1(trimmedArray, compressedSize),
-							_compressed = _LZ4_compress.buffer,
-							newCompressedSize = _LZ4_compress.length;
+					var _compressed = new Uint8Array(compressedSize);
 
-					compressedSize = newCompressedSize;
+					compressedSize = compressSingleBlock(trimmedArray, _compressed);
+					_compressed = _compressed.slice(0, compressedSize);
 					buffer.bytePosition = 6;
 					buffer.writeUInt32(XNB_COMPRESSED_PROLOGUE_SIZE + compressedSize);
 					buffer.writeUInt32(trimmedArray.length);

@@ -4,7 +4,7 @@ import BufferWriter from "./BufferWriter.js";
 import Presser from "./Decompressor/LZXDecompressor.js";
 import {decompressBlock as LZ4_decompressBlock, 
 	compressBound as LZ4_compressBound, 
-	compress as LZ4_compress} from "./Decompressor/Lz4.js";
+	compressSingleBlock as LZ4_compressBlock} from "./Decompressor/Lz4.js";
 
 import StringReader from "./Readers/StringReader.js";
 import { simplifyType, getReader } from "./TypeReader.js";
@@ -261,9 +261,12 @@ class XnbConverter {
 
 			let compressedSize = LZ4_compressBound(trimmedArray.length);
 
-			// encode the trimmed buffer into decompressed buffer
-			const {buffer:compressed, length:newCompressedSize} = LZ4_compress(trimmedArray, compressedSize);
-			compressedSize = newCompressedSize;
+			// create a buffer for the compressed data
+			let compressed = new Uint8Array(compressedSize);
+
+			// compress the data into the buffer
+			compressedSize = LZ4_compressBlock(trimmedArray, compressed);
+			compressed = compressed.slice(0, compressedSize);
 			
 			// write the file size & decompressed size into the buffer
 			buffer.bytePosition = 6;

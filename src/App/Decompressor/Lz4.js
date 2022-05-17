@@ -381,6 +381,13 @@ function compressBlock (src, dst, sIndex, sLength, hashTable) {
 	return dIndex;
 };
 
+function compressSingleBlock (src, dst) {
+	// Clear the hashtable.
+	clearHashTable(hashTable);
+
+	return compressBlock(src, dst, 0, src.length, hashTable);
+}
+
 // Decompresses a frame of Lz4 data.
 function decompressFrame (src, dst) {
 	var useBlockSum, useContentSum, useContentSize, descriptor;
@@ -562,4 +569,4 @@ function compress (src, maxSize) {
 	return dst;
 };
 
-export {makeBuffer, compressBound, decompressBound, decompressBlock, compressBlock, decompressFrame, compressFrame, decompress, compress};
+export {makeBuffer, compressBound, decompressBound, decompressBlock, compressBlock, compressSingleBlock, decompressFrame, compressFrame, decompress, compress};
