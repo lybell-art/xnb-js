@@ -1,8 +1,7 @@
 {
 	"name": "xnb",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Javascript XNB packing & unpacking library for es6.",
-	"type": "module",
 	"main": "./dist/xnb.js",
 	"module": "./dist/xnb.module.js",
 	"export": {
@@ -12,7 +11,8 @@
 		}
 	},
 	"files": [
-		"dist"
+		"dist",
+		"api.md"
 	],
 	"scripts": {
 		"build": "rollup -c builder/rollup.config.js"
