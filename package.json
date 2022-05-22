@@ -1,6 +1,6 @@
 {
 	"name": "xnb",
-	"version": "1.0.5",
+	"version": "1.1.0",
 	"description": "Javascript XNB packing & unpacking library for es6.",
 	"main": "./dist/xnb.js",
 	"module": "./dist/xnb.module.js",
@@ -15,7 +15,10 @@
 		"api.md"
 	],
 	"scripts": {
-		"build": "rollup -c builder/rollup.config.js"
+		"build": "rollup -c builder/rollup.config.js",
+		"build-core": "rollup -c builder/rollup.config.js --environment BUILD_MODULE:1",
+		"build-readers": "rollup -c builder/rollup.config.js --environment BUILD_MODULE:2",
+		"build-stardew": "rollup -c builder/rollup.config.js --environment BUILD_MODULE:3"
 	},
 	"keywords": [
 		"xnb",

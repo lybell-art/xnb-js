@@ -40,104 +40,120 @@ function babelCleanup() {
 	};
 }
 
-let builds = [
-// for es2017+ module
+function buildMaker(srcBase, srcName, dist)
 {
-	input: 'src/XnbUnpacker.js',
-	output: [{
-		file: 'dist/xnb.module.js',
-		format: 'esm'
+	return [
+	// for es2017+ module
+	{
+		input: `${srcBase}/${srcName}.js`,
+		output: [{
+			file: `${dist}.module.js`,
+			format: 'esm'
+		},
+		{
+			file: `${dist}.cjs`,
+			name: "XNB",
+			format: 'cjs'
+		},
+		{
+			file: `${dist}.js`,
+			name: "XNB",
+			format: 'umd'
+		}],
+		plugins: [
+			removeDebug(),
+			polyfill({version:"es2017"}),
+			babel({
+				babelHelpers:'bundled',
+				babelrc: false,
+				...babelrc,
+				shouldPrintComment:(val)=>/^\* @(api|license)(?!\S)/.test(val)
+			}),
+			babelCleanup()
+		]
 	},
 	{
-		file: 'dist/xnb.cjs',
-		name: "XNB",
-		format: 'cjs'
+		input: `${srcBase}/${srcName}.js`,
+		output: {
+			file: `${dist}.min.js`,
+			name: "XNB",
+			format: 'umd'
+		},
+		plugins: [
+			removeDebug(),
+			polyfill({version:"es2017"}),
+			babel({
+				babelHelpers:'bundled',
+				babelrc: false,
+				...babelrc
+			}),
+			babelCleanup(),
+			terser()
+		]
 	},
-	{
-		file: 'dist/xnb.js',
-		name: "XNB",
-		format: 'umd'
-	}],
-	plugins: [
-		removeDebug(),
-		polyfill({version:"es2017"}),
-		babel({
-			babelHelpers:'bundled',
-			babelrc: false,
-			...babelrc,
-			shouldPrintComment:(val)=>val.startsWith("* @api")
-		}),
-		babelCleanup()
-	]
-},
-{
-	input: 'src/XnbUnpacker.js',
-	output: {
-		file: 'dist/xnb.min.js',
-		name: "XNB",
-		format: 'umd'
-	},
-	plugins: [
-		removeDebug(),
-		polyfill({version:"es2017"}),
-		babel({
-			babelHelpers:'bundled',
-			babelrc: false,
-			...babelrc
-		}),
-		babelCleanup(),
-		terser()
-	]
-},
 
-// for es5(legacy)
-{
-	input: 'src/es5.js',
-	output: {
-		file: 'dist/xnb.es5.js',
-		name: 'XNB',
-		format: 'umd',
-		indent: '\t'
+	// for es5(legacy)
+	{
+		input: `${srcBase}/es5.js`,
+		output: {
+			file: `${dist}.es5.js`,
+			name: "XNB",
+			format: 'umd',
+			indent: '\t'
+		},
+		plugins: [
+			nodeResolve(),
+			commonjs(),
+			removeDebug(),
+			polyfill(),
+			babel({
+				babelHelpers:'bundled',
+				babelrc: false,
+				exclude:'node_modules/**',
+				...es5babelrc,
+				shouldPrintComment:(val)=>val.startsWith("* @api")
+			}),
+			babelCleanup()
+		]
 	},
-	plugins: [
-		nodeResolve(),
-		commonjs(),
-		removeDebug(),
-		polyfill(),
-		babel({
-			babelHelpers:'bundled',
-			babelrc: false,
-			exclude:'node_modules/**',
-			...es5babelrc,
-			shouldPrintComment:(val)=>val.startsWith("* @api")
-		}),
-		babelCleanup()
-	]
-},
-{
-	input: 'src/es5.js',
-	output: {
-		file: 'dist/xnb.es5.min.js',
-		name: 'XNB',
-		format: 'umd',
-		indent: '\t'
-	},
-	plugins: [
-		nodeResolve(),
-		commonjs(),
-		removeDebug(),
-		polyfill(),
-		babel({
-			babelHelpers:'bundled',
-			babelrc: false,
-			exclude:'node_modules/**',
-			...es5babelrc
-		}),
-		babelCleanup(),
-		terser()
-	]
+	{
+		input: `${srcBase}/es5.js`,
+		output: {
+			file: `${dist}.es5.min.js`,
+			name: "XNB",
+			format: 'umd',
+			indent: '\t'
+		},
+		plugins: [
+			nodeResolve(),
+			commonjs(),
+			removeDebug(),
+			polyfill(),
+			babel({
+				babelHelpers:'bundled',
+				babelrc: false,
+				exclude:'node_modules/**',
+				...es5babelrc
+			}),
+			babelCleanup(),
+			terser()
+		]
+	} ];
 }
-]
 
+function buildTargetMaker(target=-1)
+{
+	const targetArray = [
+		["src", "xnb", "dist/xnb"],
+		["src/core", "Xnb", "src/core/dist/core"],
+		["src/readers", "readers", "src/readers/dist/readers"],
+//		["src/plugins-stardewvalley/", "readers", "src/plugins-stardewvalley/dist"]
+	]
+
+	if(target >= 0 ) return buildMaker(...targetArray[target]);
+	return targetArray.map((paths)=>buildMaker(...paths)).flat();
+}
+
+const builds = buildTargetMaker(process.env.BUILD_MODULE);
 
 export default builds;

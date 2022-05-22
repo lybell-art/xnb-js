@@ -1,4 +1,4 @@
-import {bufferToXnb} from "./xnb.module.js";
+import {bufferToXnb} from "./src/xnbUnpacker.js";
 
 onmessage = function(e) {
 	console.log(e.data);
