@@ -67,4 +67,8 @@ export default class ListReader extends BaseReader {
 	get type() {
 		return `List<${this.reader.type}>`;
 	}
+
+	parseTypeList() {
+		return [this.type, ...this.reader.parseTypeList()];
+	}
 }

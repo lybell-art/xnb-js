@@ -89,8 +89,6 @@ export default class SpriteFontReader extends BaseReader {
         catch (ex) {
             throw ex;
         }
-
-        console.log("writing complitd!");
     }
 
     isValueType() {

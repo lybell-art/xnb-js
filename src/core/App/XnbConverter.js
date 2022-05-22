@@ -87,8 +87,6 @@ class XnbConverter {
 
 		// print out the file size
 		Debug(`File size: ${this.fileSize} bytes.`);
-
-
 		
 		// if the file is compressed then we need to decompress it
 		if (this.compressed) {
@@ -157,6 +155,9 @@ class XnbConverter {
 			// add local reader
 			readers.push({ type, version });
 		}
+
+		Debug( readers.map( ({type})=>TypeReader.simplifyType(type) ) );
+		Debug( this.buffer.buffer );
 
 		// get the 7-bit value for shared resources
 		const shared = this.buffer.read7BitNumber();

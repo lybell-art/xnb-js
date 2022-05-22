@@ -10,8 +10,8 @@ export default class BaseReader {
 	static hasSubType() {
 		return false;
 	}
-	static parseTypeList(subtype=[]) {
-		return [this.type(), ...subtype];
+	static parseTypeList() {
+		return [this.type()];
 	}
 	static type()
 	{
@@ -75,5 +75,9 @@ export default class BaseReader {
 	 */
 	toString() {
 		return this.type;
+	}
+
+	parseTypeList() {
+		return this.constructor.parseTypeList();
 	}
 }

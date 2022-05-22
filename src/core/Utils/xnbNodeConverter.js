@@ -43,6 +43,7 @@ function isPrimitiveReaderType(reader)
 		case 'Vector3':
 		case 'Vector4':
 		case 'Rectangle':
+		case 'Rect':
 		return true;
 		default: return false;
 	}
@@ -89,14 +90,30 @@ function convertJsonContentsToXnbNode(raw, readers)
 		}
 
 		//nullable
+		//Nullable format is Nullable<subtype>:(traversed block size)
 		if(reader.startsWith('Nullable'))
 		{
+			let nullableData, trav;
+			let [readerType, blockTraversed=1] = reader.split(":");
+			blockTraversed = +blockTraversed;
+			if(obj === null)
+			{
+				nullableData = null;
+				trav = index + blockTraversed;
+			}
+			else
+			{
+				let {converted, traversed} = recursiveConvert( obj, [...path], index+1 );
+				nullableData = converted;
+				trav = traversed;
+			}
+
 			return {
 				converted: { 
-					type: reader, 
-					data: {data:{ type:readers[index+1], data:obj } }
+					type: readerType, 
+					data: {data:nullableData}
 				}, 
-				traversed: index + 1
+				traversed: trav
 			};
 		}
 
@@ -178,6 +195,12 @@ function convertJsonContentsFromXnbNode(obj)
 
 			return data;
 		}
+		if(type.startsWith("Nullable"))
+		{
+			if(data === null || data.data === null) return null;
+			return convertJsonContentsFromXnbNode(data.data);
+		}
+		
 		obj = deepCopy(data);
 	}
 

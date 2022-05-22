@@ -80,7 +80,7 @@ export default class DictionaryReader extends BaseReader {
 
 		// write the amount of entries in the Dictionary
 		buffer.writeUInt32(Object.keys(content).length);
-		
+
 		// loop over the entries
 		for (let key of Object.keys(content)) {
 			// write the key
@@ -96,5 +96,9 @@ export default class DictionaryReader extends BaseReader {
 
 	get type() {
 		return `Dictionary<${this.key.type},${this.value.type}>`;
+	}
+
+	parseTypeList() {
+		return [this.type, ...this.key.parseTypeList(), ...this.value.parseTypeList()];
 	}
 }

@@ -123,17 +123,8 @@ class TypeReader
 	 * @returns {Array} returns an type structure array for yaml convertion.
 	 */
 	static getReaderTypeList(typeString){
-	    // get type info for complex types
-	    let {type, subtypes} = TypeReader.getTypeInfo(typeString);
-//	    // loop over subtypes and resolve readers for them
-//	    subtypes = subtypes.map(TypeReader.getReader.bind(TypeReader));
-
-	    // if we have a reader then use one
-	    if (TypeReader.readers.hasOwnProperty(`${type}Reader`))
-	        return TypeReader.readers[`${type}Reader`].parseTypeList(subtypes);
-
-	    // throw an error as type is not supported
-	    throw new XnbError(`Invalid reader type "${typeString}" passed, unable to resolve!`);
+		let reader = TypeReader.getReader(typeString);
+		return reader.parseTypeList();
 	}
 
 

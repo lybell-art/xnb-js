@@ -80,4 +80,8 @@ export default class ArrayReader extends BaseReader {
 	get type() {
 		return `Array<${this.reader.type}>`;
 	}
+
+	parseTypeList() {
+		return [this.type, ...this.reader.parseTypeList()];
+	}
 }

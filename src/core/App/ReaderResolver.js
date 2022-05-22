@@ -1,5 +1,6 @@
 import BufferReader from "./BufferReader.js";
 import XnbError from "../Utils/XnbError.js";
+import Debug from "../Utils/Debug.js";
 
 /**
  * Class used to read the XNB types using the readers
@@ -26,8 +27,11 @@ class ReaderResolver {
      * @param {BufferReader} buffer The buffer to read from.
      */
     read(buffer) {
+        Debug(`Buffer Position : 0x${buffer.bytePosition.toString(16)}`);
         // read the index of which reader to use
         let index = buffer.read7BitNumber() - 1;
+        Debug(`Reader Index : ${index+1}`);
+        
         if (this.readers[index] == null)
             throw new XnbError(`Invalid reader index ${index}`);
         // read the buffer using the selected reader

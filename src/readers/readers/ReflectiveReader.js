@@ -16,7 +16,6 @@ export default class ReflectiveReader extends BaseReader {
 	static hasSubType() {
 		return true;
 	}
-
 	/**
      * @constructor
      * @param {BaseReader} reader
@@ -47,7 +46,6 @@ export default class ReflectiveReader extends BaseReader {
 	 * @param {ReaderResolver} resolver
 	 */
 	write(buffer, content, resolver) {
-		this.writeIndex(buffer, resolver);
 		this.reader.write(buffer, content, (this.reader.isValueType() ? null : resolver));
 	}
 
@@ -58,4 +56,8 @@ export default class ReflectiveReader extends BaseReader {
     get type() {
         return `${this.reader.type}`;
     }
+
+    parseTypeList() {
+		return [...this.reader.parseTypeList()];
+	}
 }
