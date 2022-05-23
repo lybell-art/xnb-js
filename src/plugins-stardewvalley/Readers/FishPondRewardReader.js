@@ -11,7 +11,7 @@ import {BaseReader,
 export default class FishPondRewardReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
-			case 'StardewValley.GameData.Movies.FishPondReward':
+			case 'StardewValley.GameData.FishPond.FishPondReward':
 				return true;
 			default: return false;
 		}
@@ -37,7 +37,7 @@ export default class FishPondRewardReader extends BaseReader {
 		const floatReader = new SingleReader();
 
 		const RequiredPopulation = int32Reader.read(buffer);
-		const Chance = floatReader.read(buffer);
+		const Chance = Math.round(floatReader.read(buffer) * 100000) / 100000;
 		const ItemId = int32Reader.read(buffer);
 		const MinQuantity = int32Reader.read(buffer);
 		const MaxQuantity = int32Reader.read(buffer);

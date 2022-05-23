@@ -5,7 +5,7 @@ import MovieDataReader from "./Readers/MovieDataReader.js";
 // movie character reaction data:1.4
 import MovieCharacterReactionReader from "./Readers/MovieCharacterReactionReader.js";
 import MovieReactionReader from "./Readers/MovieReactionReader.js";
-import SpecialResponsesReader from "./Readers/SpecialResponseReader.js";
+import SpecialResponsesReader from "./Readers/SpecialResponsesReader.js";
 import CharacterResponseReader from "./Readers/CharacterResponseReader.js";
 
 // concession item data:1.4
@@ -36,7 +36,7 @@ import SpecialOrderDataReader from "./Readers/SpecialOrderDataReader.js";
 import RandomizedElementReader from "./Readers/RandomizedElementReader.js";
 import RandomizedElementItemReader from "./Readers/RandomizedElementItemReader.js";
 import SpecialOrderObjectiveDataReader from "./Readers/SpecialOrderObjectiveDataReader.js";
-import SpecialOrderRewardDataReader from "./Readers/SpecialOrderRewardData.js"
+import SpecialOrderRewardDataReader from "./Readers/SpecialOrderRewardDataReader.js"
 
 export {
 	MovieSceneReader,

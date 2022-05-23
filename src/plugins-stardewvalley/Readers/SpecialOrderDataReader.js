@@ -5,7 +5,7 @@ import {BaseReader,
 } from "../../readers/src/readers.js"; //@xnb/readers
 import RandomizedElementReader from "./RandomizedElementReader.js";
 import SpecialOrderObjectiveDataReader from "./SpecialOrderObjectiveDataReader.js";
-import SpecialOrderRewardDataReader from "./SpecialOrderRewardData.js";
+import SpecialOrderRewardDataReader from "./SpecialOrderRewardDataReader.js";
 
 /**
  * SpecialOrderData Reader
@@ -32,9 +32,9 @@ export default class SpecialOrderDataReader extends BaseReader {
 			"String", // text
 			"Nullable<String>", "String", // orderType
 			"Nullable<String>", "String", // specialRule
-			"Nullable<List<RandomizedElement>>:8", "List<RandomizedElement>", RandomizedElementReader.parseTypeList(), // randomizedElement
-			"List<SpecialOrderObjectiveData>", SpecialOrderObjectiveDataReader.parseTypeList(), // objectives
-			"List<SpecialOrderRewardData>", SpecialOrderRewardDataReader.parseTypeList() // rewards
+			"Nullable<List<RandomizedElement>>:8", "List<RandomizedElement>", ...RandomizedElementReader.parseTypeList(), // randomizedElement
+			"List<SpecialOrderObjectiveData>", ...SpecialOrderObjectiveDataReader.parseTypeList(), // objectives
+			"List<SpecialOrderRewardData>", ...SpecialOrderRewardDataReader.parseTypeList() // rewards
 		];
 	}
 	static type()

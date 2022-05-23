@@ -3,10 +3,10 @@ import {BaseReader,
 	NullableReader,
 	ListReader
 } from "../../readers/src/readers.js"; //@xnb/readers
-import SpecialResponsesReader from "./SpecialResponseReader.js";
+import SpecialResponsesReader from "./SpecialResponsesReader.js";
 
 /**
- * MovieCharacterReaction Reader
+ * MovieReaction Reader
  * @class
  * @extends BaseReader
  */
@@ -23,17 +23,17 @@ export default class MovieReactionReader extends BaseReader {
 			"String", // tag
 			"Nullable<String>:1", "String", // response
 			"Nullable<List<String>>:2", "List<String>", "String", // whitelist
-			"Nullable<SpecialResponses>:25", SpecialResponsesReader.parseTypeList(), // specialResponses
+			"Nullable<SpecialResponses>:25", ...SpecialResponsesReader.parseTypeList(), // specialResponses
 			"String" // ID
 		];
 	}
 	static type()
 	{
-		return "Reflective<MovieCharacterReaction>";
+		return "Reflective<MovieReaction>";
 	}
 
 	/**
-	 * Reads MovieCharacterReaction from buffer.
+	 * Reads MovieReaction from buffer.
 	 * @param {BufferReader} buffer
 	 * @param {ReaderResolver} resolver
 	 * @returns {object}
@@ -45,7 +45,7 @@ export default class MovieReactionReader extends BaseReader {
 
 		const Tag = resolver.read(buffer);
 		const Response = nullableStringReader.read(buffer, resolver) || "like";
-		const WhiteList = nullableStringListReader.read(buffer, resolver) || [];
+		const Whitelist = nullableStringListReader.read(buffer, resolver) || [];
 		const SpecialResponses = nullableSpecialResponsesReader.read(buffer, resolver);
 		const ID = resolver.read(buffer);
 		
@@ -67,7 +67,7 @@ export default class MovieReactionReader extends BaseReader {
 
 		stringReader.write(buffer, content.Tag, resolver);
 		nullableStringReader.write(buffer, content.Response, resolver);
-		nullableStringListReader.write(buffer, content.WhiteList, resolver);
+		nullableStringListReader.write(buffer, content.Whitelist, resolver);
 		nullableSpecialResponsesReader.write(buffer, content.SpecialResponses, resolver);
 		stringReader.write(buffer, content.ID, resolver);
 	}

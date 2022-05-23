@@ -70,6 +70,7 @@ function convertJsonContentsToXnbNode(raw, readers)
 	const {converted} = (function recursiveConvert(obj, path, index=0)
 	{
 		const reader = readers[index];
+		console.log(`index : ${index}, reader: ${reader}, obj: ${JSON.stringify(obj)}`);
 
 		//primitive
 		if(isPrimitiveReaderType(reader))
@@ -99,6 +100,11 @@ function convertJsonContentsToXnbNode(raw, readers)
 			if(obj === null)
 			{
 				nullableData = null;
+				trav = index + blockTraversed;
+			}
+			else if(typeof obj === "object" && (!obj || Object.keys(obj).length === 0))
+			{
+				nullableData = {type:readers[index+1], data:deepCopy(obj)};
 				trav = index + blockTraversed;
 			}
 			else
@@ -264,6 +270,8 @@ function toXnbNodeData(json)
 		rawContent.verticalSpacing = rawContent.verticalLineSpacing;
 		delete rawContent.verticalLineSpacing;
 	}
+
+	console.log(readersTypeList);
 
 	const { converted, extractedImages, extractedMaps } = convertJsonContentsToXnbNode(rawContent, readersTypeList);
 

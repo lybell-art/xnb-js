@@ -19,7 +19,7 @@ export default class SpecialOrderRewardDataReader extends BaseReader {
 	static parseTypeList() {
 		return ["SpecialOrderRewardData", 
 			"String", // type
-			"Dictionary<String, String>", "String", "String" // data
+			"Dictionary<String,String>", "String", "String" // data
 		];
 	}
 	static type()

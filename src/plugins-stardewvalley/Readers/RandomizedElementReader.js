@@ -20,7 +20,7 @@ export default class RandomizedElementReader extends BaseReader {
 	static parseTypeList() {
 		return ["RandomizedElement", 
 			"String", // name
-			"List<RandomizedElementItem>", RandomizedElementItemReader.parseTypeList() // values
+			"List<RandomizedElementItem>", ...RandomizedElementItemReader.parseTypeList() // values
 		];
 	}
 	static type()

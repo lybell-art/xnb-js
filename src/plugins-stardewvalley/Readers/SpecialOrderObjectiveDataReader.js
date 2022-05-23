@@ -21,7 +21,7 @@ export default class SpecialOrderObjectiveDataReader extends BaseReader {
 			"String", // type
 			"String", // text
 			"String", // requiredCount
-			"Dictionary<String, String>", "String", "String" // data
+			"Dictionary<String,String>", "String", "String" // data
 		];
 	}
 	static type()

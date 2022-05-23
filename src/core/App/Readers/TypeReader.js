@@ -1,5 +1,25 @@
 import XnbError from "../../Utils/XnbError.js";
 
+// remove first bracket
+function removeExternBracket(str)
+{
+	let bracketStack = [];
+	let result = [];
+	for(let i=0; i<str.length; i++)
+	{
+		let c=str[i];
+		if(c === "[") bracketStack.push(i);
+		else if(c === "]")
+		{
+			let startPoint=bracketStack.pop();
+			if(startPoint === undefined) throw new Error("Invalid Bracket Form!");
+			if(bracketStack.length === 0) result.push(str.slice(startPoint+1, i));
+		}
+	}
+
+	return result;
+}
+
 class TypeReader
 {
 	static readers = {};
@@ -76,21 +96,16 @@ class TypeReader
 	 * @returns {String[]} returns an array of subtypes
 	 */
 	static parseSubtypes(type){
-
 		// split the string by the ` after the type
-		let subtype = type.split('`')[1];
+		let subtype = type.slice(type.search("`")+1);
+
 		// get the number of types following the ` in type string
-		let count = subtype.slice(0, 1);
+		let count = subtype[0];
 
 		// get the contents of the wrapped array
-		subtype = subtype.slice(2, -1);
+		subtype = removeExternBracket(subtype)[0];
 
-		// regex pattern to match the subtypes
-		let pattern = /\[(([a-zA-Z0-9\.\,\=\`]+)(\[\])?(\, |\])){1,}/g;
-		// get matches
-		let matches = subtype.match(pattern).map(e => {
-			return e.slice(1, -1);
-		});
+		let matches = removeExternBracket(subtype);
 
 		// return the matches
 		return matches;

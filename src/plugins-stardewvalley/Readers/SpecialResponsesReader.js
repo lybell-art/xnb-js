@@ -18,9 +18,9 @@ export default class SpecialResponsesReader extends BaseReader {
 	}
 	static parseTypeList() {
 		return ["SpecialResponses", 
-			"Nullable<CharacterResponse>:7", CharacterResponseReader.parseTypeList(), // beforeMovie
-			"Nullable<CharacterResponse>:7", CharacterResponseReader.parseTypeList(), // duringMovie
-			"Nullable<CharacterResponse>:7", CharacterResponseReader.parseTypeList() // afterMovie
+			"Nullable<CharacterResponse>:7", ...CharacterResponseReader.parseTypeList(), // beforeMovie
+			"Nullable<CharacterResponse>:7", ...CharacterResponseReader.parseTypeList(), // duringMovie
+			"Nullable<CharacterResponse>:7", ...CharacterResponseReader.parseTypeList() // afterMovie
 		];
 	}
 	static type()

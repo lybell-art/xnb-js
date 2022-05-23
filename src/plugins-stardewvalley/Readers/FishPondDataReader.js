@@ -15,7 +15,7 @@ import FishPondRewardReader from "./FishPondRewardReader.js";
 export default class FishPondDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
-			case 'StardewValley.GameData.Movies.FishPondData':
+			case 'StardewValley.GameData.FishPond.FishPondData':
 				return true;
 			default: return false;
 		}
@@ -24,9 +24,9 @@ export default class FishPondDataReader extends BaseReader {
 		return ["FishPondData", 
 			"List<String>", "String", // requiredTags
 			null, // spawnTime
-			"List<FishPondReward>", FishPondRewardReader.parseTypeList(), //producedItems
-			"Nullable<Dictionary<Int32, List<String>>>:4", 
-			"Dictionary<Int32, List<String>>", "Int32", "List<String>", "String" //populationGates
+			"List<FishPondReward>", ...FishPondRewardReader.parseTypeList(), //producedItems
+			"Nullable<Dictionary<Int32,List<String>>>:4", 
+			"Dictionary<Int32,List<String>>", "Int32", "List<String>", "String" //populationGates
 		];
 	}
 	static type()
@@ -50,7 +50,7 @@ export default class FishPondDataReader extends BaseReader {
 		const RequiredTags = resolver.read(buffer);
 		const SpawnTime = int32Reader.read(buffer);
 		const ProducedItems = resolver.read(buffer);
-		const PopulationGates = stringListDictReader.read(buffer, )
+		const PopulationGates = stringListDictReader.read(buffer, resolver);
 
 		return {
 			RequiredTags,
@@ -72,7 +72,7 @@ export default class FishPondDataReader extends BaseReader {
 		this.writeIndex(buffer, resolver);
 
 		stringListReader.write(buffer, content.RequiredTags, resolver);
-		int32Reader.write(buffer, content.SpawnTime, resolver);
+		int32Reader.write(buffer, content.SpawnTime, null);
 		fishPondRewardListReader.write(buffer, content.ProducedItems, resolver);
 		stringListDictReader.write(buffer, content.PopulationGates, resolver);
 	}

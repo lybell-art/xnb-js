@@ -21,7 +21,7 @@ export default class MovieCharacterReactionReader extends BaseReader {
 	static parseTypeList() {
 		return ["MovieCharacterReaction", 
 			"String", // NPCName
-			"Nullable<List<MovieReaction>>:34", "List<MovieReaction>", MovieReactionReader.parseTypeList() //reactions
+			"Nullable<List<MovieReaction>>:34", "List<MovieReaction>", ...MovieReactionReader.parseTypeList() //reactions
 		];
 	}
 	static type()
