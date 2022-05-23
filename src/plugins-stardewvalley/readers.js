@@ -3,10 +3,10 @@ import MovieSceneReader from "./Readers/MovieSceneReader.js";
 import MovieDataReader from "./Readers/MovieDataReader.js";
 
 // movie character reaction data:1.4
-import MovieCharacterReactionReader from "./MovieCharacterReactionReader.js";
-import MovieReactionReader from "./MovieReactionReader.js";
-import SpecialResponsesReader from "./SpecialResponseReader.js";
-import CharacterResponseReader from "./CharacterResponseReader.js";
+import MovieCharacterReactionReader from "./Readers/MovieCharacterReactionReader.js";
+import MovieReactionReader from "./Readers/MovieReactionReader.js";
+import SpecialResponsesReader from "./Readers/SpecialResponseReader.js";
+import CharacterResponseReader from "./Readers/CharacterResponseReader.js";
 
 // concession item data:1.4
 import ConcessionItemDataReader from "./Readers/ConcessionItemDataReader.js";
@@ -14,8 +14,8 @@ import ConcessionItemDataReader from "./Readers/ConcessionItemDataReader.js";
 import ConcessionTasteReader from "./Readers/ConcessionTasteReader.js";
 
 // fish pond data:1.4
-import FishPondDataReader from "./FishPondDataReader.js";
-import FishPondRewardReader from "./FishPondRewardReader.js";
+import FishPondDataReader from "./Readers/FishPondDataReader.js";
+import FishPondRewardReader from "./Readers/FishPondRewardReader.js";
 
 // tailor item recipe data:1.4
 import TailorItemRecipeReader from "./Readers/TailorItemRecipeReader.js";
@@ -32,11 +32,11 @@ import BundleSetDataReader from "./Readers/BundleSetDataReader.js";
 import BundleDataReader from "./Readers/BundleDataReader.js";
 
 // special order data:1.5
-import SpecialOrderDataReader from "./SpecialOrderDataReader.js";
-import RandomizedElementReader from "./RandomizedElementReader.js";
-import RandomizedElementItemReader from "./RandomizedElementItemReader.js";
-import SpecialOrderObjectiveDataReader from "./SpecialOrderObjectiveDataReader.js";
-import SpecialOrderRewardDataReader from "./SpecialOrderRewardData.js"
+import SpecialOrderDataReader from "./Readers/SpecialOrderDataReader.js";
+import RandomizedElementReader from "./Readers/RandomizedElementReader.js";
+import RandomizedElementItemReader from "./Readers/RandomizedElementItemReader.js";
+import SpecialOrderObjectiveDataReader from "./Readers/SpecialOrderObjectiveDataReader.js";
+import SpecialOrderRewardDataReader from "./Readers/SpecialOrderRewardData.js"
 
 export {
 	MovieSceneReader,
