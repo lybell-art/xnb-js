@@ -25,7 +25,7 @@ export default class ConcessionItemDataReader extends BaseReader {
 		'String', //displayName
 		'String', //description
 		null, //price
-		'Nullable<List<String>>', "List<String>", 'String' //itemTag
+		'Nullable<List<String>>:2', "List<String>", 'String' //itemTag
 		];
 	}
 	static type()

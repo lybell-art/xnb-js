@@ -24,7 +24,7 @@ export default class RandomBundleDataReader extends BaseReader {
 			"String", // AreaName
 			"String", // Keys
 			"Nullable<List<BundleSetData>>:13", "List<BundleSetData>", ...BundleSetDataReader.parseTypeList(),// BundleSets
-			"Nullable<List<BundleData>>:10", "List<BundleData>", ...BundleDataReader.parseTypeList()//Bundles
+			"Nullable<List<BundleData>>:11", "List<BundleData>", ...BundleDataReader.parseTypeList()//Bundles
 		];
 	}
 	static type()
