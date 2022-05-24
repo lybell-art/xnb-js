@@ -48,8 +48,8 @@ export default class RandomizedElementItemReader extends BaseReader {
 
 		this.writeIndex(buffer, resolver);
 
-		nullableStringReader.write(buffer, content, resolver);
-		stringReader.write(buffer, content, resolver);
+		nullableStringReader.write(buffer, content.RequiredTags, resolver);
+		stringReader.write(buffer, content.Value, resolver);
 	}
 
 	isValueType() {

@@ -53,12 +53,6 @@ export default class SpecialOrderDataReader extends BaseReader {
 		const nullableRandomizedElemListReader = new NullableReader( 
 			new ListReader( new RandomizedElementReader() ) 
 		);
-		const objectiveListReader = new ListReader(
-			new SpecialOrderObjectiveDataReader()
-		);
-		const rewardListReader = new ListReader(
-			new SpecialOrderRewardDataReader()
-		);
 
 		const Name = resolver.read(buffer);
 		const Requester = resolver.read(buffer);
@@ -71,8 +65,8 @@ export default class SpecialOrderDataReader extends BaseReader {
 		const ItemToRemoveOnEnd = nullableStringReader.read(buffer, resolver);
 		const MailToRemoveOnEnd = nullableStringReader.read(buffer, resolver);
 		const RandomizedElements = nullableRandomizedElemListReader.read(buffer, resolver);
-		const Objectives = objectiveListReader.read(buffer, resolver);
-		const Rewards = rewardListReader.read(buffer, resolver);
+		const Objectives = resolver.read(buffer);
+		const Rewards = resolver.read(buffer);
 
 		return {
 			Name,

@@ -59,6 +59,7 @@ export default class MovieReactionReader extends BaseReader {
 	}
 
 	write(buffer, content, resolver) {
+		const stringReader = new StringReader();
 		const nullableStringReader = new NullableReader( new StringReader() );
 		const nullableStringListReader = new NullableReader( new ListReader( new StringReader() ) );
 		const nullableSpecialResponsesReader = new NullableReader( new SpecialResponsesReader() );

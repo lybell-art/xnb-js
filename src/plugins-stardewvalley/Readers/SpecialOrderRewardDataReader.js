@@ -39,8 +39,6 @@ export default class SpecialOrderRewardDataReader extends BaseReader {
 
 		return {
 			Type,
-			Text,
-			RequiredCount,
 			Data
 		};
 	}
@@ -52,7 +50,7 @@ export default class SpecialOrderRewardDataReader extends BaseReader {
 		this.writeIndex(buffer, resolver);
 
 		stringReader.write(buffer, content.Type, resolver);
-		stringReader.write(buffer, content.Data, resolver);
+		stringDictReader.write(buffer, content.Data, resolver);
 	}
 
 	isValueType() {

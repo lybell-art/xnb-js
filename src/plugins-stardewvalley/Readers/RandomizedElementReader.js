@@ -35,10 +35,8 @@ export default class RandomizedElementReader extends BaseReader {
 	 * @returns {object}
 	 */
 	read(buffer, resolver) {
-		const itemListReader = new ListReader( new RandomizedElementItemReader() );
-
 		const Name = resolver.read(buffer);
-		const Values = itemListReader.read(buffer, resolver);
+		const Values = resolver.read(buffer);
 
 		return {Name, Values};
 	}
@@ -49,8 +47,8 @@ export default class RandomizedElementReader extends BaseReader {
 
 		this.writeIndex(buffer, resolver);
 
-		stringReader.write(buffer, content, resolver);
-		itemListReader.write(buffer, content, resolver);
+		stringReader.write(buffer, content.Name, resolver);
+		itemListReader.write(buffer, content.Values, resolver);
 	}
 
 	isValueType() {

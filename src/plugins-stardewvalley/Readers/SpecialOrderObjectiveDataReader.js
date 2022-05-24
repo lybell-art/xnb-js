@@ -50,6 +50,8 @@ export default class SpecialOrderObjectiveDataReader extends BaseReader {
 	}
 
 	write(buffer, content, resolver) {
+		console.log(content);
+
 		const stringReader = new StringReader();
 		const stringDictReader = new DictionaryReader(new StringReader(), new StringReader());
 
@@ -58,7 +60,7 @@ export default class SpecialOrderObjectiveDataReader extends BaseReader {
 		stringReader.write(buffer, content.Type, resolver);
 		stringReader.write(buffer, content.Text, resolver);
 		stringReader.write(buffer, content.RequiredCount, resolver);
-		stringReader.write(buffer, content.Data, resolver);
+		stringDictReader.write(buffer, content.Data, resolver);
 	}
 
 	isValueType() {
