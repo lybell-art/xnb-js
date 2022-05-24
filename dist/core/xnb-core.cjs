@@ -1,3 +1,16 @@
+/** 
+ * xnb.js 1.1.0
+ * made by Lybell( https://github.com/lybell-art/ )
+ * This library is based on the XnbCli made by Leonblade.
+ * 
+ * xnb.js is licensed under the LGPL 3.0 License.
+ * 
+*/
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
 const __promise_allSettled = Promise.allSettled !== undefined ? Promise.allSettled.bind(Promise) : function (promises) {
 	let mappedPromises = promises.map(p => {
 		return p.then(value => {
@@ -67,6 +80,22 @@ class XnbError extends Error {
 
 }
 
+function removeExternBracket(str) {
+	let bracketStack = [];
+	let result = [];
+
+	for (let i = 0; i < str.length; i++) {
+		let c = str[i];
+		if (c === "[") bracketStack.push(i);else if (c === "]") {
+			let startPoint = bracketStack.pop();
+			if (startPoint === undefined) throw new Error("Invalid Bracket Form!");
+			if (bracketStack.length === 0) result.push(str.slice(startPoint + 1, i));
+		}
+	}
+
+	return result;
+}
+
 class TypeReader {
 	static setReaders(readers) {
 		TypeReader.readers = _objectSpread2({}, readers);
@@ -95,7 +124,7 @@ class TypeReader {
 		if (isArray) return "Array<".concat(simplifyType(simple.slice(0, -2)), ">");
 
 		if (simple === 'Microsoft.Xna.Framework.Content.ReflectiveReader') {
-				let reflectiveType = TypeReader.parseSubtypes(type).map(simplifyType);
+				let reflectiveType = TypeReader.parseSubtypes(type).map(TypeReader.simplifyType.bind(TypeReader));
 				return "".concat(reflectiveType);
 			}
 
@@ -108,13 +137,10 @@ class TypeReader {
 	}
 
 	static parseSubtypes(type) {
-		let subtype = type.split('`')[1];
-		subtype.slice(0, 1);
-		subtype = subtype.slice(2, -1);
-		let pattern = /\[(([a-zA-Z0-9\.\,\=\`]+)(\[\])?(\, |\])){1,}/g;
-		let matches = subtype.match(pattern).map(e => {
-			return e.slice(1, -1);
-		});
+		let subtype = type.slice(type.search("`") + 1);
+		subtype[0];
+		subtype = removeExternBracket(subtype)[0];
+		let matches = removeExternBracket(subtype);
 		return matches;
 	}
 
@@ -129,12 +155,8 @@ class TypeReader {
 	}
 
 	static getReaderTypeList(typeString) {
-		let {
-			type,
-			subtypes
-		} = TypeReader.getTypeInfo(typeString);
-		if (TypeReader.readers.hasOwnProperty("".concat(type, "Reader"))) return TypeReader.readers["".concat(type, "Reader")].parseTypeList(subtypes);
-		throw new XnbError("Invalid reader type \"".concat(typeString, "\" passed, unable to resolve!"));
+		let reader = TypeReader.getReader(typeString);
+		return reader.parseTypeList();
 	}
 
 	static getReader(typeString) {
@@ -1533,7 +1555,9 @@ class ReaderResolver {
 	}
 
 	getIndex(reader) {
-		for (let i in this.readers) if (reader.toString() == this.readers[i].toString()) return i;
+		for (let i = 0, len = this.readers.length; i < len; i++) {
+			if (reader.toString() === this.readers[i].toString()) return i;
+		}
 	}
 
 }
@@ -4680,6 +4704,7 @@ function isPrimitiveReaderType(reader) {
 		case 'Vector3':
 		case 'Vector4':
 		case 'Rectangle':
+		case 'Rect':
 			return true;
 
 		default:
@@ -4728,17 +4753,36 @@ function convertJsonContentsToXnbNode(raw, readers) {
 		}
 
 		if (reader.startsWith('Nullable')) {
+			let nullableData, trav;
+			let [readerType, blockTraversed = 1] = reader.split(":");
+			blockTraversed = +blockTraversed;
+
+			if (obj === null) {
+				nullableData = null;
+				trav = index + blockTraversed;
+			} else if (typeof obj === "object" && (!obj || Object.keys(obj).length === 0)) {
+				nullableData = {
+					type: readers[index + 1],
+					data: deepCopy(obj)
+				};
+				trav = index + blockTraversed;
+			} else {
+				let {
+					converted,
+					traversed
+				} = recursiveConvert(obj, [...path], index + 1);
+				nullableData = converted;
+				trav = traversed;
+			}
+
 			return {
 				converted: {
-					type: reader,
+					type: readerType,
 					data: {
-						data: {
-							type: readers[index + 1],
-							data: obj
-						}
+						data: nullableData
 					}
 				},
-				traversed: index + 1
+				traversed: trav
 			};
 		}
 
@@ -4823,6 +4867,11 @@ function convertJsonContentsFromXnbNode(obj) {
 			data = deepCopy(data);
 			if (type === "Texture2D") data.export = "Texture2D.png";else if (type === "Effect") data.export = "Effect.cso";else if (type === "TBin") data.export = "TBin.tbin";else if (type === "BmFont") data.export = "BmFont.xml";
 			return data;
+		}
+
+		if (type.startsWith("Nullable")) {
+			if (data === null || data.data === null) return null;
+			return convertJsonContentsFromXnbNode(data.data);
 		}
 
 		obj = deepCopy(data);
@@ -5338,4 +5387,15 @@ function addReaders(readers) {
 	return TypeReader.addReaders(readers);
 }
 
-export { XnbContent, XnbData, addReaders, bufferToContents, bufferToXnb, pack, setReaders, unpackToContent, unpackToFiles, unpackToXnbData, xnbDataToContent, exportFiles as xnbDataToFiles };
+exports.XnbContent = XnbContent;
+exports.XnbData = XnbData;
+exports.addReaders = addReaders;
+exports.bufferToContents = bufferToContents;
+exports.bufferToXnb = bufferToXnb;
+exports.pack = pack;
+exports.setReaders = setReaders;
+exports.unpackToContent = unpackToContent;
+exports.unpackToFiles = unpackToFiles;
+exports.unpackToXnbData = unpackToXnbData;
+exports.xnbDataToContent = xnbDataToContent;
+exports.xnbDataToFiles = exportFiles;

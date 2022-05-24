@@ -1,3 +1,12 @@
+/** 
+ * xnb.js 1.1.0
+ * made by Lybell( https://github.com/lybell-art/ )
+ * This library is based on the XnbCli made by Leonblade.
+ * 
+ * xnb.js is licensed under the LGPL 3.0 License.
+ * 
+*/
+
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -73,6 +82,22 @@
 
 	}
 
+	function removeExternBracket(str) {
+		let bracketStack = [];
+		let result = [];
+
+		for (let i = 0; i < str.length; i++) {
+			let c = str[i];
+			if (c === "[") bracketStack.push(i);else if (c === "]") {
+				let startPoint = bracketStack.pop();
+				if (startPoint === undefined) throw new Error("Invalid Bracket Form!");
+				if (bracketStack.length === 0) result.push(str.slice(startPoint + 1, i));
+			}
+		}
+
+		return result;
+	}
+
 	class TypeReader {
 		static setReaders(readers) {
 			TypeReader.readers = _objectSpread2({}, readers);
@@ -114,13 +139,10 @@
 		}
 
 		static parseSubtypes(type) {
-			let subtype = type.split('`')[1];
-			subtype.slice(0, 1);
-			subtype = subtype.slice(2, -1);
-			let pattern = /\[(([a-zA-Z0-9\.\,\=\`]+)(\[\])?(\, |\])){1,}/g;
-			let matches = subtype.match(pattern).map(e => {
-				return e.slice(1, -1);
-			});
+			let subtype = type.slice(type.search("`") + 1);
+			subtype[0];
+			subtype = removeExternBracket(subtype)[0];
+			let matches = removeExternBracket(subtype);
 			return matches;
 		}
 
@@ -135,12 +157,8 @@
 		}
 
 		static getReaderTypeList(typeString) {
-			let {
-				type,
-				subtypes
-			} = TypeReader.getTypeInfo(typeString);
-			if (TypeReader.readers.hasOwnProperty("".concat(type, "Reader"))) return TypeReader.readers["".concat(type, "Reader")].parseTypeList(subtypes);
-			throw new XnbError("Invalid reader type \"".concat(typeString, "\" passed, unable to resolve!"));
+			let reader = TypeReader.getReader(typeString);
+			return reader.parseTypeList();
 		}
 
 		static getReader(typeString) {
@@ -1539,7 +1557,9 @@
 		}
 
 		getIndex(reader) {
-			for (let i in this.readers) if (reader.toString() == this.readers[i].toString()) return i;
+			for (let i = 0, len = this.readers.length; i < len; i++) {
+				if (reader.toString() === this.readers[i].toString()) return i;
+			}
 		}
 
 	}
@@ -4686,6 +4706,7 @@
 			case 'Vector3':
 			case 'Vector4':
 			case 'Rectangle':
+			case 'Rect':
 				return true;
 
 			default:
@@ -4734,17 +4755,36 @@
 			}
 
 			if (reader.startsWith('Nullable')) {
+				let nullableData, trav;
+				let [readerType, blockTraversed = 1] = reader.split(":");
+				blockTraversed = +blockTraversed;
+
+				if (obj === null) {
+					nullableData = null;
+					trav = index + blockTraversed;
+				} else if (typeof obj === "object" && (!obj || Object.keys(obj).length === 0)) {
+					nullableData = {
+						type: readers[index + 1],
+						data: deepCopy(obj)
+					};
+					trav = index + blockTraversed;
+				} else {
+					let {
+						converted,
+						traversed
+					} = recursiveConvert(obj, [...path], index + 1);
+					nullableData = converted;
+					trav = traversed;
+				}
+
 				return {
 					converted: {
-						type: reader,
+						type: readerType,
 						data: {
-							data: {
-								type: readers[index + 1],
-								data: obj
-							}
+							data: nullableData
 						}
 					},
-					traversed: index + 1
+					traversed: trav
 				};
 			}
 
@@ -4829,6 +4869,11 @@
 				data = deepCopy(data);
 				if (type === "Texture2D") data.export = "Texture2D.png";else if (type === "Effect") data.export = "Effect.cso";else if (type === "TBin") data.export = "TBin.tbin";else if (type === "BmFont") data.export = "BmFont.xml";
 				return data;
+			}
+
+			if (type.startsWith("Nullable")) {
+				if (data === null || data.data === null) return null;
+				return convertJsonContentsFromXnbNode(data.data);
 			}
 
 			obj = deepCopy(data);
@@ -5354,8 +5399,7 @@
 		}
 
 		static parseTypeList() {
-			let subtype = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-			return [this.type(), ...subtype];
+			return [this.type()];
 		}
 
 		static type() {
@@ -5384,6 +5428,10 @@
 
 		toString() {
 			return this.type;
+		}
+
+		parseTypeList() {
+			return this.constructor.parseTypeList();
 		}
 
 	}
@@ -5458,6 +5506,10 @@
 
 		get type() {
 			return "Array<".concat(this.reader.type, ">");
+		}
+
+		parseTypeList() {
+			return [this.type, ...this.reader.parseTypeList()];
 		}
 
 	}
@@ -5677,6 +5729,10 @@
 			return "Dictionary<".concat(this.key.type, ",").concat(this.value.type, ">");
 		}
 
+		parseTypeList() {
+			return [this.type, ...this.key.parseTypeList(), ...this.value.parseTypeList()];
+		}
+
 	}
 
 	class DoubleReader extends BaseReader {
@@ -5815,6 +5871,10 @@
 			return "List<".concat(this.reader.type, ">");
 		}
 
+		parseTypeList() {
+			return [this.type, ...this.reader.parseTypeList()];
+		}
+
 	}
 
 	class NullableReader extends BaseReader {
@@ -5852,14 +5912,14 @@
 				return this.reader.read(buffer);
 			}
 
-			return this.reader.isValueType() ? resolver.read(buffer) : this.reader.read(buffer);
+			return this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer);
 		}
 
 		write(buffer) {
 			let content = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 			let resolver = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-			if (content !== null) {
+			if (content === null) {
 				buffer.writeByte(0);
 				return;
 			}
@@ -5874,6 +5934,11 @@
 
 		get type() {
 			return "Nullable<".concat(this.reader.type, ">");
+		}
+
+		parseTypeList() {
+			const inBlock = this.reader.parseTypeList();
+			return ["".concat(this.type, ":").concat(inBlock.length), ...inBlock];
 		}
 
 	}
@@ -5904,7 +5969,6 @@
 		}
 
 		write(buffer, content, resolver) {
-			this.writeIndex(buffer, resolver);
 			this.reader.write(buffer, content, this.reader.isValueType() ? null : resolver);
 		}
 
@@ -5914,6 +5978,10 @@
 
 		get type() {
 			return "".concat(this.reader.type);
+		}
+
+		parseTypeList() {
+			return [...this.reader.parseTypeList()];
 		}
 
 	}
@@ -7816,8 +7884,6 @@
 			} catch (ex) {
 				throw ex;
 			}
-
-			console.log("writing complitd!");
 		}
 
 		isValueType() {

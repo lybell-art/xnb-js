@@ -154,6 +154,7 @@ function getObject(lineGroup, type) {
 
 		let keyMatch = trimmedLine.match(/^(.*?):(?: |$)/);
 		let typeMatch = trimmedLine.match(/#!([\w<,>]+)/);
+		
 		let key, value, type;
 
 		if(trimmedLine.startsWith('"')) {

@@ -1,3 +1,12 @@
+/** 
+ * xnb.js 1.1.0
+ * made by Lybell( https://github.com/lybell-art/ )
+ * This library is based on the XnbCli made by Leonblade.
+ * 
+ * xnb.js is licensed under the LGPL 3.0 License.
+ * 
+*/
+
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -1485,6 +1494,11 @@
 			value: function toString() {
 				return this.type;
 			}
+		}, {
+			key: "parseTypeList",
+			value: function parseTypeList() {
+				return this.constructor.parseTypeList();
+			}
 		}], [{
 			key: "isTypeOf",
 			value: function isTypeOf(type) {
@@ -1498,8 +1512,7 @@
 		}, {
 			key: "parseTypeList",
 			value: function parseTypeList() {
-				var subtype = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-				return [this.type()].concat(subtype);
+				return [this.type()];
 			}
 		}, {
 			key: "type",
@@ -1599,6 +1612,11 @@
 			key: "type",
 			get: function get() {
 				return "Array<".concat(this.reader.type, ">");
+			}
+		}, {
+			key: "parseTypeList",
+			value: function parseTypeList() {
+				return [this.type].concat(this.reader.parseTypeList());
 			}
 		}], [{
 			key: "isTypeOf",
@@ -1940,6 +1958,11 @@
 			get: function get() {
 				return "Dictionary<".concat(this.key.type, ",").concat(this.value.type, ">");
 			}
+		}, {
+			key: "parseTypeList",
+			value: function parseTypeList() {
+				return [this.type].concat(this.key.parseTypeList(), this.value.parseTypeList());
+			}
 		}], [{
 			key: "isTypeOf",
 			value: function isTypeOf(type) {
@@ -2148,6 +2171,11 @@
 			get: function get() {
 				return "List<".concat(this.reader.type, ">");
 			}
+		}, {
+			key: "parseTypeList",
+			value: function parseTypeList() {
+				return [this.type].concat(this.reader.parseTypeList());
+			}
 		}], [{
 			key: "isTypeOf",
 			value: function isTypeOf(type) {
@@ -2202,7 +2230,7 @@
 					return this.reader.read(buffer);
 				}
 
-				return this.reader.isValueType() ? resolver.read(buffer) : this.reader.read(buffer);
+				return this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer);
 			}
 		}, {
 			key: "write",
@@ -2211,7 +2239,7 @@
 				var resolver = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 				new BooleanReader();
 
-				if (content !== null) {
+				if (content === null) {
 					buffer.writeByte(0);
 					return;
 				}
@@ -2228,6 +2256,12 @@
 			key: "type",
 			get: function get() {
 				return "Nullable<".concat(this.reader.type, ">");
+			}
+		}, {
+			key: "parseTypeList",
+			value: function parseTypeList() {
+				var inBlock = this.reader.parseTypeList();
+				return ["".concat(this.type, ":").concat(inBlock.length)].concat(inBlock);
 			}
 		}], [{
 			key: "isTypeOf",
@@ -2274,7 +2308,6 @@
 		}, {
 			key: "write",
 			value: function write(buffer, content, resolver) {
-				this.writeIndex(buffer, resolver);
 				this.reader.write(buffer, content, this.reader.isValueType() ? null : resolver);
 			}
 		}, {
@@ -2286,6 +2319,11 @@
 			key: "type",
 			get: function get() {
 				return "".concat(this.reader.type);
+			}
+		}, {
+			key: "parseTypeList",
+			value: function parseTypeList() {
+				return [].concat(this.reader.parseTypeList());
 			}
 		}], [{
 			key: "isTypeOf",
@@ -4052,6 +4090,27 @@
 		}
 	}
 
+	/** @license
+	-----------------------------------------------------------------------------
+		Copyright (c) 2006 Simon Brown													si@sjbrown.co.uk
+		Permission is hereby granted, free of charge, to any person obtaining
+		a copy of this software and associated documentation files (the 
+		"Software"), to	deal in the Software without restriction, including
+		without limitation the rights to use, copy, modify, merge, publish,
+		distribute, sublicense, and/or sell copies of the Software, and to 
+		permit persons to whom the Software is furnished to do so, subject to 
+		the following conditions:
+		The above copyright notice and this permission notice shall be included
+		in all copies or substantial portions of the Software.
+		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+		OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+		MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+		IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+		CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+		TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+		SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+	-------------------------------------------------------------------------- */
 	var DXT1_COMPRESSED_BYTES = 8;
 	var DXT5_COMPRESSED_BYTES = 16;
 	var COLORS = 4;
@@ -4442,8 +4501,6 @@
 				} catch (ex) {
 					throw ex;
 				}
-
-				console.log("writing complitd!");
 			}
 		}, {
 			key: "isValueType",

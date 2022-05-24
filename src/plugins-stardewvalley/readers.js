@@ -38,6 +38,13 @@ import RandomizedElementItemReader from "./Readers/RandomizedElementItemReader.j
 import SpecialOrderObjectiveDataReader from "./Readers/SpecialOrderObjectiveDataReader.js";
 import SpecialOrderRewardDataReader from "./Readers/SpecialOrderRewardDataReader.js"
 
+// mod farm type data:1.5.5
+import ModFarmTypeReader from "./Readers/ModFarmTypeReader.js";
+// mod language data:1.5.5
+import ModLanguageReader from "./Readers/ModLanguageReader.js";
+// mod wallpaper or flooring data:1.5.5
+import ModWallpaperOrFlooringReader from "./Readers/ModWallpaperOrFlooringReader.js";
+
 export {
 	MovieSceneReader,
 	MovieDataReader,
@@ -68,5 +75,9 @@ export {
 	RandomizedElementReader,
 	RandomizedElementItemReader,
 	SpecialOrderObjectiveDataReader,
-	SpecialOrderRewardDataReader
+	SpecialOrderRewardDataReader,
+
+	ModFarmTypeReader,
+	ModLanguageReader,
+	ModWallpaperOrFlooringReader
 };

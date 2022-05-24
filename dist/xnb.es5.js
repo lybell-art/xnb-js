@@ -1,3 +1,12 @@
+/** 
+ * xnb.js 1.1.0
+ * made by Lybell( https://github.com/lybell-art/ )
+ * This library is based on the XnbCli made by Leonblade.
+ * 
+ * xnb.js is licensed under the LGPL 3.0 License.
+ * 
+*/
+
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -3641,6 +3650,22 @@
 		return _createClass(XnbError);
 	}(_wrapNativeSuper(Error));
 
+	function removeExternBracket(str) {
+		var bracketStack = [];
+		var result = [];
+
+		for (var i = 0; i < str.length; i++) {
+			var c = str[i];
+			if (c === "[") bracketStack.push(i);else if (c === "]") {
+				var startPoint = bracketStack.pop();
+				if (startPoint === undefined) throw new Error("Invalid Bracket Form!");
+				if (bracketStack.length === 0) result.push(str.slice(startPoint + 1, i));
+			}
+		}
+
+		return result;
+	}
+
 	var TypeReader = function () {
 		function TypeReader() {
 			_classCallCheck(this, TypeReader);
@@ -3705,13 +3730,10 @@
 		}, {
 			key: "parseSubtypes",
 			value: function parseSubtypes(type) {
-				var subtype = type.split('`')[1];
-				subtype.slice(0, 1);
-				subtype = subtype.slice(2, -1);
-				var pattern = /\[(([a-zA-Z0-9\.\,\=\`]+)(\[\])?(\, |\])){1,}/g;
-				var matches = subtype.match(pattern).map(function (e) {
-					return e.slice(1, -1);
-				});
+				var subtype = type.slice(type.search("`") + 1);
+				subtype[0];
+				subtype = removeExternBracket(subtype)[0];
+				var matches = removeExternBracket(subtype);
 				return matches;
 			}
 		}, {
@@ -3730,19 +3752,15 @@
 		}, {
 			key: "getReaderTypeList",
 			value: function getReaderTypeList(typeString) {
-				var _TypeReader$getTypeIn = TypeReader.getTypeInfo(typeString),
-						type = _TypeReader$getTypeIn.type,
-						subtypes = _TypeReader$getTypeIn.subtypes;
-
-				if (TypeReader.readers.hasOwnProperty("".concat(type, "Reader"))) return TypeReader.readers["".concat(type, "Reader")].parseTypeList(subtypes);
-				throw new XnbError("Invalid reader type \"".concat(typeString, "\" passed, unable to resolve!"));
+				var reader = TypeReader.getReader(typeString);
+				return reader.parseTypeList();
 			}
 		}, {
 			key: "getReader",
 			value: function getReader(typeString) {
-				var _TypeReader$getTypeIn2 = TypeReader.getTypeInfo(typeString),
-						type = _TypeReader$getTypeIn2.type,
-						subtypes = _TypeReader$getTypeIn2.subtypes;
+				var _TypeReader$getTypeIn = TypeReader.getTypeInfo(typeString),
+						type = _TypeReader$getTypeIn.type,
+						subtypes = _TypeReader$getTypeIn.subtypes;
 
 				subtypes = subtypes.map(TypeReader.getReader.bind(TypeReader));
 				if (TypeReader.readers.hasOwnProperty("".concat(type, "Reader"))) return _construct(TypeReader.readers["".concat(type, "Reader")], subtypes);
@@ -5252,8 +5270,8 @@
 		}, {
 			key: "getIndex",
 			value: function getIndex(reader) {
-				for (var i in this.readers) {
-					if (reader.toString() == this.readers[i].toString()) return i;
+				for (var i = 0, len = this.readers.length; i < len; i++) {
+					if (reader.toString() === this.readers[i].toString()) return i;
 				}
 			}
 		}]);
@@ -8749,6 +8767,7 @@
 			case 'Vector3':
 			case 'Vector4':
 			case 'Rectangle':
+			case 'Rect':
 				return true;
 
 			default:
@@ -8795,17 +8814,41 @@
 			}
 
 			if (__startsWithString(reader, 'Nullable')) {
+				var nullableData, trav;
+
+				var _reader$split = reader.split(":"),
+						readerType = _reader$split[0],
+						_reader$split$ = _reader$split[1],
+						blockTraversed = _reader$split$ === void 0 ? 1 : _reader$split$;
+
+				blockTraversed = +blockTraversed;
+
+				if (obj === null) {
+					nullableData = null;
+					trav = index + blockTraversed;
+				} else if (_typeof(obj) === "object" && (!obj || Object.keys(obj).length === 0)) {
+					nullableData = {
+						type: readers[index + 1],
+						data: deepCopy(obj)
+					};
+					trav = index + blockTraversed;
+				} else {
+					var _recursiveConvert2 = recursiveConvert(obj, [].concat(path), index + 1),
+							_converted = _recursiveConvert2.converted,
+							_traversed = _recursiveConvert2.traversed;
+
+					nullableData = _converted;
+					trav = _traversed;
+				}
+
 				return {
 					converted: {
-						type: reader,
+						type: readerType,
 						data: {
-							data: {
-								type: readers[index + 1],
-								data: obj
-							}
+							data: nullableData
 						}
 					},
-					traversed: index + 1
+					traversed: trav
 				};
 			}
 
@@ -8854,11 +8897,11 @@
 				var newIndex = void 0;
 				if (__startsWithString(reader, "Dictionary")) newIndex = index + 2;else if (__startsWithString(reader, "Array") || __startsWithString(reader, "List")) newIndex = index + 1;else newIndex = traversed + 1;
 
-				var _recursiveConvert2 = recursiveConvert(obj[key], [].concat(path, [key]), newIndex),
-						_converted = _recursiveConvert2.converted,
-						nexter = _recursiveConvert2.traversed;
+				var _recursiveConvert3 = recursiveConvert(obj[key], [].concat(path, [key]), newIndex),
+						_converted2 = _recursiveConvert3.converted,
+						nexter = _recursiveConvert3.traversed;
 
-				data[key] = _converted;
+				data[key] = _converted2;
 				if (isComplex) traversed = nexter;else if (first) {
 					traversed = nexter;
 					first = false;
@@ -8895,6 +8938,11 @@
 				data = deepCopy(data);
 				if (type === "Texture2D") data.export = "Texture2D.png";else if (type === "Effect") data.export = "Effect.cso";else if (type === "TBin") data.export = "TBin.tbin";else if (type === "BmFont") data.export = "BmFont.xml";
 				return data;
+			}
+
+			if (__startsWithString(type, "Nullable")) {
+				if (data === null || data.data === null) return null;
+				return convertJsonContentsFromXnbNode(data.data);
 			}
 
 			obj = deepCopy(data);
@@ -9654,6 +9702,11 @@
 			value: function toString() {
 				return this.type;
 			}
+		}, {
+			key: "parseTypeList",
+			value: function parseTypeList() {
+				return this.constructor.parseTypeList();
+			}
 		}], [{
 			key: "isTypeOf",
 			value: function isTypeOf(type) {
@@ -9667,8 +9720,7 @@
 		}, {
 			key: "parseTypeList",
 			value: function parseTypeList() {
-				var subtype = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-				return [this.type()].concat(subtype);
+				return [this.type()];
 			}
 		}, {
 			key: "type",
@@ -9768,6 +9820,11 @@
 			key: "type",
 			get: function get() {
 				return "Array<".concat(this.reader.type, ">");
+			}
+		}, {
+			key: "parseTypeList",
+			value: function parseTypeList() {
+				return [this.type].concat(this.reader.parseTypeList());
 			}
 		}], [{
 			key: "isTypeOf",
@@ -10075,6 +10132,11 @@
 			get: function get() {
 				return "Dictionary<".concat(this.key.type, ",").concat(this.value.type, ">");
 			}
+		}, {
+			key: "parseTypeList",
+			value: function parseTypeList() {
+				return [this.type].concat(this.key.parseTypeList(), this.value.parseTypeList());
+			}
 		}], [{
 			key: "isTypeOf",
 			value: function isTypeOf(type) {
@@ -10283,6 +10345,11 @@
 			get: function get() {
 				return "List<".concat(this.reader.type, ">");
 			}
+		}, {
+			key: "parseTypeList",
+			value: function parseTypeList() {
+				return [this.type].concat(this.reader.parseTypeList());
+			}
 		}], [{
 			key: "isTypeOf",
 			value: function isTypeOf(type) {
@@ -10337,7 +10404,7 @@
 					return this.reader.read(buffer);
 				}
 
-				return this.reader.isValueType() ? resolver.read(buffer) : this.reader.read(buffer);
+				return this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer);
 			}
 		}, {
 			key: "write",
@@ -10346,7 +10413,7 @@
 				var resolver = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 				new BooleanReader();
 
-				if (content !== null) {
+				if (content === null) {
 					buffer.writeByte(0);
 					return;
 				}
@@ -10363,6 +10430,12 @@
 			key: "type",
 			get: function get() {
 				return "Nullable<".concat(this.reader.type, ">");
+			}
+		}, {
+			key: "parseTypeList",
+			value: function parseTypeList() {
+				var inBlock = this.reader.parseTypeList();
+				return ["".concat(this.type, ":").concat(inBlock.length)].concat(inBlock);
 			}
 		}], [{
 			key: "isTypeOf",
@@ -10409,7 +10482,6 @@
 		}, {
 			key: "write",
 			value: function write(buffer, content, resolver) {
-				this.writeIndex(buffer, resolver);
 				this.reader.write(buffer, content, this.reader.isValueType() ? null : resolver);
 			}
 		}, {
@@ -10421,6 +10493,11 @@
 			key: "type",
 			get: function get() {
 				return "".concat(this.reader.type);
+			}
+		}, {
+			key: "parseTypeList",
+			value: function parseTypeList() {
+				return [].concat(this.reader.parseTypeList());
 			}
 		}], [{
 			key: "isTypeOf",
@@ -12187,6 +12264,27 @@
 		}
 	}
 
+	/** @license
+	-----------------------------------------------------------------------------
+		Copyright (c) 2006 Simon Brown													si@sjbrown.co.uk
+		Permission is hereby granted, free of charge, to any person obtaining
+		a copy of this software and associated documentation files (the 
+		"Software"), to	deal in the Software without restriction, including
+		without limitation the rights to use, copy, modify, merge, publish,
+		distribute, sublicense, and/or sell copies of the Software, and to 
+		permit persons to whom the Software is furnished to do so, subject to 
+		the following conditions:
+		The above copyright notice and this permission notice shall be included
+		in all copies or substantial portions of the Software.
+		THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+		OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+		MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+		IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+		CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+		TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+		SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+		
+	-------------------------------------------------------------------------- */
 	var DXT1_COMPRESSED_BYTES = 8;
 	var DXT5_COMPRESSED_BYTES = 16;
 	var COLORS = 4;
@@ -12577,8 +12675,6 @@
 				} catch (ex) {
 					throw ex;
 				}
-
-				console.log("writing complitd!");
 			}
 		}, {
 			key: "isValueType",

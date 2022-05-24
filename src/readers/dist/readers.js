@@ -1,3 +1,12 @@
+/** 
+ * xnb.js 1.1.0
+ * made by Lybell( https://github.com/lybell-art/ )
+ * This library is based on the XnbCli made by Leonblade.
+ * 
+ * xnb.js is licensed under the LGPL 3.0 License.
+ * 
+*/
+
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -14,8 +23,7 @@
 		}
 
 		static parseTypeList() {
-			let subtype = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-			return [this.type(), ...subtype];
+			return [this.type()];
 		}
 
 		static type() {
@@ -44,6 +52,10 @@
 
 		toString() {
 			return this.type;
+		}
+
+		parseTypeList() {
+			return this.constructor.parseTypeList();
 		}
 
 	}
@@ -118,6 +130,10 @@
 
 		get type() {
 			return "Array<".concat(this.reader.type, ">");
+		}
+
+		parseTypeList() {
+			return [this.type, ...this.reader.parseTypeList()];
 		}
 
 	}
@@ -337,6 +353,10 @@
 			return "Dictionary<".concat(this.key.type, ",").concat(this.value.type, ">");
 		}
 
+		parseTypeList() {
+			return [this.type, ...this.key.parseTypeList(), ...this.value.parseTypeList()];
+		}
+
 	}
 
 	class DoubleReader extends BaseReader {
@@ -475,6 +495,10 @@
 			return "List<".concat(this.reader.type, ">");
 		}
 
+		parseTypeList() {
+			return [this.type, ...this.reader.parseTypeList()];
+		}
+
 	}
 
 	class NullableReader extends BaseReader {
@@ -512,14 +536,14 @@
 				return this.reader.read(buffer);
 			}
 
-			return this.reader.isValueType() ? resolver.read(buffer) : this.reader.read(buffer);
+			return this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer);
 		}
 
 		write(buffer) {
 			let content = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 			let resolver = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-			if (content !== null) {
+			if (content === null) {
 				buffer.writeByte(0);
 				return;
 			}
@@ -534,6 +558,11 @@
 
 		get type() {
 			return "Nullable<".concat(this.reader.type, ">");
+		}
+
+		parseTypeList() {
+			const inBlock = this.reader.parseTypeList();
+			return ["".concat(this.type, ":").concat(inBlock.length), ...inBlock];
 		}
 
 	}
@@ -564,7 +593,6 @@
 		}
 
 		write(buffer, content, resolver) {
-			this.writeIndex(buffer, resolver);
 			this.reader.write(buffer, content, this.reader.isValueType() ? null : resolver);
 		}
 
@@ -574,6 +602,10 @@
 
 		get type() {
 			return "".concat(this.reader.type);
+		}
+
+		parseTypeList() {
+			return [...this.reader.parseTypeList()];
 		}
 
 	}
@@ -2517,8 +2549,6 @@
 			} catch (ex) {
 				throw ex;
 			}
-
-			console.log("writing complitd!");
 		}
 
 		isValueType() {

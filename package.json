@@ -8,6 +8,14 @@
 		".": {
 			"import": "./dist/xnb.module.js",
 			"require": "./dist/xnb.cjs"
+		},
+		"./core": {
+			"import": "./dist/core/xnb-core.module.js",
+			"require": "./dist/core/xnb-core.cjs"
+		},
+		"./readers": {
+			"import": "./dist/readers/xnb-readers.module.js",
+			"require": "./dist/readers/xnb-readers.cjs"
 		}
 	},
 	"files": [
@@ -18,7 +26,7 @@
 		"build": "rollup -c builder/rollup.config.js",
 		"build-core": "rollup -c builder/rollup.config.js --environment BUILD_MODULE:1",
 		"build-readers": "rollup -c builder/rollup.config.js --environment BUILD_MODULE:2",
-		"build-stardew": "rollup -c builder/rollup.config.js --environment BUILD_MODULE:3"
+		"build-stardew": "rollup -c builder/plugins-rollup.config.js --environment BUILD_MODULE:0"
 	},
 	"keywords": [
 		"xnb",

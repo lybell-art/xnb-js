@@ -50,8 +50,6 @@ export default class SpecialOrderObjectiveDataReader extends BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		console.log(content);
-
 		const stringReader = new StringReader();
 		const stringDictReader = new DictionaryReader(new StringReader(), new StringReader());
 

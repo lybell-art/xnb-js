@@ -70,7 +70,6 @@ function convertJsonContentsToXnbNode(raw, readers)
 	const {converted} = (function recursiveConvert(obj, path, index=0)
 	{
 		const reader = readers[index];
-		console.log(`index : ${index}, reader: ${reader}, obj: ${JSON.stringify(obj)}`);
 
 		//primitive
 		if(isPrimitiveReaderType(reader))
@@ -270,8 +269,6 @@ function toXnbNodeData(json)
 		rawContent.verticalSpacing = rawContent.verticalLineSpacing;
 		delete rawContent.verticalLineSpacing;
 	}
-
-	console.log(readersTypeList);
 
 	const { converted, extractedImages, extractedMaps } = convertJsonContentsToXnbNode(rawContent, readersTypeList);
 

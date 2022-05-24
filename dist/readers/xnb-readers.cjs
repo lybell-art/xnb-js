@@ -1,3 +1,16 @@
+/** 
+ * xnb.js 1.1.0
+ * made by Lybell( https://github.com/lybell-art/ )
+ * This library is based on the XnbCli made by Leonblade.
+ * 
+ * xnb.js is licensed under the LGPL 3.0 License.
+ * 
+*/
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
 class BaseReader {
 	static isTypeOf(type) {
 		return false;
@@ -8,8 +21,7 @@ class BaseReader {
 	}
 
 	static parseTypeList() {
-		let subtype = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-		return [this.type(), ...subtype];
+		return [this.type()];
 	}
 
 	static type() {
@@ -38,6 +50,10 @@ class BaseReader {
 
 	toString() {
 		return this.type;
+	}
+
+	parseTypeList() {
+		return this.constructor.parseTypeList();
 	}
 
 }
@@ -112,6 +128,10 @@ class ArrayReader extends BaseReader {
 
 	get type() {
 		return "Array<".concat(this.reader.type, ">");
+	}
+
+	parseTypeList() {
+		return [this.type, ...this.reader.parseTypeList()];
 	}
 
 }
@@ -331,6 +351,10 @@ class DictionaryReader extends BaseReader {
 		return "Dictionary<".concat(this.key.type, ",").concat(this.value.type, ">");
 	}
 
+	parseTypeList() {
+		return [this.type, ...this.key.parseTypeList(), ...this.value.parseTypeList()];
+	}
+
 }
 
 class DoubleReader extends BaseReader {
@@ -461,8 +485,16 @@ class ListReader extends BaseReader {
 		}
 	}
 
+	isValueType() {
+		return false;
+	}
+
 	get type() {
 		return "List<".concat(this.reader.type, ">");
+	}
+
+	parseTypeList() {
+		return [this.type, ...this.reader.parseTypeList()];
 	}
 
 }
@@ -487,15 +519,35 @@ class NullableReader extends BaseReader {
 		this.reader = reader;
 	}
 
-	read(buffer, resolver) {
+	read(buffer) {
+		let resolver = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 		const booleanReader = new BooleanReader();
-		const hasValue = booleanReader.read(buffer);
-		return hasValue ? this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer) : null;
+		const hasValue = buffer.peekByte(1);
+
+		if (!hasValue) {
+			booleanReader.read(buffer);
+			return null;
+		}
+
+		if (resolver === null) {
+			booleanReader.read(buffer);
+			return this.reader.read(buffer);
+		}
+
+		return this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer);
 	}
 
-	write(buffer, content, resolver) {
-		buffer.writeByte(content != null);
-		if (content != null) this.reader.write(buffer, content, this.reader.isValueType() ? null : resolver);
+	write(buffer) {
+		let content = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+		let resolver = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+		if (content === null) {
+			buffer.writeByte(0);
+			return;
+		}
+
+		if (resolver === null) buffer.writeByte(1);
+		this.reader.write(buffer, content, this.reader.isValueType() ? null : resolver);
 	}
 
 	isValueType() {
@@ -504,6 +556,11 @@ class NullableReader extends BaseReader {
 
 	get type() {
 		return "Nullable<".concat(this.reader.type, ">");
+	}
+
+	parseTypeList() {
+		const inBlock = this.reader.parseTypeList();
+		return ["".concat(this.type, ":").concat(inBlock.length), ...inBlock];
 	}
 
 }
@@ -529,12 +586,11 @@ class ReflectiveReader extends BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const reflective = this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer);
+		const reflective = this.reader.read(buffer, resolver);
 		return reflective;
 	}
 
 	write(buffer, content, resolver) {
-		this.writeIndex(buffer, resolver);
 		this.reader.write(buffer, content, this.reader.isValueType() ? null : resolver);
 	}
 
@@ -544,6 +600,10 @@ class ReflectiveReader extends BaseReader {
 
 	get type() {
 		return "".concat(this.reader.type);
+	}
+
+	parseTypeList() {
+		return [...this.reader.parseTypeList()];
 	}
 
 }
@@ -2487,8 +2547,6 @@ class SpriteFontReader extends BaseReader {
 		} catch (ex) {
 			throw ex;
 		}
-
-		console.log("writing complitd!");
 	}
 
 	isValueType() {
@@ -2665,4 +2723,26 @@ class Vector4Reader extends BaseReader {
 
 }
 
-export { ArrayReader, BaseReader, BmFontReader, BooleanReader, CharReader, DictionaryReader, DoubleReader, EffectReader, Int32Reader, LightweightTexture2DReader, ListReader, NullableReader, RectangleReader, ReflectiveReader, SingleReader, SpriteFontReader, StringReader, TBinReader, Texture2DReader, UInt32Reader, Vector2Reader, Vector3Reader, Vector4Reader };
+exports.ArrayReader = ArrayReader;
+exports.BaseReader = BaseReader;
+exports.BmFontReader = BmFontReader;
+exports.BooleanReader = BooleanReader;
+exports.CharReader = CharReader;
+exports.DictionaryReader = DictionaryReader;
+exports.DoubleReader = DoubleReader;
+exports.EffectReader = EffectReader;
+exports.Int32Reader = Int32Reader;
+exports.LightweightTexture2DReader = LightweightTexture2DReader;
+exports.ListReader = ListReader;
+exports.NullableReader = NullableReader;
+exports.RectangleReader = RectangleReader;
+exports.ReflectiveReader = ReflectiveReader;
+exports.SingleReader = SingleReader;
+exports.SpriteFontReader = SpriteFontReader;
+exports.StringReader = StringReader;
+exports.TBinReader = TBinReader;
+exports.Texture2DReader = Texture2DReader;
+exports.UInt32Reader = UInt32Reader;
+exports.Vector2Reader = Vector2Reader;
+exports.Vector3Reader = Vector3Reader;
+exports.Vector4Reader = Vector4Reader;
