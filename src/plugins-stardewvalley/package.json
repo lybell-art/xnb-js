@@ -20,5 +20,8 @@
 		"stardew-valley"
 	],
 	"author": "Lybell",
-	"license": "LGPL-3.0-or-later"
+	"license": "LGPL-3.0-or-later",
+	"dependencies": {
+		"@xnb/readers": "^1.1.0"
+	}
 }
