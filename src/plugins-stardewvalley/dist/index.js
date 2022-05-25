@@ -7,8 +7,8 @@
  * 
 */
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@xnb/readers')) :
-	typeof define === 'function' && define.amd ? define(['exports', '@xnb/readers'], factory) :
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@xnb-js/readers')) :
+	typeof define === 'function' && define.amd ? define(['exports', '@xnb-js/readers'], factory) :
 	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.XNB = {}, global.XNB));
 })(this, (function (exports, readers) { 'use strict';
 

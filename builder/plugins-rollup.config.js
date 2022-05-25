@@ -21,7 +21,7 @@ function replaceDependency()
 {
 	return {
 		transform(code) {
-			code = code.replace('from "../../readers/src/readers.js"; //@xnb/readers', 'from "@xnb/readers";');
+			code = code.replace('from "../../readers/src/readers.js"; //@xnb-js/readers', 'from "@xnb-js/readers";');
 			return {
 				code: code,
 				map: null
@@ -34,7 +34,7 @@ function rejoinDependency()
 {
 	return {
 		renderChunk(code) {
-			code = code.replace('@xnb/readers', '../../readers/xnb-readers.module.js');
+			code = code.replace('@xnb-js/readers', '../../readers/xnb-readers.module.js');
 			return code;
 		}
 	}
@@ -61,10 +61,10 @@ function buildMaker(srcBase, srcName, distNode, distWeb)
 			name: "XNB",
 			format: 'umd',
 			globals: {
-				"@xnb/readers": 'XNB'
+				"@xnb-js/readers": 'XNB'
 			}
 		}],
-		external: ['@xnb/readers'],
+		external: ['@xnb-js/readers'],
 		plugins: [
 			replaceDependency(),
 			...makePlugins(false, false), 
@@ -79,10 +79,10 @@ function buildMaker(srcBase, srcName, distNode, distWeb)
 			name: "XNB",
 			format: 'umd',
 			globals: {
-				"@xnb/readers": 'XNB'
+				"@xnb-js/readers": 'XNB'
 			}
 		},
-		external: ['@xnb/readers'],
+		external: ['@xnb-js/readers'],
 		plugins: [
 			replaceDependency(),
 			...makePlugins(true, false), 
@@ -98,7 +98,7 @@ function buildMaker(srcBase, srcName, distNode, distWeb)
 			file: `${distWeb}.module.js`,
 			format: 'esm'
 		}],
-		external: ['@xnb/readers'],
+		external: ['@xnb-js/readers'],
 		plugins: [
 			replaceDependency(),
 			...makePlugins(false, false), 
@@ -114,10 +114,10 @@ function buildMaker(srcBase, srcName, distNode, distWeb)
 			name: "XNB",
 			format: 'umd',
 			globals: {
-				"@xnb/readers": 'XNB'
+				"@xnb-js/readers": 'XNB'
 			}
 		},
-		external: ['@xnb/readers'],
+		external: ['@xnb-js/readers'],
 		plugins: [
 			replaceDependency(),
 			...makePlugins(true, false), 
@@ -132,10 +132,10 @@ function buildMaker(srcBase, srcName, distNode, distWeb)
 			name: "XNB",
 			format: 'umd',
 			globals: {
-				"@xnb/readers": 'XNB'
+				"@xnb-js/readers": 'XNB'
 			}
 		},
-		external: ['@xnb/readers'],
+		external: ['@xnb-js/readers'],
 		plugins: [
 			replaceDependency(),
 			...makePlugins(true, true),

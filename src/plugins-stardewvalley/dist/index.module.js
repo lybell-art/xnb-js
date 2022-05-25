@@ -6,7 +6,7 @@
  * xnb.js is licensed under the LGPL 3.0 License.
  * 
 */
-import { BaseReader, BooleanReader, Int32Reader, NullableReader, StringReader, ListReader, SingleReader, DictionaryReader, RectangleReader } from '@xnb/readers';
+import { BaseReader, BooleanReader, Int32Reader, NullableReader, StringReader, ListReader, SingleReader, DictionaryReader, RectangleReader } from '@xnb-js/readers';
 
 class MovieSceneReader extends BaseReader {
 	static isTypeOf(type) {

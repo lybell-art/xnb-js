@@ -1,24 +1,24 @@
 {
-	"name": "@xnb/core",
-	"version": "1.1.0",
-	"description": "The core of xnb.js.",
-	"main": "./dist/core.js",
-	"module": "./dist/core.module.js",
-	"export": {
-		".": {
-			"import": "./dist/core.module.js",
-			"require": "./dist/core.cjs"
-		}
-	},
-	"files": [
-		"dist"
-	],
-	"keywords": [
-		"xnb",
-		"converter",
-		"javascript",
-		"stardew-valley"
-	],
-	"author": "Lybell",
-	"license": "LGPL-3.0-or-later"
+  "name": "@xnb-js/core",
+  "version": "1.1.0",
+  "description": "The core of xnb.js.",
+  "main": "./dist/core.js",
+  "module": "./dist/core.module.js",
+  "export": {
+    ".": {
+      "import": "./dist/core.module.js",
+      "require": "./dist/core.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "xnb",
+    "converter",
+    "javascript",
+    "stardew-valley"
+  ],
+  "author": "Lybell",
+  "license": "LGPL-3.0-or-later"
 }

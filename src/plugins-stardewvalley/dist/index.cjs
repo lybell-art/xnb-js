@@ -10,7 +10,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var readers = require('@xnb/readers');
+var readers = require('@xnb-js/readers');
 
 class MovieSceneReader extends readers.BaseReader {
 	static isTypeOf(type) {
