@@ -665,6 +665,36 @@
 			return "Reflective<Rect>";
 		}
 
+		read(buffer) {
+			const {
+				x,
+				y,
+				width,
+				height
+			} = super.read(buffer);
+			return {
+				X: x,
+				Y: y,
+				Width: width,
+				Height: height
+			};
+		}
+
+		write(buffer, content, resolver) {
+			const {
+				X: x,
+				Y: y,
+				Width: width,
+				Height: height
+			} = content;
+			super.write(buffer, {
+				x,
+				y,
+				width,
+				height
+			}, resolver);
+		}
+
 		isValueType() {
 			return false;
 		}

@@ -21,6 +21,15 @@ export default class RectReader extends RectangleReader {
 	{
 		return "Reflective<Rect>";
 	}
+	// The properties of the Rect data type in Stardew Valley are capitalized.
+	read(buffer) {
+		const {x, y, width, height} = super.read(buffer);
+		return { X:x, Y:y, Width:width, Height:height };
+	}
+	write(buffer, content, resolver) {
+		const { X:x, Y:y, Width:width, Height:height } = content;
+		super.write(buffer, {x,y,width,height}, resolver);
+	}
 
 	isValueType() {
 		return false;

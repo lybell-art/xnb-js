@@ -1,5 +1,5 @@
 import { bufferToXnb } from "./workerHelper.js";
-import { xnbDataToContent, xnbDataToFiles } from "./libs/xnb.module.js";
+import { xnbDataToContent, xnbDataToFiles } from "./libs/xnb.js";
 import zipDownloadMaker from "./zipDownloadMaker.js";
 
 const options = {yaml:false, contentOnly:false};
@@ -30,6 +30,7 @@ function addEventlistener_unpack()
 			options.contentOnly = false;
 		}
 		showCode();
+		handleFiles.call(fileImporter);
 	});
 	contentOnlyChecker.addEventListener("change", function(){
 		options.contentOnly = this.checked;
@@ -39,6 +40,7 @@ function addEventlistener_unpack()
 			options.yaml = false;
 		} 
 		showCode();
+		handleFiles.call(fileImporter);
 	});
 }
 
@@ -142,8 +144,9 @@ function extractFileName(fullname)
 	return [ matcher[1], matcher[2] ];
 }
 
-function closeButton()
+function closeButton(error)
 {
+	console.warn(error);
 	zipper.inactiveDownloadButton();
 }
 

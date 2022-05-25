@@ -6,13 +6,9 @@
  * xnb.js is licensed under the LGPL 3.0 License.
  * 
 */
-'use strict';
+import { BaseReader, BooleanReader, Int32Reader, NullableReader, StringReader, ListReader, SingleReader, DictionaryReader, RectangleReader } from '../readers/xnb-readers.module.js';
 
-Object.defineProperty(exports, '__esModule', { value: true });
-
-var readers = require('@xnb/readers');
-
-class MovieSceneReader extends readers.BaseReader {
+class MovieSceneReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.Movies.MovieScene':
@@ -32,9 +28,9 @@ class MovieSceneReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const booleanReader = new readers.BooleanReader();
-		const int32Reader = new readers.Int32Reader();
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
+		const booleanReader = new BooleanReader();
+		const int32Reader = new Int32Reader();
+		const nullableStringReader = new NullableReader(new StringReader());
 		let Image = int32Reader.read(buffer, null);
 		let Music = nullableStringReader.read(buffer, resolver);
 		let Sound = nullableStringReader.read(buffer, resolver);
@@ -58,10 +54,10 @@ class MovieSceneReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const booleanReader = new readers.BooleanReader();
-		const int32Reader = new readers.Int32Reader();
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
-		const stringReader = new readers.StringReader();
+		const booleanReader = new BooleanReader();
+		const int32Reader = new Int32Reader();
+		const nullableStringReader = new NullableReader(new StringReader());
+		const stringReader = new StringReader();
 		this.writeIndex(buffer, resolver);
 		int32Reader.write(buffer, content.Image, null);
 		nullableStringReader.write(buffer, content.Music, resolver);
@@ -80,7 +76,7 @@ class MovieSceneReader extends readers.BaseReader {
 
 }
 
-class MovieDataReader extends readers.BaseReader {
+class MovieDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.Movies.MovieData':
@@ -100,9 +96,9 @@ class MovieDataReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const int32Reader = new readers.Int32Reader();
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
-		const nullableStringListReader = new readers.NullableReader(new readers.ListReader(new readers.StringReader()));
+		const int32Reader = new Int32Reader();
+		const nullableStringReader = new NullableReader(new StringReader());
+		const nullableStringListReader = new NullableReader(new ListReader(new StringReader()));
 		let ID = nullableStringReader.read(buffer, resolver);
 		let SheetIndex = int32Reader.read(buffer);
 		let Title = resolver.read(buffer);
@@ -120,11 +116,11 @@ class MovieDataReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const int32Reader = new readers.Int32Reader();
-		const stringReader = new readers.StringReader();
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
-		const nullableStringListReader = new readers.NullableReader(new readers.ListReader(new readers.StringReader()));
-		const movieSceneListReader = new readers.ListReader(new MovieSceneReader());
+		const int32Reader = new Int32Reader();
+		const stringReader = new StringReader();
+		const nullableStringReader = new NullableReader(new StringReader());
+		const nullableStringListReader = new NullableReader(new ListReader(new StringReader()));
+		const movieSceneListReader = new ListReader(new MovieSceneReader());
 		this.writeIndex(buffer, resolver);
 		nullableStringReader.write(buffer, content.ID, resolver);
 		int32Reader.write(buffer, content.SheetIndex, null);
@@ -140,7 +136,7 @@ class MovieDataReader extends readers.BaseReader {
 
 }
 
-class CharacterResponseReader extends readers.BaseReader {
+class CharacterResponseReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.Movies.CharacterResponse':
@@ -160,7 +156,7 @@ class CharacterResponseReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
+		const nullableStringReader = new NullableReader(new StringReader());
 		const ResponsePoint = nullableStringReader.read(buffer, resolver);
 		const Script = nullableStringReader.read(buffer, resolver) || "";
 		const Text = nullableStringReader.read(buffer, resolver) || "";
@@ -172,7 +168,7 @@ class CharacterResponseReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
+		const nullableStringReader = new NullableReader(new StringReader());
 		this.writeIndex(buffer, resolver);
 		nullableStringReader.write(buffer, content.ResponsePoint, resolver);
 		nullableStringReader.write(buffer, content.Script, resolver);
@@ -185,7 +181,7 @@ class CharacterResponseReader extends readers.BaseReader {
 
 }
 
-class SpecialResponsesReader extends readers.BaseReader {
+class SpecialResponsesReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.Movies.SpecialResponses':
@@ -205,7 +201,7 @@ class SpecialResponsesReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const nullableCharacterResponseReader = new readers.NullableReader(new CharacterResponseReader());
+		const nullableCharacterResponseReader = new NullableReader(new CharacterResponseReader());
 		const BeforeMovie = nullableCharacterResponseReader.read(buffer, resolver);
 		const DuringMovie = nullableCharacterResponseReader.read(buffer, resolver);
 		const AfterMovie = nullableCharacterResponseReader.read(buffer, resolver);
@@ -217,7 +213,7 @@ class SpecialResponsesReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const nullableCharacterResponseReader = new readers.NullableReader(new CharacterResponseReader());
+		const nullableCharacterResponseReader = new NullableReader(new CharacterResponseReader());
 		this.writeIndex(buffer, resolver);
 		nullableCharacterResponseReader.write(buffer, content.BeforeMovie, resolver);
 		nullableCharacterResponseReader.write(buffer, content.DuringMovie, resolver);
@@ -230,7 +226,7 @@ class SpecialResponsesReader extends readers.BaseReader {
 
 }
 
-class MovieReactionReader extends readers.BaseReader {
+class MovieReactionReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.Movies.MovieReaction':
@@ -250,9 +246,9 @@ class MovieReactionReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
-		const nullableStringListReader = new readers.NullableReader(new readers.ListReader(new readers.StringReader()));
-		const nullableSpecialResponsesReader = new readers.NullableReader(new SpecialResponsesReader());
+		const nullableStringReader = new NullableReader(new StringReader());
+		const nullableStringListReader = new NullableReader(new ListReader(new StringReader()));
+		const nullableSpecialResponsesReader = new NullableReader(new SpecialResponsesReader());
 		const Tag = resolver.read(buffer);
 		const Response = nullableStringReader.read(buffer, resolver) || "like";
 		const Whitelist = nullableStringListReader.read(buffer, resolver) || [];
@@ -268,10 +264,10 @@ class MovieReactionReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const stringReader = new readers.StringReader();
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
-		const nullableStringListReader = new readers.NullableReader(new readers.ListReader(new readers.StringReader()));
-		const nullableSpecialResponsesReader = new readers.NullableReader(new SpecialResponsesReader());
+		const stringReader = new StringReader();
+		const nullableStringReader = new NullableReader(new StringReader());
+		const nullableStringListReader = new NullableReader(new ListReader(new StringReader()));
+		const nullableSpecialResponsesReader = new NullableReader(new SpecialResponsesReader());
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.Tag, resolver);
 		nullableStringReader.write(buffer, content.Response, resolver);
@@ -286,7 +282,7 @@ class MovieReactionReader extends readers.BaseReader {
 
 }
 
-class MovieCharacterReactionReader extends readers.BaseReader {
+class MovieCharacterReactionReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.Movies.MovieCharacterReaction':
@@ -306,7 +302,7 @@ class MovieCharacterReactionReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const nullableReactionListReader = new readers.NullableReader(new readers.ListReader(new MovieReactionReader()));
+		const nullableReactionListReader = new NullableReader(new ListReader(new MovieReactionReader()));
 		const NPCName = resolver.read(buffer);
 		const Reactions = nullableReactionListReader.read(buffer, resolver);
 		return {
@@ -316,8 +312,8 @@ class MovieCharacterReactionReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const stringReader = new readers.StringReader();
-		const nullableReactionListReader = new readers.NullableReader(new readers.ListReader(new MovieReactionReader()));
+		const stringReader = new StringReader();
+		const nullableReactionListReader = new NullableReader(new ListReader(new MovieReactionReader()));
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.NPCName, resolver);
 		nullableReactionListReader.write(buffer, content.Reactions, resolver);
@@ -329,7 +325,7 @@ class MovieCharacterReactionReader extends readers.BaseReader {
 
 }
 
-class ConcessionItemDataReader extends readers.BaseReader {
+class ConcessionItemDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.Movies.ConcessionItemData':
@@ -349,8 +345,8 @@ class ConcessionItemDataReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const int32Reader = new readers.Int32Reader();
-		const nullableStringListReader = new readers.NullableReader(new readers.ListReader(new readers.StringReader()));
+		const int32Reader = new Int32Reader();
+		const nullableStringListReader = new NullableReader(new ListReader(new StringReader()));
 		let ID = int32Reader.read(buffer);
 		let Name = resolver.read(buffer);
 		let DisplayName = resolver.read(buffer);
@@ -368,9 +364,9 @@ class ConcessionItemDataReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const int32Reader = new readers.Int32Reader();
-		const stringReader = new readers.StringReader();
-		const nullableStringListReader = new readers.NullableReader(new readers.ListReader(new readers.StringReader()));
+		const int32Reader = new Int32Reader();
+		const stringReader = new StringReader();
+		const nullableStringListReader = new NullableReader(new ListReader(new StringReader()));
 		this.writeIndex(buffer, resolver);
 		int32Reader.write(buffer, content.ID, null);
 		stringReader.write(buffer, content.Name, resolver);
@@ -386,7 +382,7 @@ class ConcessionItemDataReader extends readers.BaseReader {
 
 }
 
-class ConcessionTasteReader extends readers.BaseReader {
+class ConcessionTasteReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.Movies.ConcessionTaste':
@@ -406,7 +402,7 @@ class ConcessionTasteReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const nullableStringListReader = new readers.NullableReader(new readers.ListReader(new readers.StringReader()));
+		const nullableStringListReader = new NullableReader(new ListReader(new StringReader()));
 		let Name = resolver.read(buffer);
 		let LovedTags = nullableStringListReader.read(buffer, resolver);
 		let LikedTags = nullableStringListReader.read(buffer, resolver);
@@ -420,8 +416,8 @@ class ConcessionTasteReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const stringReader = new readers.StringReader();
-		const nullableStringListReader = new readers.NullableReader(new readers.ListReader(new readers.StringReader()));
+		const stringReader = new StringReader();
+		const nullableStringListReader = new NullableReader(new ListReader(new StringReader()));
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.Name, resolver);
 		nullableStringListReader.write(buffer, content.LovedTags, resolver);
@@ -435,7 +431,7 @@ class ConcessionTasteReader extends readers.BaseReader {
 
 }
 
-class FishPondRewardReader extends readers.BaseReader {
+class FishPondRewardReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.FishPond.FishPondReward':
@@ -455,8 +451,8 @@ class FishPondRewardReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const int32Reader = new readers.Int32Reader();
-		const floatReader = new readers.SingleReader();
+		const int32Reader = new Int32Reader();
+		const floatReader = new SingleReader();
 		const RequiredPopulation = int32Reader.read(buffer);
 		const Chance = Math.round(floatReader.read(buffer) * 100000) / 100000;
 		const ItemId = int32Reader.read(buffer);
@@ -472,8 +468,8 @@ class FishPondRewardReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const int32Reader = new readers.Int32Reader();
-		const floatReader = new readers.SingleReader();
+		const int32Reader = new Int32Reader();
+		const floatReader = new SingleReader();
 		this.writeIndex(buffer, resolver);
 		int32Reader.write(buffer, content.RequiredPopulation, null);
 		floatReader.write(buffer, content.Chance, null);
@@ -488,7 +484,7 @@ class FishPondRewardReader extends readers.BaseReader {
 
 }
 
-class FishPondDataReader extends readers.BaseReader {
+class FishPondDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.FishPond.FishPondData':
@@ -508,8 +504,8 @@ class FishPondDataReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const int32Reader = new readers.Int32Reader();
-		const stringListDictReader = new readers.NullableReader(new readers.DictionaryReader(new readers.Int32Reader(), new readers.ListReader(new readers.StringReader())));
+		const int32Reader = new Int32Reader();
+		const stringListDictReader = new NullableReader(new DictionaryReader(new Int32Reader(), new ListReader(new StringReader())));
 		const RequiredTags = resolver.read(buffer);
 		const SpawnTime = int32Reader.read(buffer);
 		const ProducedItems = resolver.read(buffer);
@@ -523,10 +519,10 @@ class FishPondDataReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const stringListReader = new readers.ListReader(new readers.StringReader());
-		const int32Reader = new readers.Int32Reader();
-		const fishPondRewardListReader = new readers.ListReader(new FishPondRewardReader());
-		const stringListDictReader = new readers.NullableReader(new readers.DictionaryReader(new readers.Int32Reader(), new readers.ListReader(new readers.StringReader())));
+		const stringListReader = new ListReader(new StringReader());
+		const int32Reader = new Int32Reader();
+		const fishPondRewardListReader = new ListReader(new FishPondRewardReader());
+		const stringListDictReader = new NullableReader(new DictionaryReader(new Int32Reader(), new ListReader(new StringReader())));
 		this.writeIndex(buffer, resolver);
 		stringListReader.write(buffer, content.RequiredTags, resolver);
 		int32Reader.write(buffer, content.SpawnTime, null);
@@ -540,7 +536,7 @@ class FishPondDataReader extends readers.BaseReader {
 
 }
 
-class TailorItemRecipeReader extends readers.BaseReader {
+class TailorItemRecipeReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.Crafting.TailorItemRecipe':
@@ -560,10 +556,10 @@ class TailorItemRecipeReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const nullableStringListReader = new readers.NullableReader(new readers.ListReader(new readers.StringReader()));
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
-		const booleanReader = new readers.BooleanReader();
-		const int32Reader = new readers.Int32Reader();
+		const nullableStringListReader = new NullableReader(new ListReader(new StringReader()));
+		const nullableStringReader = new NullableReader(new StringReader());
+		const booleanReader = new BooleanReader();
+		const int32Reader = new Int32Reader();
 		const FirstItemTags = nullableStringListReader.read(buffer, resolver);
 		const SecondItemTags = nullableStringListReader.read(buffer, resolver);
 		const SpendingRightItem = booleanReader.read(buffer);
@@ -581,10 +577,10 @@ class TailorItemRecipeReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const nullableStringListReader = new readers.NullableReader(new readers.ListReader(new readers.StringReader()));
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
-		const booleanReader = new readers.BooleanReader();
-		const int32Reader = new readers.Int32Reader();
+		const nullableStringListReader = new NullableReader(new ListReader(new StringReader()));
+		const nullableStringReader = new NullableReader(new StringReader());
+		const booleanReader = new BooleanReader();
+		const int32Reader = new Int32Reader();
 		this.writeIndex(buffer, resolver);
 		nullableStringListReader.write(buffer, content.FirstItemTags, resolver);
 		nullableStringListReader.write(buffer, content.SecondItemTags, resolver);
@@ -600,7 +596,7 @@ class TailorItemRecipeReader extends readers.BaseReader {
 
 }
 
-class RenovationValueReader extends readers.BaseReader {
+class RenovationValueReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.HomeRenovations.RenovationValue':
@@ -631,7 +627,7 @@ class RenovationValueReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const stringReader = new readers.StringReader();
+		const stringReader = new StringReader();
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.Type, resolver);
 		stringReader.write(buffer, content.Key, resolver);
@@ -644,7 +640,7 @@ class RenovationValueReader extends readers.BaseReader {
 
 }
 
-class RectReader extends readers.RectangleReader {
+class RectReader extends RectangleReader {
 	static isTypeOf(type) {
 		if (super.isTypeOf(type)) return true;
 
@@ -701,7 +697,7 @@ class RectReader extends readers.RectangleReader {
 
 }
 
-class RectGroupReader extends readers.BaseReader {
+class RectGroupReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.HomeRenovations.RectGroup':
@@ -728,7 +724,7 @@ class RectGroupReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const rectListReader = new readers.ListReader(new RectReader());
+		const rectListReader = new ListReader(new RectReader());
 		this.writeIndex(buffer, resolver);
 		rectListReader.write(buffer, content.Rects, resolver);
 	}
@@ -739,7 +735,7 @@ class RectGroupReader extends readers.BaseReader {
 
 }
 
-class HomeRenovationReader extends readers.BaseReader {
+class HomeRenovationReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.HomeRenovations.HomeRenovation':
@@ -759,9 +755,9 @@ class HomeRenovationReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const booleanReader = new readers.BooleanReader();
-		const nullableRectGroupListReader = new readers.NullableReader(new readers.ListReader(new RectGroupReader()));
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
+		const booleanReader = new BooleanReader();
+		const nullableRectGroupListReader = new NullableReader(new ListReader(new RectGroupReader()));
+		const nullableStringReader = new NullableReader(new StringReader());
 		const TextStrings = resolver.read(buffer);
 		const AnimationType = resolver.read(buffer);
 		const CheckForObstructions = booleanReader.read(buffer);
@@ -781,11 +777,11 @@ class HomeRenovationReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const booleanReader = new readers.BooleanReader();
-		const stringReader = new readers.StringReader();
-		const renovationValueListReader = new readers.ListReader(new RenovationValueReader());
-		const nullableRectGroupListReader = new readers.NullableReader(new readers.ListReader(new RectGroupReader()));
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
+		const booleanReader = new BooleanReader();
+		const stringReader = new StringReader();
+		const renovationValueListReader = new ListReader(new RenovationValueReader());
+		const nullableRectGroupListReader = new NullableReader(new ListReader(new RectGroupReader()));
+		const nullableStringReader = new NullableReader(new StringReader());
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.TextStrings, resolver);
 		stringReader.write(buffer, content.AnimationType, resolver);
@@ -802,7 +798,7 @@ class HomeRenovationReader extends readers.BaseReader {
 
 }
 
-class BundleDataReader extends readers.BaseReader {
+class BundleDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.BundleData':
@@ -822,7 +818,7 @@ class BundleDataReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const int32Reader = new readers.Int32Reader();
+		const int32Reader = new Int32Reader();
 		let Name = resolver.read(buffer);
 		let Index = int32Reader.read(buffer);
 		let Sprite = resolver.read(buffer);
@@ -844,8 +840,8 @@ class BundleDataReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const int32Reader = new readers.Int32Reader();
-		const stringReader = new readers.StringReader();
+		const int32Reader = new Int32Reader();
+		const stringReader = new StringReader();
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.Name, resolver);
 		int32Reader.write(buffer, content.Index, null);
@@ -863,7 +859,7 @@ class BundleDataReader extends readers.BaseReader {
 
 }
 
-class BundleSetDataReader extends readers.BaseReader {
+class BundleSetDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.BundleSetData':
@@ -890,7 +886,7 @@ class BundleSetDataReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const bundleListReader = new readers.ListReader(new BundleDataReader());
+		const bundleListReader = new ListReader(new BundleDataReader());
 		this.writeIndex(buffer, resolver);
 		bundleListReader.write(buffer, content.Bundles, resolver);
 	}
@@ -901,7 +897,7 @@ class BundleSetDataReader extends readers.BaseReader {
 
 }
 
-class RandomBundleDataReader extends readers.BaseReader {
+class RandomBundleDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.RandomBundleData':
@@ -921,8 +917,8 @@ class RandomBundleDataReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const nullableBundleSetListReader = new readers.NullableReader(new readers.ListReader(new BundleSetDataReader()));
-		const nullableBundleListReader = new readers.NullableReader(new readers.ListReader(new BundleDataReader()));
+		const nullableBundleSetListReader = new NullableReader(new ListReader(new BundleSetDataReader()));
+		const nullableBundleListReader = new NullableReader(new ListReader(new BundleDataReader()));
 		let AreaName = resolver.read(buffer);
 		let Keys = resolver.read(buffer);
 		let BundleSets = nullableBundleSetListReader.read(buffer, resolver);
@@ -936,9 +932,9 @@ class RandomBundleDataReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const stringReader = new readers.StringReader();
-		const nullableBundleSetListReader = new readers.NullableReader(new readers.ListReader(new BundleSetDataReader()));
-		const nullableBundleListReader = new readers.NullableReader(new readers.ListReader(new BundleDataReader()));
+		const stringReader = new StringReader();
+		const nullableBundleSetListReader = new NullableReader(new ListReader(new BundleSetDataReader()));
+		const nullableBundleListReader = new NullableReader(new ListReader(new BundleDataReader()));
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.AreaName, resolver);
 		stringReader.write(buffer, content.Keys, resolver);
@@ -952,7 +948,7 @@ class RandomBundleDataReader extends readers.BaseReader {
 
 }
 
-class RandomizedElementItemReader extends readers.BaseReader {
+class RandomizedElementItemReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.RandomizedElementItem':
@@ -972,7 +968,7 @@ class RandomizedElementItemReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
+		const nullableStringReader = new NullableReader(new StringReader());
 		const RequiredTags = nullableStringReader.read(buffer, resolver) || "";
 		const Value = resolver.read(buffer);
 		return {
@@ -982,8 +978,8 @@ class RandomizedElementItemReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const stringReader = new readers.StringReader();
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
+		const stringReader = new StringReader();
+		const nullableStringReader = new NullableReader(new StringReader());
 		this.writeIndex(buffer, resolver);
 		nullableStringReader.write(buffer, content.RequiredTags, resolver);
 		stringReader.write(buffer, content.Value, resolver);
@@ -995,7 +991,7 @@ class RandomizedElementItemReader extends readers.BaseReader {
 
 }
 
-class RandomizedElementReader extends readers.BaseReader {
+class RandomizedElementReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.RandomizedElement':
@@ -1024,8 +1020,8 @@ class RandomizedElementReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const stringReader = new readers.StringReader();
-		const itemListReader = new readers.ListReader(new RandomizedElementItemReader());
+		const stringReader = new StringReader();
+		const itemListReader = new ListReader(new RandomizedElementItemReader());
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.Name, resolver);
 		itemListReader.write(buffer, content.Values, resolver);
@@ -1037,7 +1033,7 @@ class RandomizedElementReader extends readers.BaseReader {
 
 }
 
-class SpecialOrderObjectiveDataReader extends readers.BaseReader {
+class SpecialOrderObjectiveDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.SpecialOrderObjectiveData':
@@ -1070,8 +1066,8 @@ class SpecialOrderObjectiveDataReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const stringReader = new readers.StringReader();
-		const stringDictReader = new readers.DictionaryReader(new readers.StringReader(), new readers.StringReader());
+		const stringReader = new StringReader();
+		const stringDictReader = new DictionaryReader(new StringReader(), new StringReader());
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.Type, resolver);
 		stringReader.write(buffer, content.Text, resolver);
@@ -1085,7 +1081,7 @@ class SpecialOrderObjectiveDataReader extends readers.BaseReader {
 
 }
 
-class SpecialOrderRewardDataReader extends readers.BaseReader {
+class SpecialOrderRewardDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.SpecialOrderRewardData':
@@ -1114,8 +1110,8 @@ class SpecialOrderRewardDataReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const stringReader = new readers.StringReader();
-		const stringDictReader = new readers.DictionaryReader(new readers.StringReader(), new readers.StringReader());
+		const stringReader = new StringReader();
+		const stringDictReader = new DictionaryReader(new StringReader(), new StringReader());
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.Type, resolver);
 		stringDictReader.write(buffer, content.Data, resolver);
@@ -1127,7 +1123,7 @@ class SpecialOrderRewardDataReader extends readers.BaseReader {
 
 }
 
-class SpecialOrderDataReader extends readers.BaseReader {
+class SpecialOrderDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.SpecialOrderData':
@@ -1147,8 +1143,8 @@ class SpecialOrderDataReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
-		const nullableRandomizedElemListReader = new readers.NullableReader(new readers.ListReader(new RandomizedElementReader()));
+		const nullableStringReader = new NullableReader(new StringReader());
+		const nullableRandomizedElemListReader = new NullableReader(new ListReader(new RandomizedElementReader()));
 		const Name = resolver.read(buffer);
 		const Requester = resolver.read(buffer);
 		const Duration = resolver.read(buffer);
@@ -1180,11 +1176,11 @@ class SpecialOrderDataReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const stringReader = new readers.StringReader();
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
-		const nullableRandomizedElemListReader = new readers.NullableReader(new readers.ListReader(new RandomizedElementReader()));
-		const objectiveListReader = new readers.ListReader(new SpecialOrderObjectiveDataReader());
-		const rewardListReader = new readers.ListReader(new SpecialOrderRewardDataReader());
+		const stringReader = new StringReader();
+		const nullableStringReader = new NullableReader(new StringReader());
+		const nullableRandomizedElemListReader = new NullableReader(new ListReader(new RandomizedElementReader()));
+		const objectiveListReader = new ListReader(new SpecialOrderObjectiveDataReader());
+		const rewardListReader = new ListReader(new SpecialOrderRewardDataReader());
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.Name, resolver);
 		stringReader.write(buffer, content.Requester, resolver);
@@ -1207,7 +1203,7 @@ class SpecialOrderDataReader extends readers.BaseReader {
 
 }
 
-class ModFarmTypeReader extends readers.BaseReader {
+class ModFarmTypeReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.ModFarmType':
@@ -1227,8 +1223,8 @@ class ModFarmTypeReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
-		const nullableStringDictReader = new readers.NullableReader(new readers.DictionaryReader(new readers.StringReader()));
+		const nullableStringReader = new NullableReader(new StringReader());
+		const nullableStringDictReader = new NullableReader(new DictionaryReader(new StringReader()));
 		const ID = resolver.read(buffer);
 		const TooltipStringPath = resolver.read(buffer);
 		const MapName = resolver.read(buffer);
@@ -1246,9 +1242,9 @@ class ModFarmTypeReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const stringReader = new readers.StringReader();
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
-		const nullableStringDictReader = new readers.NullableReader(new readers.DictionaryReader(new readers.StringReader()));
+		const stringReader = new StringReader();
+		const nullableStringReader = new NullableReader(new StringReader());
+		const nullableStringDictReader = new NullableReader(new DictionaryReader(new StringReader()));
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.ID, resolver);
 		stringReader.write(buffer, content.TooltipStringPath, resolver);
@@ -1264,7 +1260,7 @@ class ModFarmTypeReader extends readers.BaseReader {
 
 }
 
-class ModLanguageReader extends readers.BaseReader {
+class ModLanguageReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.ModLanguage':
@@ -1284,10 +1280,10 @@ class ModLanguageReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const int32Reader = new readers.Int32Reader();
-		const floatReader = new readers.SingleReader();
-		const booleanReader = new readers.BooleanReader();
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
+		const int32Reader = new Int32Reader();
+		const floatReader = new SingleReader();
+		const booleanReader = new BooleanReader();
+		const nullableStringReader = new NullableReader(new StringReader());
 		const ID = resolver.read(buffer);
 		const LanguageCode = resolver.read(buffer);
 		const ButtonTexture = resolver.read(buffer);
@@ -1319,11 +1315,11 @@ class ModLanguageReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const stringReader = new readers.StringReader();
-		const int32Reader = new readers.Int32Reader();
-		const floatReader = new readers.SingleReader();
-		const booleanReader = new readers.BooleanReader();
-		const nullableStringReader = new readers.NullableReader(new readers.StringReader());
+		const stringReader = new StringReader();
+		const int32Reader = new Int32Reader();
+		const floatReader = new SingleReader();
+		const booleanReader = new BooleanReader();
+		const nullableStringReader = new NullableReader(new StringReader());
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.ID, resolver);
 		stringReader.write(buffer, content.LanguageCode, resolver);
@@ -1346,7 +1342,7 @@ class ModLanguageReader extends readers.BaseReader {
 
 }
 
-class ModWallpaperOrFlooringReader extends readers.BaseReader {
+class ModWallpaperOrFlooringReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.ModWallpaperOrFlooring':
@@ -1366,8 +1362,8 @@ class ModWallpaperOrFlooringReader extends readers.BaseReader {
 	}
 
 	read(buffer, resolver) {
-		const int32Reader = new readers.Int32Reader();
-		const booleanReader = new readers.BooleanReader();
+		const int32Reader = new Int32Reader();
+		const booleanReader = new BooleanReader();
 		const ID = resolver.read(buffer);
 		const Texture = resolver.read(buffer);
 		const IsFlooring = booleanReader.read(buffer);
@@ -1381,9 +1377,9 @@ class ModWallpaperOrFlooringReader extends readers.BaseReader {
 	}
 
 	write(buffer, content, resolver) {
-		const int32Reader = new readers.Int32Reader();
-		const booleanReader = new readers.BooleanReader();
-		const stringReader = new readers.StringReader();
+		const int32Reader = new Int32Reader();
+		const booleanReader = new BooleanReader();
+		const stringReader = new StringReader();
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.ID, resolver);
 		stringReader.write(buffer, content.Texture, resolver);
@@ -1397,29 +1393,4 @@ class ModWallpaperOrFlooringReader extends readers.BaseReader {
 
 }
 
-exports.BundleDataReader = BundleDataReader;
-exports.BundleSetDataReader = BundleSetDataReader;
-exports.CharacterResponseReader = CharacterResponseReader;
-exports.ConcessionItemDataReader = ConcessionItemDataReader;
-exports.ConcessionTasteReader = ConcessionTasteReader;
-exports.FishPondDataReader = FishPondDataReader;
-exports.FishPondRewardReader = FishPondRewardReader;
-exports.HomeRenovationReader = HomeRenovationReader;
-exports.ModFarmTypeReader = ModFarmTypeReader;
-exports.ModLanguageReader = ModLanguageReader;
-exports.ModWallpaperOrFlooringReader = ModWallpaperOrFlooringReader;
-exports.MovieCharacterReactionReader = MovieCharacterReactionReader;
-exports.MovieDataReader = MovieDataReader;
-exports.MovieReactionReader = MovieReactionReader;
-exports.MovieSceneReader = MovieSceneReader;
-exports.RandomBundleDataReader = RandomBundleDataReader;
-exports.RandomizedElementItemReader = RandomizedElementItemReader;
-exports.RandomizedElementReader = RandomizedElementReader;
-exports.RectGroupReader = RectGroupReader;
-exports.RectReader = RectReader;
-exports.RenovationValueReader = RenovationValueReader;
-exports.SpecialOrderDataReader = SpecialOrderDataReader;
-exports.SpecialOrderObjectiveDataReader = SpecialOrderObjectiveDataReader;
-exports.SpecialOrderRewardDataReader = SpecialOrderRewardDataReader;
-exports.SpecialResponsesReader = SpecialResponsesReader;
-exports.TailorItemRecipeReader = TailorItemRecipeReader;
+export { BundleDataReader, BundleSetDataReader, CharacterResponseReader, ConcessionItemDataReader, ConcessionTasteReader, FishPondDataReader, FishPondRewardReader, HomeRenovationReader, ModFarmTypeReader, ModLanguageReader, ModWallpaperOrFlooringReader, MovieCharacterReactionReader, MovieDataReader, MovieReactionReader, MovieSceneReader, RandomBundleDataReader, RandomizedElementItemReader, RandomizedElementReader, RectGroupReader, RectReader, RenovationValueReader, SpecialOrderDataReader, SpecialOrderObjectiveDataReader, SpecialOrderRewardDataReader, SpecialResponsesReader, TailorItemRecipeReader };
