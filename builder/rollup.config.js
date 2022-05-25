@@ -1,143 +1,86 @@
-import babel from '@rollup/plugin-babel';
-import polyfill from './polyfills/makePolyfill.js';
-import babelrc from './.babelrc.json';
-import es5babelrc from './.babelrc.es5.json';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import {terser} from "rollup-plugin-terser";
+import {makePlugins, makeBanners} from "./builder-plugins.js";
 
-function removeDebug() {
+function header(licenseMap)
+{
 	return {
-		resolveId(importee) {
-			return importee.includes("Debug.js") ? "__empty__" : null;
-		},
-		load(id) {
-			return (id === "__empty__") ? "export default {};" : null;
-		},
-		transform(code, filename) {
-			code = code.replace(/\/\/ read the target platform\s+switch[\s\S]+found\.`\);\s+break;\s+}/mg, "");
-			code = code.replace(/\/\/ read the XNB format version\s+switch[\s\S]+unknown\.`\);\s+break;\s+}/mg, "");
-			code = code.replace(/Debug\(.+[\)];\n{0,1}/g, "");
-			code = code.replace("import Debug from .*\n$", "");
-			return {
-				code: code,
-				map: null
-			};
-		}
-	}
-}
-
-function babelCleanup() {
-	const doubleSpaces = / {2}/g;
-	return {
-		transform( code ) {
-			code = code.replace( doubleSpaces, '\t' );
-			return {
-				code: code,
-				map: null
-			};
+		renderChunk(code){
+			return `${makeBanners(true, licenseMap)}
+${code}`;
 		}
 	};
 }
 
-let builds = [
-// for es2017+ module
+function buildMaker(srcBase, srcName, dist, licenseMap)
 {
-	input: 'src/XnbUnpacker.js',
-	output: [{
-		file: 'dist/xnb.module.js',
-		format: 'esm'
+	return [
+	// for es2017+ module
+	{
+		input: `${srcBase}/${srcName}.js`,
+		output: [{
+			banner: makeBanners(false),
+			file: `${dist}.module.js`,
+			format: 'esm'
+		},
+		{
+			banner: makeBanners(false),
+			file: `${dist}.cjs`,
+			name: "XNB",
+			format: 'cjs'
+		},
+		{
+			banner: makeBanners(false),
+			file: `${dist}.js`,
+			name: "XNB",
+			format: 'umd'
+		}],
+		plugins: makePlugins(false, false)
 	},
 	{
-		file: 'dist/xnb.cjs',
-		name: "XNB",
-		format: 'cjs'
+		input: `${srcBase}/${srcName}.js`,
+		output: {
+			file: `${dist}.min.js`,
+			name: "XNB",
+			format: 'umd'
+		},
+		plugins: [...makePlugins(true, false), header(licenseMap)]
 	},
-	{
-		file: 'dist/xnb.js',
-		name: "XNB",
-		format: 'umd'
-	}],
-	plugins: [
-		removeDebug(),
-		polyfill({version:"es2017"}),
-		babel({
-			babelHelpers:'bundled',
-			babelrc: false,
-			...babelrc,
-			shouldPrintComment:(val)=>val.startsWith("* @api")
-		}),
-		babelCleanup()
-	]
-},
-{
-	input: 'src/XnbUnpacker.js',
-	output: {
-		file: 'dist/xnb.min.js',
-		name: "XNB",
-		format: 'umd'
-	},
-	plugins: [
-		removeDebug(),
-		polyfill({version:"es2017"}),
-		babel({
-			babelHelpers:'bundled',
-			babelrc: false,
-			...babelrc
-		}),
-		babelCleanup(),
-		terser()
-	]
-},
 
-// for es5(legacy)
-{
-	input: 'src/es5.js',
-	output: {
-		file: 'dist/xnb.es5.js',
-		name: 'XNB',
-		format: 'umd',
-		indent: '\t'
+	// for es5(legacy)
+	{
+		input: `${srcBase}/es5.js`,
+		output: {
+			banner: makeBanners(false),
+			file: `${dist}.es5.js`,
+			name: "XNB",
+			format: 'umd',
+			indent: '\t'
+		},
+		plugins: makePlugins(false, true)
 	},
-	plugins: [
-		nodeResolve(),
-		commonjs(),
-		removeDebug(),
-		polyfill(),
-		babel({
-			babelHelpers:'bundled',
-			babelrc: false,
-			exclude:'node_modules/**',
-			...es5babelrc,
-			shouldPrintComment:(val)=>val.startsWith("* @api")
-		}),
-		babelCleanup()
-	]
-},
-{
-	input: 'src/es5.js',
-	output: {
-		file: 'dist/xnb.es5.min.js',
-		name: 'XNB',
-		format: 'umd',
-		indent: '\t'
-	},
-	plugins: [
-		nodeResolve(),
-		commonjs(),
-		removeDebug(),
-		polyfill(),
-		babel({
-			babelHelpers:'bundled',
-			babelrc: false,
-			exclude:'node_modules/**',
-			...es5babelrc
-		}),
-		babelCleanup(),
-		terser()
-	]
+	{
+		input: `${srcBase}/es5.js`,
+		output: {
+			file: `${dist}.es5.min.js`,
+			name: "XNB",
+			format: 'umd',
+			indent: '\t'
+		},
+		plugins: [...makePlugins(true, true), header(licenseMap)]
+	} ];
 }
-]
 
+function buildTargetMaker(target=-1)
+{
+	const targetArray = [
+		["src", "xnb", "dist/xnb", {LZ4:true, LZX:true, DXT:true}],
+		["src/core", "Xnb", "src/core/dist/core", {LZ4:true, LZX:true}],
+		["src/readers", "readers", "src/readers/dist/readers", {DXT:true}]
+	]
+
+	if(target >= 0 ) return buildMaker(...targetArray[target]);
+	return targetArray.map((paths)=>buildMaker(...paths)).flat();
+}
+
+const builds = buildTargetMaker(process.env.BUILD_MODULE);
 
 export default builds;

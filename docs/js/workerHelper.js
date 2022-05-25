@@ -1,4 +1,4 @@
-import {XnbData} from "./libs/xnb.module.js";
+import {XnbData} from "./libs/xnb.js";
 
 const bufferToXnb = (function(){
 	const worker = new Worker("./js/libs/unpackWorker.js", {type:"module"});

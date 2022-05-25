@@ -20,11 +20,11 @@ xnb.js는 es6 모듈을 이용하여 불러오는 것을 권장합니다.
 
 #### ES6 모듈로 불러오기(권장)
 ```js
-import * as XNB from "https://cdn.jsdelivr.net/npm/xnb@1.0.2/dist/xnb.module.js";
+import * as XNB from "https://cdn.jsdelivr.net/npm/xnb@1.1.0/dist/xnb.module.js";
 ```
 #### 스크립트 링크로 불러오기
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xnb@1.0.2/dist/xnb.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xnb@1.1.0/dist/xnb.min.js"></script>
 ```
 자신이 IE11 등 ES5를 지원해야 한다면, xnb.es5.min.js를 사용하는 것을 권장합니다.
 
@@ -86,6 +86,64 @@ readFile("./Abigail.xnb") // read xnb file as Buffer
 ```
 ## API
 이 [링크](https://github.com/lybell-art/xnb-js/blob/main/api-ko.md)를 참조하십시오.
+
+## 커스텀
+xnb.js 1.1 업데이트 이후부터는 리더의 일부만 불러오거나, 커스텀 리더를 추가할 수 있습니다.
+
+### 일부 리더만 불러오기
+```js
+import * as XNB from "@xnb-js/core";
+import { LightweightTexture2DReader as Texture2DReader } from "@xnb-js/readers";
+
+XNB.setReaders({Texture2DReader});
+
+xnb.unpackToXnbData(file);
+```
+
+### 커스텀 플러그인 추가
+```js
+import * as XNB from "xnb";
+
+// 커스텀 리더는 BaseReader를 상속해야 하며, 클래스의 이름은 Reader로 끝나야 합니다.
+class CustomReader extends XNB.readers.BaseReader{
+	static isTypeOf(type) {
+		// XNA game studio에서 사용되는 데이터 타입의 이름입니다.
+		// 데이터 타입이 읽히기를 원하면 true를, 아니면 false를 반환합니다.
+	}
+	static hasSubType() {
+		// 데이터 타입이 서브 타입을 가지고 있는지를 반환합니다.
+		// Array, List, Dictionary 등이 서브 타입을 가지고 있습니다.
+	}
+	static parseTypeList() {
+		// json 파일을 yaml 파일로 변환할 때 타입 데이터를 추가하기 위해 사용됩니다.
+		// 서브 리더가 실제로 사용하고 있는 순서의 간략화된 데이터 타입 문자열이 담긴 배열을 반환합니다.
+	}
+	static type()
+	{
+		// 간략화된 데이터 타입니다. 기본적으로 클래스 이름에서 Reader를 제외한 부분이 반환됩니다.
+		// 만약 클래스명이 실제 간략화된 데이터 타입과 다르다면, 실제 간략화할 데이터 타입을 반환해 주세요.
+	}
+	isValueType() {
+		// 데이터 타입이 원시 자료형인지를 반환합니다.
+	}
+	get type() {
+		// 리더의 문자열화된 타입을 반환합니다.
+	}
+	read(buffer, resolver) {
+		// 버퍼에서 데이터를 읽어오는 것을 구현합니다.
+	}
+	write(buffer, content, resolver) {
+		// 버퍼로 데이터를 쓰는 것을 구현합니다.
+	}
+	parseTypeList() {
+		// 서브 타입이 존재하는 타입의 경우, static 메소드가 아닌 이 메소드를 사용하시기 바랍니다.
+	}
+}
+
+XNB.addReaders({CustomReader});
+
+...
+```
 
 ## 외부 리소스
 xnb.js에는 dxt.js와 lz4.js, png.js가 번들링되어 있으며, dxt.js와 lz4.js는 es6 모듈에 최적화되어 재작성되었습니다.

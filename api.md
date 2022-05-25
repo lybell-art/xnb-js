@@ -118,9 +118,15 @@ Convert XnbData to Files array. The format of the array is the same as that of `
 ### pack( files : Flielist/Array, configs : Object )
 - ``files`` (Filelist/Array) : A array of files to be packed to xnb. Json or yaml file must be included.
 - ``configs`` (Object) : configs
+	- ``compression`` (String) : Compression method. default is ``"default"``.
 	- ``debug`` (Boolean) : If `true`, it returns the success and failure results of all files.
 	
 Receive a list of files to pack and convert them into xnb files. The json or yaml file containing the information in the header must be included. Compatible with XnbExtract.
+The compression methods currently supported by xnb.js are the following:
+- `"default"` : Try to use the compression algorithm specified in the header. Files specified as LZ4 compression perform LZ4 compression. Because the LZX compression algorithm is not implemented, files specified as LZX compression are not compressed.
+- `"none"` : Export the file with uncompressed data.
+- `"LZ4"` : Use LZ4 compression. Ensure a smaller file size. Exported file is incompatible with XnbExtract because it cannot read xnb files compressed with LZ4.
+
 You can directly put `Filelist` object in a browser environment. But in a node.js environment, there is no `FileList` object, so you must put an array whose elements are `{name, data}` objects as parameters. `name` means the name of the file and `data` means the actual binary buffer of the file.
 To use this in a node.js environment, see the following example:
 ```js
@@ -138,6 +144,34 @@ for (let name of files)
 // pack to xnb data
 const result = await pack(fileList);
 console.log(result);
+```
+
+## Reader Plugins
+
+### setReaders( readers : Object\<BaseReader\> )
+- ``readers`` (ArrayBuffer) : Reader
+
+Specifies the type of reader used by xnb.js. This is useful when you want to use only certain readers.
+The key of ``readers`` should be a recognizable data name+Reader for the header of the xnb file, and the value should include the reader class that inherited the BaseReader. See the following example:
+```js
+import {setReaders} from "@xnb/core";
+import {LightweightTexture2DReader, StringReader} from "@xnb/readers";
+
+setReaders({
+	Texture2DReader : LightweightTexture2DReader,
+	StringReader : StringReader
+});
+```
+
+### addReaders( readers : Object\<BaseReader\> )
+- ``readers`` (ArrayBuffer) : Reader
+
+Add the readers used by xnb.js. This is useful when you want to add plugins. See the following example:
+```js
+import {addReaders} from "xnb";
+import * as StardewReader from "@xnb/stardew-valley";
+
+addReaders(StardewReader);
 ```
 
 ## Data Structure

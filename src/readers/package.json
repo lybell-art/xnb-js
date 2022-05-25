@@ -1,0 +1,24 @@
+{
+	"name": "@xnb-js/readers",
+	"version": "1.1.0",
+	"description": "The basic readers of xnb.js.",
+	"main": "./dist/readers.js",
+	"module": "./dist/readers.module.js",
+	"export": {
+		".": {
+			"import": "./dist/readers.module.js",
+			"require": "./dist/readers.cjs"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"keywords": [
+		"xnb",
+		"converter",
+		"javascript",
+		"stardew-valley"
+	],
+	"author": "Lybell",
+	"license": "LGPL-3.0-or-later"
+}

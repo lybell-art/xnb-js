@@ -133,13 +133,13 @@ export default function polyfiller({version="es5"} = {}) {
 			if(version !== "es2017")
 			{
 				//str.repeat() polyfill
-				code = polyfill(code, "__repeatConcat", /(["'`\(\[].*["'`\)\]]|[0-9a-zA-Z_$])\.repeat\(([^)]+)/g, "__repeatConcat($1, $2");
+				code = polyfill(code, "__repeatConcat", /(["'`\(\[].*["'`\)\]]|[0-9a-zA-Z_$]+)\.repeat\(([^)]+)/g, "__repeatConcat($1, $2");
 				//str.startsWith() polyfill
-				code = polyfill(code, "__startsWithString", /(["'`\(].*["'`\)]|[0-9a-zA-Z_$])\.startsWith\(([^)]+)/g, "__startsWithString($1, $2");
+				code = polyfill(code, "__startsWithString", /(["'`\(].*["'`\)]|[0-9a-zA-Z_$]+)\.startsWith\(([^)]+)/g, "__startsWithString($1, $2");
 				//str.endsWith() polyfill
-				code = polyfill(code, "__endsWithString", /(["'`\(].*["'`\)]|[0-9a-zA-Z_$])\.endsWith\(([^)]+)/g, "__endsWithString($1, $2");
+				code = polyfill(code, "__endsWithString", /(["'`\(].*["'`\)]|[0-9a-zA-Z_$]+)\.endsWith\(([^)]+)/g, "__endsWithString($1, $2");
 				//str.includes() polyfill
-				code = polyfill(code, "__includes", /(["'`\[].*["'`\]]|[0-9a-zA-Z_$])\.includes\(([^)]+)/g, "__includes($1, $2");
+				code = polyfill(code, "__includes", /(["'`\[].*["'`\]]|[0-9a-zA-Z_$]+)\.includes\(([^)]+)/g, "__includes($1, $2");
 
 				//Number.parseInt() polyfill
 				code = code.replaceAll("Number.parseInt", "parseInt");

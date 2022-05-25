@@ -294,8 +294,8 @@ main::-webkit-scrollbar-track, .result-image-box::-webkit-scrollbar-track {
 		width: 48%;
 		height: 150px;
 		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
+		flex-direction: column;
+		flex-wrap: nowrap;
 		align-content: space-between;
 	}
 
@@ -313,7 +313,7 @@ main::-webkit-scrollbar-track, .result-image-box::-webkit-scrollbar-track {
 		padding: 10px;
 		flex-direction: column;
 		justify-content: flex-start;
-		gap: 0px;
+		gap: 20px;
 		overflow: auto;
 
 		border-width: 8px;
@@ -330,6 +330,7 @@ main::-webkit-scrollbar-track, .result-image-box::-webkit-scrollbar-track {
 
 	.controller-wrapper{
 		width: 100%;
+		height: unset;
 		gap: 10px;
 		flex-direction: column;
 		justify-content: center;
