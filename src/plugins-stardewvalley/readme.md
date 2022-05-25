@@ -1,14 +1,14 @@
-@xnb/stardew-valley
+@xnb-js/stardew-valley
 ----------------
 The xnb.js reader plugin for Stardew Valley. It was created to respond to the xnb file that stores custom data types added in Stardew Valley 1.4 and later.
 ### Installation
 ```bash
-npm install @xnb/stardew-valley
+npm install @xnb-js/stardew-valley
 ```
 ### Usage
 ```js
-import {setReaders, unpackToXnbData} from "@xnb/core";
-import * as Readers from "@xnb/stardew-valley";
+import {setReaders, unpackToXnbData} from "@xnb-js/core";
+import * as Readers from "@xnb-js/stardew-valley";
 
 setReaders(Readers);
 

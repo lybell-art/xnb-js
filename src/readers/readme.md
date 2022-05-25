@@ -1,4 +1,4 @@
-@xnb/readers
+@xnb-js/readers
 ----------------
 The basic readers of xnb.js.
 ### Installation
@@ -7,8 +7,8 @@ npm install @xnb/readers
 ```
 ### Usage
 ```js
-import {setReaders, unpackToXnbData} from "@xnb/core";
-import {Texture2DReader} from "@xnb/readers";
+import {setReaders, unpackToXnbData} from "@xnb-js/core";
+import {Texture2DReader} from "@xnb-js/readers";
 
 setReaders({Texture2DReader});
 

@@ -20,11 +20,11 @@ You can load and use a library hosted online. Here's how to use it:
 
 #### Load as ES6 Module(Recommended)
 ```js
-import * as XNB from "https://cdn.jsdelivr.net/npm/xnb@1.0.2/dist/xnb.module.js";
+import * as XNB from "https://cdn.jsdelivr.net/npm/xnb@1.1.0/dist/xnb.module.js";
 ```
 #### Load as UMD
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xnb@1.0.2/dist/xnb.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xnb@1.1.0/dist/xnb.min.js"></script>
 ```
 If you need to support ES5, such as IE11, I recommend using xnb.es5.min.js.
 
@@ -92,8 +92,8 @@ After 1.1 update, you can load and use only a portion of the existing readers, o
 
 ### Load only part of existing readers
 ```js
-import * as XNB from "@xnb/core";
-import { LightweightTexture2DReader as Texture2DReader } from "@xnb/readers";
+import * as XNB from "@xnb-js/core";
+import { LightweightTexture2DReader as Texture2DReader } from "@xnb-js/readers";
 
 XNB.setReaders({Texture2DReader});
 
