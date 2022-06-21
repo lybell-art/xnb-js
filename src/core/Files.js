@@ -174,6 +174,7 @@ async function readBlobasText(blob)
 {
 	if(typeof Blob === "function" && blob instanceof Blob) return blob.text();
 	else if(typeof Buffer === "function" && blob instanceof Buffer) return blob.toString();
+	else return blob;
 }
 
 /**
@@ -276,5 +277,45 @@ async function resolveImports(files, configs={})
 }
 
 
+function getReaderAssembly(extension)
+{
+	if(extension === "png") return "Microsoft.Xna.Framework.Content.Texture2DReader, Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553";
+	if(extension === "tbin") return "xTile.Pipeline.TideReader, xTile";
+	if(extension === "xml") return "BmFont.XmlSourceReader, BmFont, Version=2012.1.7.0, Culture=neutral, PublicKeyToken=null";
+}
 
-export { exportContent, exportFiles, resolveImports, extractFileName, makeBlob };
+/**
+ * make header json for png/tbin file only.
+ * @param {String} file name
+ * @return {Object} header json data
+ */
+function makeHeader(fileName)
+{
+	const [, extension] = extractFileName(fileName);
+
+	const readerType = getReaderAssembly(extension);
+
+	let content = {
+		export : fileName
+	};
+	if(extension === "png") content.format = 0;
+
+	const result = {
+		header : {
+			target : "w",
+			formatVersion : 5,
+			hidef: true,
+			compressed: true
+		},
+		reader : [{
+			type: readerType,
+			version: 0
+		}],
+		content
+	};
+
+	return JSON.stringify(result);
+}
+
+
+export { exportContent, exportFiles, resolveImports, extractFileName, makeBlob, makeHeader };
