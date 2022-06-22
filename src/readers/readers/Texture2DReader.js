@@ -2,6 +2,7 @@ import BaseReader from "./BaseReader.js";
 import Int32Reader from "./Int32Reader.js";
 import UInt32Reader from "./UInt32Reader.js";
 import * as dxt from "../libs/dxt.js";
+import {convertTo5551, convertFrom5551} from "../libs/bgra5551.js";
 
 /**
  * Texture2D Reader
@@ -44,11 +45,13 @@ export default class Texture2DReader extends BaseReader {
 		else if (format == 6)
 			data = dxt.decompress(data, width, height, dxt.flags.DXT5);
 		else if (format == 2) {
-			// require('fs').writeFileSync('texture.bin', data);
-			throw new Error('Texture2D format type ECT1 not implemented!');
+			// format type is bgra5551, not ECT1
+			data = convertFrom5551(data);
 		}
 		else if (format != 0)
 			throw new Error(`Non-implemented Texture2D format type (${format}) found.`);
+
+		if ( data instanceof ArrayBuffer ) data = new Uint8Array(data);
 
 		// add the alpha channel into the image
 		for(let i = 0; i < data.length; i += 4) {
@@ -98,12 +101,14 @@ export default class Texture2DReader extends BaseReader {
 			data[i + 2] = Math.floor(data[i + 2] * alpha);
 		}
 
-		if (content.format == 4)
+		if (content.format === 4)
 			data = dxt.compress(data, width, height, dxt.flags.DXT1);
-		else if (content.format == 5)
+		else if (content.format === 5)
 			data = dxt.compress(data, width, height, dxt.flags.DXT3);
-		else if (content.format == 6)
+		else if (content.format === 6)
 			data = dxt.compress(data, width, height, dxt.flags.DXT5);
+		else if (content.format === 2)
+			data = convertTo5551(data);
 		
 		uint32Reader.write(buffer, data.length, null);
 		buffer.concat(data);

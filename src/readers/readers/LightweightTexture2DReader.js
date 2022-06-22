@@ -39,6 +39,7 @@ export default class LightweightTexture2DReader extends BaseReader {
 
 		let dataSize = uint32Reader.read(buffer);
 		let data = buffer.read(dataSize);
+		data = new Uint8Array(data);
 
 		if (format != 0)
 			throw new Error("Compressed texture format is not supported!");

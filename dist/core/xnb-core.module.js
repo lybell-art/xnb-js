@@ -1,5 +1,5 @@
 /** 
- * xnb.js 1.1.0
+ * xnb.js 1.2.0
  * made by Lybell( https://github.com/lybell-art/ )
  * This library is based on the XnbCli made by Leonblade.
  * 
@@ -177,8 +177,8 @@ _defineProperty(TypeReader, "readers", {});
 const UTF8_FIRST_BITES = [0xC0, 0xE0, 0xF0];
 const UTF8_SECOND_BITES = 0x80;
 const UTF8_MASK = 0b111111;
-const UTF16_BITES$1 = [0xD800, 0xDC00];
-const UTF16_MASK$1 = 0b1111111111;
+const UTF16_BITES = [0xD800, 0xDC00];
+const UTF16_MASK = 0b1111111111;
 
 function UTF8Encode(code) {
 	if (code < 0x80) return [code];
@@ -190,7 +190,7 @@ function UTF8Encode(code) {
 function UTF16Encode(code) {
 	if (code < 0xFFFF) return [code];
 	code -= 0x10000;
-	return [UTF16_BITES$1[0] | code >> 10 & UTF16_MASK$1, UTF16_BITES$1[1] | code & UTF16_MASK$1];
+	return [UTF16_BITES[0] | code >> 10 & UTF16_MASK, UTF16_BITES[1] | code & UTF16_MASK];
 }
 
 function UTF8Decode(codeSet) {
@@ -209,17 +209,17 @@ function UTF8Decode(codeSet) {
 	return ((codeSet[0] ^ UTF8_FIRST_BITES[2]) << 18) + ((codeSet[1] ^ UTF8_SECOND_BITES) << 12) + ((codeSet[2] ^ UTF8_SECOND_BITES) << 6) + (codeSet[3] ^ UTF8_SECOND_BITES);
 }
 
-function UTF16Decode$1(codeSet) {
+function UTF16Decode(codeSet) {
 	var _codeSet2;
 
 	if (typeof codeSet === "number") codeSet = [codeSet];
 	if (!((_codeSet2 = codeSet) !== null && _codeSet2 !== void 0 && _codeSet2.length)) throw new Error("Invalid codeset!");
 	const codeSetRange = codeSet.length;
 	if (codeSetRange === 1) return codeSet[0];
-	return ((codeSet[0] & UTF16_MASK$1) << 10) + (codeSet[1] & UTF16_MASK$1) + 0x10000;
+	return ((codeSet[0] & UTF16_MASK) << 10) + (codeSet[1] & UTF16_MASK) + 0x10000;
 }
 
-function stringToUnicode$1(str) {
+function stringToUnicode(str) {
 	const utf16Map = Array.from({
 		length: str.length
 	}, (_, i) => str.charCodeAt(i));
@@ -229,11 +229,11 @@ function stringToUnicode$1(str) {
 	while (index < str.length) {
 		let code = utf16Map[index];
 
-		if ((UTF16_BITES$1[0] & code) !== UTF16_BITES$1[0]) {
+		if ((UTF16_BITES[0] & code) !== UTF16_BITES[0]) {
 			result.push(code);
 			index++;
 		} else {
-			result.push(UTF16Decode$1(utf16Map.slice(index, index + 2)));
+			result.push(UTF16Decode(utf16Map.slice(index, index + 2)));
 			index += 2;
 		}
 	}
@@ -295,7 +295,7 @@ function UnicodeToString(unicodeArr) {
 }
 
 function stringToUTF8(str) {
-	return UnicodeToUTF8(stringToUnicode$1(str));
+	return UnicodeToUTF8(stringToUnicode(str));
 }
 
 function UTF8ToString(utf8Array) {
@@ -1476,41 +1476,6 @@ function compressSingleBlock(src, dst) {
 	return compressBlock(src, dst, 0, src.length, hashTable);
 }
 
-const UTF16_BITES = [0xD800, 0xDC00];
-const UTF16_MASK = 0b1111111111;
-
-function UTF16Decode(codeSet) {
-	var _codeSet2;
-
-	if (typeof codeSet === "number") codeSet = [codeSet];
-	if (!((_codeSet2 = codeSet) !== null && _codeSet2 !== void 0 && _codeSet2.length)) throw new Error("Invalid codeset!");
-	const codeSetRange = codeSet.length;
-	if (codeSetRange === 1) return codeSet[0];
-	return ((codeSet[0] & UTF16_MASK) << 10) + (codeSet[1] & UTF16_MASK) + 0x10000;
-}
-
-function stringToUnicode(str) {
-	const utf16Map = Array.from({
-		length: str.length
-	}, (_, i) => str.charCodeAt(i));
-	const result = [];
-	let index = 0;
-
-	while (index < str.length) {
-		let code = utf16Map[index];
-
-		if ((UTF16_BITES[0] & code) !== UTF16_BITES[0]) {
-			result.push(code);
-			index++;
-		} else {
-			result.push(UTF16Decode(utf16Map.slice(index, index + 2)));
-			index += 2;
-		}
-	}
-
-	return result;
-}
-
 function UTF8Length(str) {
 	const codes = stringToUnicode(str);
 	return codes.reduce((sum, unicode) => {
@@ -1834,6 +1799,96 @@ class XnbConverter {
 		this.compressionType = (flags & COMPRESSED_LZX_MASK) != 0 ? COMPRESSED_LZX_MASK : flags & COMPRESSED_LZ4_MASK ? COMPRESSED_LZ4_MASK : 0;
 	}
 
+}
+
+function injectRGBA(data, i) {
+	let {
+		r,
+		g = r,
+		b = r,
+		a = 255
+	} = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	data[4 * i + 0] = r;
+	data[4 * i + 1] = g;
+	data[4 * i + 2] = b;
+	data[4 * i + 3] = a;
+	return [r, g, b, a];
+}
+
+function png16to8(data) {
+	const megascale = new Uint16Array(data);
+	const downscale = new Uint8Array(megascale.length);
+
+	for (let i = 0; i < megascale.length; i++) {
+		downscale[i] = megascale[i] >> 8;
+	}
+
+	return downscale;
+}
+
+function addChannels(data, originChannel) {
+	const size = data.length / originChannel;
+	const rgbaData = new Uint8Array(size * 4);
+	if (originChannel === 4) return data;
+
+	if (originChannel === 1) {
+			for (let i = 0; i < size; i++) {
+				injectRGBA(rgbaData, i, {
+					r: data[i]
+				});
+			}
+		} else if (originChannel === 2) {
+			for (let i = 0; i < size; i++) {
+				injectRGBA(rgbaData, i, {
+					r: data[i * 2],
+					a: data[i * 2 + 1]
+				});
+			}
+		} else if (originChannel === 3) {
+			for (let i = 0; i < size; i++) {
+				injectRGBA(rgbaData, i, {
+					r: data[i * 3],
+					g: data[i * 3 + 1],
+					b: data[i * 3 + 2]
+				});
+			}
+		}
+
+	return rgbaData;
+}
+
+function applyPalette(data, depth, palette) {
+	const oldData = new Uint8Array(data);
+	const length = oldData.length * 8 / depth;
+	const newData = new Uint8Array(length * 4);
+	let bitPosition = 0;
+
+	for (let i = 0; i < length; i++) {
+		const bytePosition = Math.floor(bitPosition / 8);
+		const bitOffset = 8 - bitPosition % 8 - depth;
+		let paletteIndex;
+		if (depth === 16) paletteIndex = oldData[bytePosition] << 8 | oldData[bytePosition + 1];else paletteIndex = oldData[bytePosition] >> bitOffset & 2 ** depth - 1;
+		[newData[i * 4], newData[i * 4 + 1], newData[i * 4 + 2], newData[i * 4 + 3]] = palette[paletteIndex];
+		bitPosition += depth;
+	}
+
+	return newData;
+}
+
+function fixPNG(pngdata) {
+	const {
+		width,
+		height,
+		channels,
+		depth
+	} = pngdata;
+	let {
+		data
+	} = pngdata;
+	if (pngdata.palette) return applyPalette(data, depth, pngdata.palette);
+	if (depth === 16) data = png16to8(data);
+	if (channels < 4) data = addChannels(data, channels);
+	return data;
 }
 
 var t = {
@@ -5120,7 +5175,7 @@ function resolveCompression(compressionString) {
 }
 
 async function readBlobasText(blob) {
-	if (typeof Blob === "function" && blob instanceof Blob) return blob.text();else if (typeof Buffer === "function" && blob instanceof Buffer) return blob.toString();
+	if (typeof Blob === "function" && blob instanceof Blob) return blob.text();else if (typeof Buffer === "function" && blob instanceof Buffer) return blob.toString();else return blob;
 }
 
 async function readBlobasArrayBuffer(blob) {
@@ -5130,7 +5185,8 @@ async function readBlobasArrayBuffer(blob) {
 async function readExternFiles(extension, files) {
 	if (extension === "png") {
 		const rawPng = await readBlobasArrayBuffer(files.png);
-		const png = r(new Uint8Array(rawPng));
+		let png = r(new Uint8Array(rawPng));
+		if (png.channel !== 4 || png.depth !== 8 || png.palette !== undefined) png.data = fixPNG(png);
 		return {
 			type: "Texture2D",
 			data: png.data,
@@ -5193,6 +5249,35 @@ async function resolveImports(files) {
 	}
 
 	return jsonData;
+}
+
+function getReaderAssembly(extension) {
+	if (extension === "png") return "Microsoft.Xna.Framework.Content.Texture2DReader, Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553";
+	if (extension === "tbin") return "xTile.Pipeline.TideReader, xTile";
+	if (extension === "xml") return "BmFont.XmlSourceReader, BmFont, Version=2012.1.7.0, Culture=neutral, PublicKeyToken=null";
+}
+
+function makeHeader(fileName) {
+	const [, extension] = extractFileName(fileName);
+	const readerType = getReaderAssembly(extension);
+	let content = {
+		export: fileName
+	};
+	if (extension === "png") content.format = 0;
+	const result = {
+		header: {
+			target: "w",
+			formatVersion: 5,
+			hidef: true,
+			compressed: true
+		},
+		readers: [{
+			type: readerType,
+			version: 0
+		}],
+		content
+	};
+	return JSON.stringify(result);
 }
 
 /** @api
@@ -5306,14 +5391,25 @@ function xnbDataToContent(loadedXnb) {
 
 function fileMapper(files) {
 	let returnMap = {};
+	let noHeaderMap = {};
 
 	for (let i = 0; i < files.length; i++) {
 		const file = files[i];
 		let [fileName, extension] = extractFileName(file.name);
 		if (extension === null) continue;
-		if (returnMap[fileName] === undefined) returnMap[fileName] = {};
+
+		if (returnMap[fileName] === undefined) {
+			returnMap[fileName] = {};
+			if (extension !== "json" && extension !== "yaml") noHeaderMap[fileName] = file.name;
+		}
+
 		const namedFileObj = returnMap[fileName];
 		if (typeof Blob === "function" && file instanceof Blob) namedFileObj[extension] = file;else namedFileObj[extension] = file.data;
+		if (extension === "json" || extension === "yaml") delete noHeaderMap[fileName];
+	}
+
+	for (let fileName of Object.keys(noHeaderMap)) {
+		returnMap[fileName].json = makeHeader(noHeaderMap[fileName]);
 	}
 
 	return returnMap;

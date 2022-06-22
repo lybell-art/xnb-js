@@ -1,4 +1,5 @@
 import XnbError from "./Utils/XnbError.js";
+import {fixPNG} from "./Utils/fixPNG.js";
 import {toPNG, fromPNG} from "./libs/png.js";
 import {stringifyYaml, parseYaml} from "./libs/jsonToYaml.js";
 import {toXnbNodeData, fromXnbNodeData} from "./Utils/xnbNodeConverter.js";
@@ -195,8 +196,13 @@ async function readExternFiles(extension, files)
 	{
 		// get binary file
 		const rawPng = await readBlobasArrayBuffer(files.png);
+
 		// get the png data
-		const png = fromPNG(new Uint8Array(rawPng) );
+		let png = fromPNG(new Uint8Array(rawPng) );
+
+		// if the png data is not 32bit-rgba, fix it
+		if(png.channel !== 4 || png.depth !== 8 || png.palette !== undefined) png.data = fixPNG(png);
+		
 		return {
 			type: "Texture2D",
 			data: png.data,
@@ -307,7 +313,7 @@ function makeHeader(fileName)
 			hidef: true,
 			compressed: true
 		},
-		reader : [{
+		readers : [{
 			type: readerType,
 			version: 0
 		}],

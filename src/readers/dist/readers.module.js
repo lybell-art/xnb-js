@@ -1,5 +1,5 @@
 /** 
- * xnb.js 1.1.0
+ * xnb.js 1.2.0
  * made by Lybell( https://github.com/lybell-art/ )
  * This library is based on the XnbCli made by Leonblade.
  * 
@@ -2373,6 +2373,61 @@ function decompress(inputData, width, height, flags) {
 	return result;
 }
 
+function extractBits(bitData, amount, offset) {
+	return bitData >> offset & 2 ** amount - 1;
+}
+
+function colorToBgra5551(red, green, blue, alpha) {
+	const r = Math.round(red / 255 * 31);
+	const g = Math.round(green / 255 * 31);
+	const b = Math.round(blue / 255 * 31);
+	const a = Math.round(alpha / 255);
+	return a << 15 | r << 10 | g << 5 | b;
+}
+
+function bgra5551ToColor(bgra5551) {
+	const r = extractBits(bgra5551, 5, 10);
+	const g = extractBits(bgra5551, 5, 5);
+	const b = extractBits(bgra5551, 5, 0);
+	const a = bgra5551 >> 15 & 1;
+
+	const scaleUp = value => value << 3 | value >> 2;
+
+	const [red, green, blue] = [r, g, b].map(scaleUp);
+	return [red, green, blue, a * 255];
+}
+
+function convertTo5551(colorBuffer) {
+	const colorArray = new Uint8Array(colorBuffer);
+	const length = colorArray.length / 4;
+	const convertedArray = new Uint8Array(length * 2);
+
+	for (let i = 0; i < length; i++) {
+		const red = colorArray[i * 4];
+		const green = colorArray[i * 4 + 1];
+		const blue = colorArray[i * 4 + 2];
+		const alpha = colorArray[i * 4 + 3];
+		const bgra5551 = colorToBgra5551(red, green, blue, alpha);
+		convertedArray[i * 2] = bgra5551 & 0xff;
+		convertedArray[i * 2 + 1] = bgra5551 >> 8;
+	}
+
+	return convertedArray;
+}
+
+function convertFrom5551(colorBuffer) {
+	const colorArray = new Uint8Array(colorBuffer);
+	const length = colorArray.length / 2;
+	const convertedArray = new Uint8Array(length * 4);
+
+	for (let i = 0; i < length; i++) {
+		const colors = bgra5551ToColor(colorArray[i * 2] | colorArray[i * 2 + 1] << 8);
+		[convertedArray[i * 4], convertedArray[i * 4 + 1], convertedArray[i * 4 + 2], convertedArray[i * 4 + 3]] = colors;
+	}
+
+	return convertedArray;
+}
+
 class Texture2DReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
@@ -2395,8 +2450,9 @@ class Texture2DReader extends BaseReader {
 		let dataSize = uint32Reader.read(buffer);
 		let data = buffer.read(dataSize);
 		if (format == 4) data = decompress(data, width, height, flags.DXT1);else if (format == 5) data = decompress(data, width, height, flags.DXT3);else if (format == 6) data = decompress(data, width, height, flags.DXT5);else if (format == 2) {
-			throw new Error('Texture2D format type ECT1 not implemented!');
+			data = convertFrom5551(data);
 		} else if (format != 0) throw new Error("Non-implemented Texture2D format type (".concat(format, ") found."));
+		if (data instanceof ArrayBuffer) data = new Uint8Array(data);
 
 		for (let i = 0; i < data.length; i += 4) {
 			let inverseAlpha = 255 / data[i + 3];
@@ -2435,7 +2491,7 @@ class Texture2DReader extends BaseReader {
 			data[i + 2] = Math.floor(data[i + 2] * alpha);
 		}
 
-		if (content.format == 4) data = compress(data, width, height, flags.DXT1);else if (content.format == 5) data = compress(data, width, height, flags.DXT3);else if (content.format == 6) data = compress(data, width, height, flags.DXT5);
+		if (content.format === 4) data = compress(data, width, height, flags.DXT1);else if (content.format === 5) data = compress(data, width, height, flags.DXT3);else if (content.format === 6) data = compress(data, width, height, flags.DXT5);else if (content.format === 2) data = convertTo5551(data);
 		uint32Reader.write(buffer, data.length, null);
 		buffer.concat(data);
 	}
@@ -2613,6 +2669,7 @@ class LightweightTexture2DReader extends BaseReader {
 		if (mipCount > 1) console.warn("Found mipcount of ".concat(mipCount, ", only the first will be used."));
 		let dataSize = uint32Reader.read(buffer);
 		let data = buffer.read(dataSize);
+		data = new Uint8Array(data);
 		if (format != 0) throw new Error("Compressed texture format is not supported!");
 
 		for (let i = 0; i < data.length; i += 4) {

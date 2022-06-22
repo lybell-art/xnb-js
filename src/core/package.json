@@ -1,6 +1,6 @@
 {
   "name": "@xnb-js/core",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "The core of xnb.js.",
   "main": "./dist/core.js",
   "module": "./dist/core.module.js",

@@ -142,8 +142,6 @@ function fileMapper(files)
 		returnMap[fileName].json = makeHeader(noHeaderMap[fileName]);
 	}
 
-	console.log(returnMap);
-
 	return returnMap;
 }
 
