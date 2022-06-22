@@ -20,11 +20,11 @@ You can load and use a library hosted online. Here's how to use it:
 
 #### Load as ES6 Module(Recommended)
 ```js
-import * as XNB from "https://cdn.jsdelivr.net/npm/xnb@1.1.0/dist/xnb.module.js";
+import * as XNB from "https://cdn.jsdelivr.net/npm/xnb@1.2.0/dist/xnb.module.js";
 ```
 #### Load as UMD
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xnb@1.1.0/dist/xnb.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xnb@1.2.0/dist/xnb.min.js"></script>
 ```
 If you need to support ES5, such as IE11, I recommend using xnb.es5.min.js.
 

@@ -1,6 +1,6 @@
 {
 	"name": "@xnb-js/readers",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"description": "The basic readers of xnb.js.",
 	"main": "./dist/readers.js",
 	"module": "./dist/readers.module.js",

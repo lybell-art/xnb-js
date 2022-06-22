@@ -1,5 +1,5 @@
 /** 
- * xnb.js 1.1.0
+ * xnb.js 1.2.0
  * made by Lybell( https://github.com/lybell-art/ )
  * This library is based on the XnbCli made by Leonblade.
  * 
@@ -4299,6 +4299,70 @@
 		return result;
 	}
 
+	function extractBits(bitData, amount, offset) {
+		return bitData >> offset & Math.pow(2, amount) - 1;
+	}
+
+	function colorToBgra5551(red, green, blue, alpha) {
+		var r = Math.round(red / 255 * 31);
+		var g = Math.round(green / 255 * 31);
+		var b = Math.round(blue / 255 * 31);
+		var a = Math.round(alpha / 255);
+		return a << 15 | r << 10 | g << 5 | b;
+	}
+
+	function bgra5551ToColor(bgra5551) {
+		var r = extractBits(bgra5551, 5, 10);
+		var g = extractBits(bgra5551, 5, 5);
+		var b = extractBits(bgra5551, 5, 0);
+		var a = bgra5551 >> 15 & 1;
+
+		var scaleUp = function scaleUp(value) {
+			return value << 3 | value >> 2;
+		};
+
+		var _map = [r, g, b].map(scaleUp),
+				red = _map[0],
+				green = _map[1],
+				blue = _map[2];
+
+		return [red, green, blue, a * 255];
+	}
+
+	function convertTo5551(colorBuffer) {
+		var colorArray = new Uint8Array(colorBuffer);
+		var length = colorArray.length / 4;
+		var convertedArray = new Uint8Array(length * 2);
+
+		for (var i = 0; i < length; i++) {
+			var red = colorArray[i * 4];
+			var green = colorArray[i * 4 + 1];
+			var blue = colorArray[i * 4 + 2];
+			var alpha = colorArray[i * 4 + 3];
+			var bgra5551 = colorToBgra5551(red, green, blue, alpha);
+			convertedArray[i * 2] = bgra5551 & 0xff;
+			convertedArray[i * 2 + 1] = bgra5551 >> 8;
+		}
+
+		return convertedArray;
+	}
+
+	function convertFrom5551(colorBuffer) {
+		var colorArray = new Uint8Array(colorBuffer);
+		var length = colorArray.length / 2;
+		var convertedArray = new Uint8Array(length * 4);
+
+		for (var i = 0; i < length; i++) {
+			var colors = bgra5551ToColor(colorArray[i * 2] | colorArray[i * 2 + 1] << 8);
+			convertedArray[i * 4] = colors[0];
+			convertedArray[i * 4 + 1] = colors[1];
+			convertedArray[i * 4 + 2] = colors[2];
+			convertedArray[i * 4 + 3] = colors[3];
+		}
+
+		return convertedArray;
+	}
+
 	var Texture2DReader = function (_BaseReader) {
 		_inherits(Texture2DReader, _BaseReader);
 
@@ -4323,8 +4387,9 @@
 				var dataSize = uint32Reader.read(buffer);
 				var data = buffer.read(dataSize);
 				if (format == 4) data = decompress(data, width, height, flags.DXT1);else if (format == 5) data = decompress(data, width, height, flags.DXT3);else if (format == 6) data = decompress(data, width, height, flags.DXT5);else if (format == 2) {
-					throw new Error('Texture2D format type ECT1 not implemented!');
+					data = convertFrom5551(data);
 				} else if (format != 0) throw new Error("Non-implemented Texture2D format type (".concat(format, ") found."));
+				if (data instanceof ArrayBuffer) data = new Uint8Array(data);
 
 				for (var i = 0; i < data.length; i += 4) {
 					var inverseAlpha = 255 / data[i + 3];
@@ -4364,7 +4429,7 @@
 					data[i + 2] = Math.floor(data[i + 2] * alpha);
 				}
 
-				if (content.format == 4) data = compress(data, width, height, flags.DXT1);else if (content.format == 5) data = compress(data, width, height, flags.DXT3);else if (content.format == 6) data = compress(data, width, height, flags.DXT5);
+				if (content.format === 4) data = compress(data, width, height, flags.DXT1);else if (content.format === 5) data = compress(data, width, height, flags.DXT3);else if (content.format === 6) data = compress(data, width, height, flags.DXT5);else if (content.format === 2) data = convertTo5551(data);
 				uint32Reader.write(buffer, data.length, null);
 				buffer.concat(data);
 			}
@@ -4605,6 +4670,7 @@
 				if (mipCount > 1) console.warn("Found mipcount of ".concat(mipCount, ", only the first will be used."));
 				var dataSize = uint32Reader.read(buffer);
 				var data = buffer.read(dataSize);
+				data = new Uint8Array(data);
 				if (format != 0) throw new Error("Compressed texture format is not supported!");
 
 				for (var i = 0; i < data.length; i += 4) {

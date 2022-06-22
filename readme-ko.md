@@ -20,11 +20,11 @@ xnb.js는 es6 모듈을 이용하여 불러오는 것을 권장합니다.
 
 #### ES6 모듈로 불러오기(권장)
 ```js
-import * as XNB from "https://cdn.jsdelivr.net/npm/xnb@1.1.0/dist/xnb.module.js";
+import * as XNB from "https://cdn.jsdelivr.net/npm/xnb@1.2.0/dist/xnb.module.js";
 ```
 #### 스크립트 링크로 불러오기
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xnb@1.1.0/dist/xnb.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xnb@1.2.0/dist/xnb.min.js"></script>
 ```
 자신이 IE11 등 ES5를 지원해야 한다면, xnb.es5.min.js를 사용하는 것을 권장합니다.
 

@@ -1,7 +1,7 @@
 import TypeReader from "./App/Readers/TypeReader.js";
 import XnbConverter from "./App/XnbConverter.js";
 import {XnbData, XnbContent} from "./App/XnbData.js";
-import {exportFiles, exportContent, resolveImports, extractFileName} from "./Files.js";
+import {makeHeader, exportFiles, exportContent, resolveImports, extractFileName} from "./Files.js";
 
 /*----------------------------------------------------------------------------*/
 /*................................Unpack XNB..................................*/
@@ -113,6 +113,7 @@ function xnbDataToContent(loadedXnb)
 function fileMapper(files)
 {
 	let returnMap = {};
+	let noHeaderMap = {};
 	for(let i=0; i<files.length; i++)
 	{
 		const file = files[i];
@@ -121,11 +122,26 @@ function fileMapper(files)
 		let [fileName, extension] = extractFileName(file.name);
 		if(extension === null) continue;
 
-		if(returnMap[fileName] === undefined) returnMap[fileName]={};
+		if(returnMap[fileName] === undefined)
+		{
+			returnMap[fileName]={};
+			// If the file extension is not a json/yaml file, it is determined that there is no header.
+			if(extension !== "json" && extension !== "yaml") noHeaderMap[fileName] = file.name;
+		}
 		const namedFileObj = returnMap[fileName];
 		if(typeof Blob === "function" && file instanceof Blob) namedFileObj[extension] = file;
 		else namedFileObj[extension] = file.data;
+
+		// 
+		if(extension === "json" || extension === "yaml") delete noHeaderMap[fileName];
 	}
+
+	// inject header data into the file list of missing header.
+	for(let fileName of Object.keys(noHeaderMap))
+	{
+		returnMap[fileName].json = makeHeader(noHeaderMap[fileName]);
+	}
+
 	return returnMap;
 }
 

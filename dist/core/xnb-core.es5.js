@@ -1,5 +1,5 @@
 /** 
- * xnb.js 1.1.0
+ * xnb.js 1.2.0
  * made by Lybell( https://github.com/lybell-art/ )
  * This library is based on the XnbCli made by Leonblade.
  * 
@@ -5188,6 +5188,99 @@
 		return XnbConverter;
 	}();
 
+	function injectRGBA(data, i) {
+		var _ref = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
+				r = _ref.r,
+				_ref$g = _ref.g,
+				g = _ref$g === void 0 ? r : _ref$g,
+				_ref$b = _ref.b,
+				b = _ref$b === void 0 ? r : _ref$b,
+				_ref$a = _ref.a,
+				a = _ref$a === void 0 ? 255 : _ref$a;
+
+		data[4 * i + 0] = r;
+		data[4 * i + 1] = g;
+		data[4 * i + 2] = b;
+		data[4 * i + 3] = a;
+		return [r, g, b, a];
+	}
+
+	function png16to8(data) {
+		var megascale = new Uint16Array(data);
+		var downscale = new Uint8Array(megascale.length);
+
+		for (var i = 0; i < megascale.length; i++) {
+			downscale[i] = megascale[i] >> 8;
+		}
+
+		return downscale;
+	}
+
+	function addChannels(data, originChannel) {
+		var size = data.length / originChannel;
+		var rgbaData = new Uint8Array(size * 4);
+		if (originChannel === 4) return data;
+
+		if (originChannel === 1) {
+				for (var i = 0; i < size; i++) {
+					injectRGBA(rgbaData, i, {
+						r: data[i]
+					});
+				}
+			} else if (originChannel === 2) {
+				for (var _i = 0; _i < size; _i++) {
+					injectRGBA(rgbaData, _i, {
+						r: data[_i * 2],
+						a: data[_i * 2 + 1]
+					});
+				}
+			} else if (originChannel === 3) {
+				for (var _i2 = 0; _i2 < size; _i2++) {
+					injectRGBA(rgbaData, _i2, {
+						r: data[_i2 * 3],
+						g: data[_i2 * 3 + 1],
+						b: data[_i2 * 3 + 2]
+					});
+				}
+			}
+
+		return rgbaData;
+	}
+
+	function applyPalette(data, depth, palette) {
+		var oldData = new Uint8Array(data);
+		var length = oldData.length * 8 / depth;
+		var newData = new Uint8Array(length * 4);
+		var bitPosition = 0;
+
+		for (var i = 0; i < length; i++) {
+			var bytePosition = Math.floor(bitPosition / 8);
+			var bitOffset = 8 - bitPosition % 8 - depth;
+			var paletteIndex = void 0;
+			if (depth === 16) paletteIndex = oldData[bytePosition] << 8 | oldData[bytePosition + 1];else paletteIndex = oldData[bytePosition] >> bitOffset & Math.pow(2, depth) - 1;
+			var _palette$paletteIndex = palette[paletteIndex];
+			newData[i * 4] = _palette$paletteIndex[0];
+			newData[i * 4 + 1] = _palette$paletteIndex[1];
+			newData[i * 4 + 2] = _palette$paletteIndex[2];
+			newData[i * 4 + 3] = _palette$paletteIndex[3];
+			bitPosition += depth;
+		}
+
+		return newData;
+	}
+
+	function fixPNG(pngdata) {
+		pngdata.width;
+				pngdata.height;
+				var channels = pngdata.channels,
+				depth = pngdata.depth;
+		var data = pngdata.data;
+		if (pngdata.palette) return applyPalette(data, depth, pngdata.palette);
+		if (depth === 16) data = png16to8(data);
+		if (channels < 4) data = addChannels(data, channels);
+		return data;
+	}
+
 	var t = {
 		396: function _() {
 			!function (t) {
@@ -8831,13 +8924,16 @@
 
 						case 4:
 							if (!(typeof Buffer === "function" && blob instanceof Buffer)) {
-								_context.next = 6;
+								_context.next = 8;
 								break;
 							}
 
 							return _context.abrupt("return", blob.toString());
 
-						case 6:
+						case 8:
+							return _context.abrupt("return", blob);
+
+						case 9:
 						case "end":
 							return _context.stop();
 					}
@@ -8895,7 +8991,7 @@
 					switch (_context3.prev = _context3.next) {
 						case 0:
 							if (!(extension === "png")) {
-								_context3.next = 6;
+								_context3.next = 7;
 								break;
 							}
 
@@ -8905,6 +9001,7 @@
 						case 3:
 							rawPng = _context3.sent;
 							png = r(new Uint8Array(rawPng));
+							if (png.channel !== 4 || png.depth !== 8 || png.palette !== undefined) png.data = fixPNG(png);
 							return _context3.abrupt("return", {
 								type: "Texture2D",
 								data: png.data,
@@ -8912,55 +9009,55 @@
 								height: png.height
 							});
 
-						case 6:
+						case 7:
 							if (!(extension === "cso")) {
-								_context3.next = 11;
+								_context3.next = 12;
 								break;
 							}
 
-							_context3.next = 9;
+							_context3.next = 10;
 							return readBlobasArrayBuffer(files.cso);
 
-						case 9:
+						case 10:
 							data = _context3.sent;
 							return _context3.abrupt("return", {
 								type: "Effect",
 								data: data
 							});
 
-						case 11:
+						case 12:
 							if (!(extension === "tbin")) {
-								_context3.next = 16;
+								_context3.next = 17;
 								break;
 							}
 
-							_context3.next = 14;
+							_context3.next = 15;
 							return readBlobasArrayBuffer(files.tbin);
 
-						case 14:
+						case 15:
 							_data = _context3.sent;
 							return _context3.abrupt("return", {
 								type: "TBin",
 								data: _data
 							});
 
-						case 16:
+						case 17:
 							if (!(extension === "xml")) {
-								_context3.next = 21;
+								_context3.next = 22;
 								break;
 							}
 
-							_context3.next = 19;
+							_context3.next = 20;
 							return readBlobasText(files.xml);
 
-						case 19:
+						case 20:
 							_data2 = _context3.sent;
 							return _context3.abrupt("return", {
 								type: "BmFont",
 								data: _data2
 							});
 
-						case 21:
+						case 22:
 						case "end":
 							return _context3.stop();
 					}
@@ -8986,7 +9083,7 @@
 					found,
 					parent,
 					value,
-					_extractFileName,
+					_extractFileName2,
 					extension,
 					_args4 = arguments;
 
@@ -9032,7 +9129,7 @@
 							}
 
 							parent = found.parent, value = found.value;
-							_extractFileName = extractFileName(value), extension = _extractFileName[1];
+							_extractFileName2 = extractFileName(value), extension = _extractFileName2[1];
 							_context4.next = 20;
 							return readExternFiles(extension, files);
 
@@ -9050,6 +9147,37 @@
 			}, _callee4);
 		}));
 		return _resolveImports.apply(this, arguments);
+	}
+
+	function getReaderAssembly(extension) {
+		if (extension === "png") return "Microsoft.Xna.Framework.Content.Texture2DReader, Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553";
+		if (extension === "tbin") return "xTile.Pipeline.TideReader, xTile";
+		if (extension === "xml") return "BmFont.XmlSourceReader, BmFont, Version=2012.1.7.0, Culture=neutral, PublicKeyToken=null";
+	}
+
+	function makeHeader(fileName) {
+		var _extractFileName = extractFileName(fileName),
+				extension = _extractFileName[1];
+
+		var readerType = getReaderAssembly(extension);
+		var content = {
+			export: fileName
+		};
+		if (extension === "png") content.format = 0;
+		var result = {
+			header: {
+				target: "w",
+				formatVersion: 5,
+				hidef: true,
+				compressed: true
+			},
+			readers: [{
+				type: readerType,
+				version: 0
+			}],
+			content: content
+		};
+		return JSON.stringify(result);
 	}
 
 	/** @api
@@ -9199,6 +9327,7 @@
 
 	function fileMapper(files) {
 		var returnMap = {};
+		var noHeaderMap = {};
 
 		for (var i = 0; i < files.length; i++) {
 			var file = files[i];
@@ -9208,9 +9337,20 @@
 					extension = _extractFileName2[1];
 
 			if (extension === null) continue;
-			if (returnMap[fileName] === undefined) returnMap[fileName] = {};
+
+			if (returnMap[fileName] === undefined) {
+				returnMap[fileName] = {};
+				if (extension !== "json" && extension !== "yaml") noHeaderMap[fileName] = file.name;
+			}
+
 			var namedFileObj = returnMap[fileName];
 			if (typeof Blob === "function" && file instanceof Blob) namedFileObj[extension] = file;else namedFileObj[extension] = file.data;
+			if (extension === "json" || extension === "yaml") delete noHeaderMap[fileName];
+		}
+
+		for (var _i2 = 0, _Object$keys2 = Object.keys(noHeaderMap); _i2 < _Object$keys2.length; _i2++) {
+			var _fileName = _Object$keys2[_i2];
+			returnMap[_fileName].json = makeHeader(noHeaderMap[_fileName]);
 		}
 
 		return returnMap;
