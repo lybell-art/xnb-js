@@ -1,5 +1,5 @@
 /** 
- * xnb.js 1.2.0
+ * xnb.js 1.2.1
  * made by Lybell( https://github.com/lybell-art/ )
  * This library is based on the XnbCli made by Leonblade.
  * 
@@ -183,8 +183,8 @@
 	const UTF8_FIRST_BITES = [0xC0, 0xE0, 0xF0];
 	const UTF8_SECOND_BITES = 0x80;
 	const UTF8_MASK = 0b111111;
-	const UTF16_BITES$1 = [0xD800, 0xDC00];
-	const UTF16_MASK$1 = 0b1111111111;
+	const UTF16_BITES = [0xD800, 0xDC00];
+	const UTF16_MASK = 0b1111111111;
 
 	function UTF8Encode(code) {
 		if (code < 0x80) return [code];
@@ -196,7 +196,7 @@
 	function UTF16Encode(code) {
 		if (code < 0xFFFF) return [code];
 		code -= 0x10000;
-		return [UTF16_BITES$1[0] | code >> 10 & UTF16_MASK$1, UTF16_BITES$1[1] | code & UTF16_MASK$1];
+		return [UTF16_BITES[0] | code >> 10 & UTF16_MASK, UTF16_BITES[1] | code & UTF16_MASK];
 	}
 
 	function UTF8Decode(codeSet) {
@@ -215,17 +215,17 @@
 		return ((codeSet[0] ^ UTF8_FIRST_BITES[2]) << 18) + ((codeSet[1] ^ UTF8_SECOND_BITES) << 12) + ((codeSet[2] ^ UTF8_SECOND_BITES) << 6) + (codeSet[3] ^ UTF8_SECOND_BITES);
 	}
 
-	function UTF16Decode$1(codeSet) {
+	function UTF16Decode(codeSet) {
 		var _codeSet2;
 
 		if (typeof codeSet === "number") codeSet = [codeSet];
 		if (!((_codeSet2 = codeSet) !== null && _codeSet2 !== void 0 && _codeSet2.length)) throw new Error("Invalid codeset!");
 		const codeSetRange = codeSet.length;
 		if (codeSetRange === 1) return codeSet[0];
-		return ((codeSet[0] & UTF16_MASK$1) << 10) + (codeSet[1] & UTF16_MASK$1) + 0x10000;
+		return ((codeSet[0] & UTF16_MASK) << 10) + (codeSet[1] & UTF16_MASK) + 0x10000;
 	}
 
-	function stringToUnicode$1(str) {
+	function stringToUnicode(str) {
 		const utf16Map = Array.from({
 			length: str.length
 		}, (_, i) => str.charCodeAt(i));
@@ -235,11 +235,11 @@
 		while (index < str.length) {
 			let code = utf16Map[index];
 
-			if ((UTF16_BITES$1[0] & code) !== UTF16_BITES$1[0]) {
+			if ((UTF16_BITES[0] & code) !== UTF16_BITES[0]) {
 				result.push(code);
 				index++;
 			} else {
-				result.push(UTF16Decode$1(utf16Map.slice(index, index + 2)));
+				result.push(UTF16Decode(utf16Map.slice(index, index + 2)));
 				index += 2;
 			}
 		}
@@ -301,11 +301,21 @@
 	}
 
 	function stringToUTF8(str) {
-		return UnicodeToUTF8(stringToUnicode$1(str));
+		return UnicodeToUTF8(stringToUnicode(str));
 	}
 
 	function UTF8ToString(utf8Array) {
 		return UnicodeToString(UTF8ToUnicode(utf8Array));
+	}
+
+	function UTF8Length(str) {
+		const codes = stringToUnicode(str);
+		return codes.reduce((sum, unicode) => {
+			if (unicode < 0x80) return sum + 1;
+			if (unicode < 0x800) return sum + 2;
+			if (unicode < 0x10000) return sum + 3;
+			return sum + 4;
+		}, 0);
 	}
 
 	const LITTLE_ENDIAN = true;
@@ -1480,51 +1490,6 @@
 	function compressSingleBlock(src, dst) {
 		clearHashTable();
 		return compressBlock(src, dst, 0, src.length, hashTable);
-	}
-
-	const UTF16_BITES = [0xD800, 0xDC00];
-	const UTF16_MASK = 0b1111111111;
-
-	function UTF16Decode(codeSet) {
-		var _codeSet2;
-
-		if (typeof codeSet === "number") codeSet = [codeSet];
-		if (!((_codeSet2 = codeSet) !== null && _codeSet2 !== void 0 && _codeSet2.length)) throw new Error("Invalid codeset!");
-		const codeSetRange = codeSet.length;
-		if (codeSetRange === 1) return codeSet[0];
-		return ((codeSet[0] & UTF16_MASK) << 10) + (codeSet[1] & UTF16_MASK) + 0x10000;
-	}
-
-	function stringToUnicode(str) {
-		const utf16Map = Array.from({
-			length: str.length
-		}, (_, i) => str.charCodeAt(i));
-		const result = [];
-		let index = 0;
-
-		while (index < str.length) {
-			let code = utf16Map[index];
-
-			if ((UTF16_BITES[0] & code) !== UTF16_BITES[0]) {
-				result.push(code);
-				index++;
-			} else {
-				result.push(UTF16Decode(utf16Map.slice(index, index + 2)));
-				index += 2;
-			}
-		}
-
-		return result;
-	}
-
-	function UTF8Length(str) {
-		const codes = stringToUnicode(str);
-		return codes.reduce((sum, unicode) => {
-			if (unicode < 0x80) return sum + 1;
-			if (unicode < 0x800) return sum + 2;
-			if (unicode < 0x10000) return sum + 3;
-			return sum + 4;
-		}, 0);
 	}
 
 	class StringReaderCore {

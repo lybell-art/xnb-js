@@ -143,7 +143,7 @@ for(let key of Object.keys(licensesDict))
 	if(includes[key] === true) licensesComments.push(licensesDict[key]);
 }
 return `/** 
- * xnb.js 1.2.0
+ * xnb.js 1.2.1
  * made by Lybell( https://github.com/lybell-art/ )
  * This library is based on the XnbCli made by Leonblade.
  * 

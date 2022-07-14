@@ -1,6 +1,6 @@
 {
   "name": "xnb",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Javascript XNB packing & unpacking library for es6.",
   "main": "./dist/xnb.js",
   "module": "./dist/xnb.module.js",
