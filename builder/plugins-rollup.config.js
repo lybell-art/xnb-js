@@ -21,7 +21,7 @@ function replaceDependency()
 {
 	return {
 		transform(code) {
-			code = code.replace('from "../../readers/src/readers.js"; //@xnb-js/readers', 'from "@xnb-js/readers";');
+			code = code.replace('from "../../readers/readers.js"; //@xnb-js/readers', 'from "@xnb-js/readers";');
 			return {
 				code: code,
 				map: null
