@@ -151,7 +151,7 @@ function buildTargetMaker(target=-1)
 {
 	const targetArray = [
 		["src/plugins-stardewvalley", 
-		"readers", 
+		"index", 
 		"src/plugins-stardewvalley/dist/index", 
 		"dist/plugins/stardewvalley/index"]
 	]

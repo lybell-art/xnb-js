@@ -4,7 +4,7 @@ import {BaseReader,
 	StringReader,
 	DictionaryReader,
 	NullableReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 import FishPondRewardReader from "./FishPondRewardReader.js";
 
 /**

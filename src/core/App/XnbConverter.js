@@ -131,7 +131,7 @@ class XnbConverter {
 		let count = this.buffer.read7BitNumber();
 		// log how many readers there are
 		Debug(`Readers: ${count}`);
-
+		Debug( this.buffer.buffer );
 		
 		// create an instance of string reader
 		const stringReader = new StringReader();
@@ -155,9 +155,8 @@ class XnbConverter {
 			// add local reader
 			readers.push({ type, version });
 		}
-
+		//Debug(readers);
 		Debug( readers.map( ({type})=>TypeReader.simplifyType(type) ) );
-		Debug( this.buffer.buffer );
 
 		// get the 7-bit value for shared resources
 		const shared = this.buffer.read7BitNumber();

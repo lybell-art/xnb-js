@@ -1,6 +1,6 @@
 import {BaseReader,
 	StringReader,
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 
 /**
  * RenovationValue Reader

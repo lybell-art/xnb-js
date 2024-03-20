@@ -3,7 +3,7 @@ import {BaseReader,
 	Int32Reader, 
 	StringReader, 
 	NullableReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 
 /**
  * ConcessionItemData Reader

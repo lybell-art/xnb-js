@@ -3,7 +3,7 @@ import {BaseReader,
 	StringReader,
 	ListReader,
 	NullableReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 import RenovationValueReader from "./RenovationValueReader.js";
 import RectGroupReader from "./RectGroupReader.js";
 

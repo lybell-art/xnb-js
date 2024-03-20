@@ -206,10 +206,20 @@ function addReaders(readers)
 {
 	return TypeReader.addReaders(readers);
 }
+function setSchemes(schemes)
+{
+	return TypeReader.setSchemes(schemes);
+}
+function addSchemes(schemes)
+{
+	return TypeReader.addSchemes(schemes);
+}
 
 export {
 	setReaders,
 	addReaders,
+	setSchemes,
+	addSchemes,
 
 	unpackToXnbData, 
 	unpackToContent, 

@@ -2,7 +2,7 @@ import {BaseReader,
 	StringReader,
 	NullableReader,
 	ListReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 import RandomizedElementReader from "./RandomizedElementReader.js";
 import SpecialOrderObjectiveDataReader from "./SpecialOrderObjectiveDataReader.js";
 import SpecialOrderRewardDataReader from "./SpecialOrderRewardDataReader.js";

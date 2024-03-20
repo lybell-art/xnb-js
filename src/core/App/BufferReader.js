@@ -1,4 +1,4 @@
-import {UTF8ToString} from "../Utils/UTF8ToString.js";
+import {UTF8ToString} from "../utils/UTF8ToString.js";
 
 const LITTLE_ENDIAN = true;
 const BIG_ENDIAN = false;

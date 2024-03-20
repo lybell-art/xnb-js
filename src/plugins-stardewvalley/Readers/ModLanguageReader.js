@@ -4,7 +4,7 @@ import {BaseReader,
 	BooleanReader,
 	Int32Reader,
 	SingleReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 
 /**
  * ModLanguage Reader

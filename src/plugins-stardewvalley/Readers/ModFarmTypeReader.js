@@ -2,7 +2,7 @@ import {BaseReader,
 	NullableReader,
 	StringReader,
 	DictionaryReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 
 /**
  * ModFarmType Reader
@@ -24,7 +24,7 @@ export default class ModFarmTypeReader extends BaseReader {
 			"String", // mapName
 			"Nullable<String>:1", "String", //iconTexture
 			"Nullable<String>:1", "String", //worldMapTexture
-			"Nullable<Dictionary<String,String>>:4", "Dictionary<String,String>", "String", "String" //modData
+			"Nullable<Dictionary<String,String>>:3", "Dictionary<String,String>", "String", "String" //modData
 		];
 	}
 	static type()

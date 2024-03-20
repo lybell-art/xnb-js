@@ -1,7 +1,7 @@
 import {BaseReader,
 	Int32Reader,
 	StringReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 
 /**
  * BundleData Reader

@@ -1,7 +1,7 @@
 import {BaseReader,
 	StringReader,
 	ListReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 import RandomizedElementItemReader from "./RandomizedElementItemReader.js";
 
 /**

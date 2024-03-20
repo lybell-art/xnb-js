@@ -2,7 +2,7 @@ import {BaseReader,
 	StringReader,
 	BooleanReader,
 	Int32Reader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 
 /**
  * ModWallpaperOrFlooring Reader

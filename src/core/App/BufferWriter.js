@@ -1,4 +1,4 @@
-import {stringToUTF8} from "../Utils/UTF8ToString.js";
+import {stringToUTF8} from "../utils/UTF8ToString.js";
 const PENDING = true;
 
 class BufferWriter {
