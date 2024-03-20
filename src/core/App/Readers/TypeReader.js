@@ -303,7 +303,7 @@ function convertSchemesToReaders(schemes)
 		let reader = convertSchemeToReader(type);
 		result[key] = reader;
 	}
-	console.log(result);
+	//console.trace(result);
 	return result;
 }
 

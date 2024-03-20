@@ -30,4 +30,13 @@ export default class Vector4Reader extends BaseReader {
 
         return { x, y, z, w };
     }
+
+    write(buffer, content, resolver) {
+        this.writeIndex(buffer, resolver);
+        const singleReader = new SingleReader();
+        singleReader.write(buffer, content.x, null);
+        singleReader.write(buffer, content.y, null);
+        singleReader.write(buffer, content.z, null);
+        singleReader.write(buffer, content.w, null);
+    }
 }
