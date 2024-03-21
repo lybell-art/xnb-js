@@ -2,8 +2,7 @@ import {BaseReader,
 	NullableReader,
 	ListReader,
 	StringReader,
-	BooleanReader,
-	Int32Reader
+	BooleanReader
 } from "../../readers/readers.js"; //@xnb/readers
 
 /**
@@ -21,12 +20,13 @@ export default class TailorItemRecipeReader extends BaseReader {
 	}
 	static parseTypeList() {
 		return ["TailorItemRecipe", 
+			"Nullable<String>:1", "String", // id
 			"Nullable<List<String>>:2", "List<String>", "String", // firstItemTags
 			"Nullable<List<String>>:2", "List<String>", "String", // secondItemTags
 			null, //spendingRightItem
-			null, //craftedItemID
+			"Nullable<String>:1", "String", //craftedItemID
 			"Nullable<List<String>>:2", "List<String>", "String", // craftedItemIDs
-			"Nullable<String>", "String" // craftedItemColor
+			"Nullable<String>:1", "String" // craftedItemIdFeminie
 		];
 	}
 	static type()
@@ -44,22 +44,23 @@ export default class TailorItemRecipeReader extends BaseReader {
 		const nullableStringListReader = new NullableReader( new ListReader( new StringReader() ) );
 		const nullableStringReader = new NullableReader( new StringReader() );
 		const booleanReader = new BooleanReader();
-		const int32Reader = new Int32Reader();
 
+		const Id = nullableStringReader.read(buffer);
 		const FirstItemTags = nullableStringListReader.read(buffer, resolver);
 		const SecondItemTags = nullableStringListReader.read(buffer, resolver);
 		const SpendingRightItem = booleanReader.read(buffer);
-		const CraftedItemID = int32Reader.read(buffer);
+		const CraftedItemID = nullableStringReader.read(buffer, resolver);
 		const CraftedItemIDs = nullableStringListReader.read(buffer, resolver);
-		const CraftedItemColor = nullableStringReader.read(buffer, resolver);
+		const CraftedItemIdFeminine = nullableStringReader.read(buffer, resolver);
 
 		return {
+			Id,
 			FirstItemTags,
 			SecondItemTags,
 			SpendingRightItem,
 			CraftedItemID,
 			CraftedItemIDs,
-			CraftedItemColor
+			CraftedItemIdFeminine
 		};
 	}
 
@@ -67,16 +68,16 @@ export default class TailorItemRecipeReader extends BaseReader {
 		const nullableStringListReader = new NullableReader( new ListReader( new StringReader() ) );
 		const nullableStringReader = new NullableReader( new StringReader() );
 		const booleanReader = new BooleanReader();
-		const int32Reader = new Int32Reader();
 
 		this.writeIndex(buffer, resolver);
 
+		nullableStringReader.write(buffer, content.Id, resolver);
 		nullableStringListReader.write(buffer, content.FirstItemTags, resolver);
 		nullableStringListReader.write(buffer, content.SecondItemTags, resolver);
 		booleanReader.write(buffer, content.SpendingRightItem, null);
-		int32Reader.write(buffer, content.CraftedItemID, null);
+		nullableStringReader.write(buffer, content.CraftedItemID, resolver);
 		nullableStringListReader.write(buffer, content.CraftedItemIDs, resolver);
-		nullableStringReader.write(buffer, content.CraftedItemColor, resolver);
+		nullableStringReader.write(buffer, content.CraftedItemIdFeminine, resolver);
 	}
 
 	isValueType() {

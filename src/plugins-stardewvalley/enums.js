@@ -10,8 +10,22 @@ export default [
 	// buildings
 	"StardewValley.GameData.Buildings.BuildingChestType",
 
+	// characters
+	"StardewValley.Gender",
+	"StardewValley.GameData.Characters.CalendarBehavior",
+	"StardewValley.GameData.Characters.EndSlideShowBehavior",
+	"StardewValley.GameData.Characters.NpcAge",
+	"StardewValley.GameData.Characters.NpcLanguage",
+	"StardewValley.GameData.Characters.NpcManner",
+	"StardewValley.GameData.Characters.NpcOptimism",
+	"StardewValley.GameData.Characters.NpcSocialAnxiety",
+	"StardewValley.GameData.Characters.SocialTabBehavior",
+
 	// crops
-	"StardewValley.Seasons",
-	
+	"StardewValley.Season",
 	"StardewValley.GameData.Crops.HarvestMethod",
+
+	// floors andd paths
+	"StardewValley.GameData.FloorsAndPaths.FloorPathConnectType",
+	"StardewValley.GameData.FloorsAndPaths.FloorPathShadowType"
 ];

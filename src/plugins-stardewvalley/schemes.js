@@ -37,6 +37,17 @@ import buildingTileProperty from "./schemes/buildings/buildingTileProperty.js";
 import indoorItemAdd from "./schemes/buildings/indoorItemAdd.js";
 import indoorItemMove from "./schemes/buildings/indoorItemMove.js";
 
+// characters data:1.6
+import characterData from "./schemes/characters/characterData.js";
+import characterAppearanceData from "./schemes/characters/characterAppearanceData.js";
+import characterHomeData from "./schemes/characters/characterHomeData.js";
+import characterShadowData from "./schemes/characters/characterShadowData.js";
+import characterSpousePatioData from "./schemes/characters/characterSpousePatioData.js";
+import characterSpouseRoomData from "./schemes/characters/characterSpouseRoomData.js";
+
+// crop data:1.6
+import cropData from "./schemes/cropData.js";
+
 // garbage can data:1.6
 import garbageCanData from "./schemes/garbageCans/garbageCanData.js";
 import garbageCanEntryData from "./schemes/garbageCans/garbageCanEntryData.js";
@@ -44,6 +55,8 @@ import garbageCanItemData from "./schemes/garbageCans/garbageCanItemData.js";
 
 // fence data:1.6
 import fenceData from "./schemes/fenceData.js";
+// floors and paths data:1.6
+import floorPathData from "./schemes/floorPathData.js";
 
 // wedding data:1.6
 import weddingData from "./schemes/weddings/weddingData.js";
@@ -83,11 +96,21 @@ const schemes = {
 	"StardewValley.GameData.Buildings.IndoorItemAdd": indoorItemAdd,
 	"StardewValley.GameData.Buildings.IndoorItemMove": indoorItemMove,
 
+	"StardewValley.GameData.Characters.CharacterData": characterData,
+	"StardewValley.GameData.Characters.CharacterAppearanceData": characterAppearanceData,
+	"StardewValley.GameData.Characters.CharacterHomeData": characterHomeData,
+	"StardewValley.GameData.Characters.CharacterShadowData": characterShadowData,
+	"StardewValley.GameData.Characters.CharacterSpousePatioData": characterSpousePatioData,
+	"StardewValley.GameData.Characters.CharacterSpouseRoomData": characterSpouseRoomData,
+
+	"StardewValley.GameData.Crops.CropData": cropData,
+
 	"StardewValley.GameData.GarbageCans.GarbageCanData": garbageCanData,
 	"StardewValley.GameData.GarbageCans.GarbageCanEntryData": garbageCanEntryData,
 	"StardewValley.GameData.GarbageCans.GarbageCanItemData": garbageCanItemData,
 
 	"StardewValley.GameData.Fences.FenceData": fenceData,
+	"StardewValley.GameData.FloorsAndPaths.FloorPathData": floorPathData,
 
 	"StardewValley.GameData.Weddings.WeddingData": weddingData,
 	"StardewValley.GameData.Weddings.WeddingAttendeeData": weddingAttendeeData

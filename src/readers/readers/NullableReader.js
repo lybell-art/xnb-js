@@ -71,7 +71,7 @@ export default class NullableReader extends BaseReader {
 			buffer.writeByte(0);
 			return;
 		}
-		if(resolver === null) buffer.writeByte(1);
+		if(resolver === null || this.reader.isValueType()) buffer.writeByte(1);
 		this.reader.write(buffer, content, (this.reader.isValueType() ? null : resolver));
 	}
 
