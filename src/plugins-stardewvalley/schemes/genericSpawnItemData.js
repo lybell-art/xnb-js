@@ -2,7 +2,7 @@ export default {
 	$Id: "String",
 	$ItemId: "String",
 	$RandomItemId: ["String"],
-	MaxItems: "Int32",
+	$MaxItems: "Int32",
 	MinStack: "Int32",
 	MaxStack: "Int32",
 	Quality: "Int32",

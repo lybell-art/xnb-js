@@ -17,6 +17,18 @@ import quantityModiier from "./schemes/quantityModifier.js";
 import statIncrement from "./schemes/statIncrement.js";
 import temporaryAnimatedSpriteDefinition from "./schemes/temporaryAnimatedSpriteDefinition.js";
 
+// bigcraftable data:1.6
+import bigCraftableData from "./schemes/bigCraftableData.js";
+
+// buff data:1.6
+import buffData from "./schemes/buffs/buffData.js";	
+import buffAttributesData from "./schemes/buffs/buffAttributesData.js";
+
+// garbage can data:1.6
+import garbageCanData from "./schemes/garbageCans/garbageCanData.js";
+import garbageCanEntryData from "./schemes/garbageCans/garbageCanEntryData.js";
+import garbageCanItemData from "./schemes/garbageCans/garbageCanItemData.js";
+
 // fence data:1.6
 import fenceData from "./schemes/fenceData.js";
 
@@ -40,6 +52,15 @@ const schemes = {
 	"StardewValley.GameData.QuantityModifier": quantityModiier,
 	"StardewValley.GameData.StatIncrement": statIncrement,
 	"StardewValley.GameData.TemporaryAnimatedSpriteDefinition": temporaryAnimatedSpriteDefinition,
+
+	"StardewValley.GameData.BigCraftables.BigCraftableData": bigCraftableData,
+
+	"StardewValley.GameData.Buffs.BuffData": buffData,
+	"StardewValley.GameData.Buffs.BuffAttributesData": buffAttributesData,
+
+	"StardewValley.GameData.GarbageCans.GarbageCanData": garbageCanData,
+	"StardewValley.GameData.GarbageCans.GarbageCanEntryData": garbageCanEntryData,
+	"StardewValley.GameData.GarbageCans.GarbageCanItemData": garbageCanItemData,
 
 	"StardewValley.GameData.Fences.FenceData": fenceData,
 

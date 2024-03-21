@@ -30,7 +30,7 @@ class ReaderResolver {
 		let index = buffer.read7BitNumber() - 1;
 		
 		if (this.readers[index] == null)
-			throw new XnbError(`Invalid reader index ${index}`);
+			throw new XnbError(`Invalid reader index ${index} | pos: ${buffer.bytePosition}`);
 		// read the buffer using the selected reader
 		return this.readers[index].read(buffer, this);
 	}
