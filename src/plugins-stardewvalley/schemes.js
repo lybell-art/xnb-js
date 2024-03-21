@@ -24,6 +24,19 @@ import bigCraftableData from "./schemes/bigCraftableData.js";
 import buffData from "./schemes/buffs/buffData.js";	
 import buffAttributesData from "./schemes/buffs/buffAttributesData.js";
 
+// buildings data:1.6
+import buildingData from "./schemes/buildings/buildingData.js";
+import buildingActionTile from "./schemes/buildings/buildingActionTile.js";
+import buildingChest from "./schemes/buildings/buildingChest.js";
+import buildingDrawLayer from "./schemes/buildings/buildingDrawLayer.js";
+import buildingItemConversion from "./schemes/buildings/buildingItemConversion.js";
+import buildingMaterial from "./schemes/buildings/buildingMaterial.js";
+import buildingPlacementTile from "./schemes/buildings/buildingPlacementTile.js";
+import buildingSkin from "./schemes/buildings/buildingSkin.js";
+import buildingTileProperty from "./schemes/buildings/buildingTileProperty.js";
+import indoorItemAdd from "./schemes/buildings/indoorItemAdd.js";
+import indoorItemMove from "./schemes/buildings/indoorItemMove.js";
+
 // garbage can data:1.6
 import garbageCanData from "./schemes/garbageCans/garbageCanData.js";
 import garbageCanEntryData from "./schemes/garbageCans/garbageCanEntryData.js";
@@ -57,6 +70,18 @@ const schemes = {
 
 	"StardewValley.GameData.Buffs.BuffData": buffData,
 	"StardewValley.GameData.Buffs.BuffAttributesData": buffAttributesData,
+
+	"StardewValley.GameData.Buildings.BuildingData": buildingData,
+	"StardewValley.GameData.Buildings.BuildingActionTile": buildingActionTile,
+	"StardewValley.GameData.Buildings.BuildingChest": buildingChest,
+	"StardewValley.GameData.Buildings.BuildingDrawLayer": buildingDrawLayer,
+	"StardewValley.GameData.Buildings.BuildingItemConversion": buildingItemConversion,
+	"StardewValley.GameData.Buildings.BuildingMaterial": buildingMaterial,
+	"StardewValley.GameData.Buildings.BuildingPlacementTile": buildingPlacementTile,
+	"StardewValley.GameData.Buildings.BuildingSkin": buildingSkin,
+	"StardewValley.GameData.Buildings.BuildingTileProperty": buildingTileProperty,
+	"StardewValley.GameData.Buildings.IndoorItemAdd": indoorItemAdd,
+	"StardewValley.GameData.Buildings.IndoorItemMove": indoorItemMove,
 
 	"StardewValley.GameData.GarbageCans.GarbageCanData": garbageCanData,
 	"StardewValley.GameData.GarbageCans.GarbageCanEntryData": garbageCanEntryData,

@@ -9,6 +9,7 @@ import EffectReader from "./readers/EffectReader.js";
 import Int32Reader from "./readers/Int32Reader.js";
 import ListReader from "./readers/ListReader.js";
 import NullableReader from "./readers/NullableReader.js";
+import PointReader from "./readers/PointReader.js";
 import ReflectiveReader from "./readers/ReflectiveReader.js";
 import RectangleReader from "./readers/RectangleReader.js";
 import SingleReader from "./readers/SingleReader.js";
@@ -34,6 +35,7 @@ export {
 	Int32Reader,
 	ListReader,
 	NullableReader,
+	PointReader,
 	RectangleReader,
 	ReflectiveReader,
 	SingleReader,

@@ -1,6 +1,6 @@
 {
 	"name": "@xnb-js/stardew-valley",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"description": "The xnb.js reader plugin for Stardew Valley.",
 	"main": "./dist/index.js",
 	"module": "./dist/index.module.js",
@@ -22,6 +22,6 @@
 	"author": "Lybell",
 	"license": "LGPL-3.0-or-later",
 	"dependencies": {
-		"@xnb-js/readers": "^1.1.0"
+		"@xnb-js/readers": "^1.3.0"
 	}
 }
