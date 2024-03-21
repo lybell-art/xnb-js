@@ -3,7 +3,8 @@ import {BaseReader,
 	StringReader,
 	BooleanReader,
 	Int32Reader,
-	SingleReader
+	SingleReader,
+	DictionaryReader
 } from "../../readers/readers.js"; //@xnb/readers
 
 /**
@@ -31,10 +32,10 @@ export default class ModLanguageReader extends BaseReader {
 			null, // smallFontLineSpacing
 			null, // useGenderedCharacterTranslations
 			"Nullable<String>:1", "String", //numberComma
-			"String", // numberComma
 			"String", // timeFormat
 			"String", // clockTimeFormat
-			"String" // clockDataFormat
+			"String", // clockDataFormat
+			"Nullable<Dictionary<String,String>>:3", "Dictionary<String,String>", "String", "String", //customFields
 		];
 	}
 	static type()
@@ -53,6 +54,9 @@ export default class ModLanguageReader extends BaseReader {
 		const floatReader = new SingleReader();
 		const booleanReader = new BooleanReader();
 		const nullableStringReader = new NullableReader( new StringReader() );
+		const nullableStringDictReader = new NullableReader(
+			new DictionaryReader( new StringReader(), new StringReader() )
+		);
 
 		const ID = resolver.read(buffer);
 		const LanguageCode = resolver.read(buffer);
@@ -67,6 +71,7 @@ export default class ModLanguageReader extends BaseReader {
 		const TimeFormat = resolver.read(buffer);
 		const ClockTimeFormat = resolver.read(buffer);
 		const ClockDateFormat = resolver.read(buffer);
+		const CustomFields = nullableStringDictReader.read(buffer, resolver);
 
 		return {
 			ID,
@@ -81,7 +86,8 @@ export default class ModLanguageReader extends BaseReader {
 			NumberComma,
 			TimeFormat,
 			ClockTimeFormat,
-			ClockDateFormat
+			ClockDateFormat,
+			CustomFields
 		};
 	}
 
@@ -91,6 +97,9 @@ export default class ModLanguageReader extends BaseReader {
 		const floatReader = new SingleReader();
 		const booleanReader = new BooleanReader();
 		const nullableStringReader = new NullableReader( new StringReader() );
+		const nullableStringDictReader = new NullableReader(
+			new DictionaryReader( new StringReader(), new StringReader() )
+		);
 
 		this.writeIndex(buffer, resolver);
 
@@ -107,6 +116,7 @@ export default class ModLanguageReader extends BaseReader {
 		stringReader.write(buffer, content.TimeFormat, resolver);
 		stringReader.write(buffer, content.ClockTimeFormat, resolver);
 		stringReader.write(buffer, content.ClockDateFormat, resolver);
+		nullableStringDictReader.write(buffer, content.CustomFields, resolver);
 	}
 
 	isValueType() {

@@ -14,6 +14,6 @@ export default {
 	StackModifierMode: "Int32", //enum
 	$QualityModifiers: ["StardewValley.GameData.QuantityModifier"],
 	QualityModifierMode: "Int32", //enum
-	$ModData: {"String", "String"},
+	$ModData: {"String": "String"},
 	$PerItemCondition: "String"
 }
