@@ -1,7 +1,7 @@
 export default {
 	Id: "String",
-	"@Condition": "String",
+	$Condition: "String",
 	Setup: "String",
-	"@Celebration": "String",
+	$Celebration: "String",
 	IgnoreUnlockConditions: "Boolean"
 }

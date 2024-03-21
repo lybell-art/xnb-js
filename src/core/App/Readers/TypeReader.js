@@ -310,19 +310,18 @@ function convertSchemeToReader(scheme)
 	{
 		let reader = convertSchemeEntryToReader(type);
 		
-		if(key.startsWith("@")) {
+		if(key.startsWith("$")) {
 			key = key.slice(1);
-			if(!reader.isValueType()) {
-				try {
-					reader = new TypeReader.readers.NullableReader(reader);
-				}
-				catch {
-					throw new XnbError("There is no NullableReader from reader list!");
-				}
+			try {
+				reader = new TypeReader.readers.NullableReader(reader);
+			}
+			catch {
+				throw new XnbError("There is no NullableReader from reader list!");
 			}
 		}
 		result.set(key, reader);
 	}
+	console.log(result);
 	return result;
 }
 
