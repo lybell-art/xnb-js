@@ -56,6 +56,7 @@ export default class ReflectiveSchemeReader {
 
 	writeIndex(buffer, resolver) {
 		if (resolver != null)
+			console.log(resolver.getIndex(this));
 			buffer.write7BitNumber(Number.parseInt(resolver.getIndex(this)) + 1);
 	}
 
@@ -64,7 +65,7 @@ export default class ReflectiveSchemeReader {
     }
 
     get type() {
-        return `ReflectiveScheme<${name}>`;
+        return `ReflectiveScheme<${this.name}>`;
     }
 
     parseTypeList() {

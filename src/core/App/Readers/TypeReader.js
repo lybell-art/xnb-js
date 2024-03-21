@@ -25,6 +25,7 @@ class TypeReader
 {
 	static readers = {};
 	static schemes = {};
+	static enumList = new Set();
 	/**
 	 * Used to set readers plugin.
 	 * @function setReaders
@@ -53,8 +54,7 @@ class TypeReader
 	 */
 	static setSchemes(schemes)
 	{
-		const subReaders = convertSchemesToReaders(schemes);
-		TypeReader.schemes = {...subReaders};
+		TypeReader.schemes = {...schemes};
 	}
 	/**
 	 * Used to add custom schemes.
@@ -65,8 +65,27 @@ class TypeReader
 	 */
 	static addSchemes(schemes)
 	{
-		const subReaders = convertSchemesToReaders(schemes);
 		TypeReader.schemes = {...(TypeReader.schemes), ...schemes};
+	}
+	/**
+	 * Used to set custom enum data.
+	 * The c# enum name here is bypassed as an int32 data type when xnb.js interprets it.
+	 * @function setEnum
+	 * @param  {List<string>} 
+	 */
+	static setEnum(enumList)
+	{
+		TypeReader.enumList.clear();
+		enumList.forEach( id=>TypeReader.enumList.add(id) );
+	}
+	/**
+	 * Used to add custom enumList.
+	 * @function addEnum
+	 * @param  {List<string>} 
+	 */
+	static addEnum(enumList)
+	{
+		enumList.forEach( id=>TypeReader.enumList.add(id) );
 	}
 
 	static makeSimplied(type, reader)
@@ -127,8 +146,10 @@ class TypeReader
 		}
 
 		// check scheme
-		console.log(type, TypeReader.schemes);
 		if(TypeReader.schemes.hasOwnProperty(simple)) return `ReflectiveScheme<${simple}>`;
+
+		// check enum bypass
+		if(TypeReader.enumList.has(simple)) return "Int32";
 
 		throw new XnbError(`Non-implemented type found, cannot resolve type "${simple}", "${type}".`);
 	}
@@ -198,10 +219,7 @@ class TypeReader
 	    let {type, subtypes} = TypeReader.getTypeInfo(typeString);
 
 	    // if type is new reflective
-	    if(type === "ReflectiveScheme")
-	    {
-	    	return new ReflectiveReader(subtypes[0], TypeReader.schemes[subtypes[0]]);
-	    }
+	    if(type === "ReflectiveScheme") return makeReflectiveReader(subtypes[0]);
 
 	    // loop over subtypes and resolve readers for them
 	    subtypes = subtypes.map(TypeReader.getReader.bind(TypeReader));
@@ -210,8 +228,7 @@ class TypeReader
 	    if (TypeReader.readers.hasOwnProperty(`${type}Reader`))
 	        return new (TypeReader.readers[`${type}Reader`])(...subtypes);
 
-	    if (TypeReader.schemes.hasOwnProperty(type))
-	    	return new ReflectiveReader(type, TypeReader.schemes[type]);
+	    if (TypeReader.schemes.hasOwnProperty(type)) return makeReflectiveReader(type);
 
 	    // throw an error as type is not supported
 	    throw new XnbError(`Invalid reader type "${typeString}" passed, unable to resolve!`);
@@ -244,6 +261,21 @@ class TypeReader
 /**
  * Reflective Scheme Reader maker 
  */
+function makeReflectiveReader(className)
+{
+	if(!TypeReader.schemes.hasOwnProperty(className)) throw new XnbError(`Unsupported scheme : ${className}`);
+	let scheme = TypeReader.schemes[className];
+
+	// convert scheme object to reader map.
+	// if already converted, it will skip
+	if(scheme instanceof Map === false) {
+		scheme = convertSchemeToReader(scheme);
+		TypeReader.schemes[className] = scheme;
+	}
+
+	return new ReflectiveReader(className, scheme);
+}
+
 
 function convertSchemeEntryToReader(scheme)
 {
@@ -291,19 +323,6 @@ function convertSchemeToReader(scheme)
 		}
 		result.set(key, reader);
 	}
-	return result;
-}
-
-
-function convertSchemesToReaders(schemes)
-{
-	const result = {};
-	for(let [key, type] of Object.entries(schemes))
-	{
-		let reader = convertSchemeToReader(type);
-		result[key] = reader;
-	}
-	//console.trace(result);
 	return result;
 }
 

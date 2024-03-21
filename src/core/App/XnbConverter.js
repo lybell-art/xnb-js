@@ -146,17 +146,13 @@ class XnbConverter {
 			const type = stringReader.read(this.buffer);
 			// read the version
 			const version = this.buffer.readInt32();
-
-			// get the reader for this type
-			const reader = TypeReader.getReaderFromRaw(type);
-
-			// add reader to the list
-			this.readers.push(reader);
 			// add local reader
 			readers.push({ type, version });
 		}
-		//Debug(readers);
-		Debug( readers.map( ({type})=>TypeReader.simplifyType(type) ) );
+		Debug(readers);
+
+		// get the reader for this type
+		this.readers = readers.map( ({type})=>TypeReader.getReaderFromRaw(type) );
 
 		// get the 7-bit value for shared resources
 		const shared = this.buffer.read7BitNumber();
