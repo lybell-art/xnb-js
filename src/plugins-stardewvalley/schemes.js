@@ -48,15 +48,30 @@ import characterSpouseRoomData from "./schemes/characters/characterSpouseRoomDat
 // crop data:1.6
 import cropData from "./schemes/cropData.js";
 
-// garbage can data:1.6
-import garbageCanData from "./schemes/garbageCans/garbageCanData.js";
-import garbageCanEntryData from "./schemes/garbageCans/garbageCanEntryData.js";
-import garbageCanItemData from "./schemes/garbageCans/garbageCanItemData.js";
+// farm animal data:1.6
+import farmAnimalData from "./schemes/farmAnimals/farmAnimalData.js";
+import alternatePurchaseAnimals from "./schemes/farmAnimals/alternatePurchaseAnimals.js";
+import farmAnimalProduce from "./schemes/farmAnimals/farmAnimalProduce.js";
+import farmAnimalShadowData from "./schemes/farmAnimals/farmAnimalShadowData.js";
+import farmAnimalSkin from "./schemes/farmAnimals/farmAnimalSkin.js";
 
 // fence data:1.6
 import fenceData from "./schemes/fenceData.js";
 // floors and paths data:1.6
 import floorPathData from "./schemes/floorPathData.js";
+
+// fruit tree data:1.6
+import fruitTreeData from "./schemes/fruitTrees/fruitTreeData.js";
+import fruitTreeFruitData from "./schemes/fruitTrees/fruitTreeFruitData.js"
+
+// garbage can data:1.6
+import garbageCanData from "./schemes/garbageCans/garbageCanData.js";
+import garbageCanEntryData from "./schemes/garbageCans/garbageCanEntryData.js";
+import garbageCanItemData from "./schemes/garbageCans/garbageCanItemData.js";
+
+// giant crops data:1.6
+import giantCropData from "./schemes/giantCrops/giantCropData.js";
+import giantCropHarvestItemData from "./schemes/giantCrops/giantCropHarvestItemData.js";
 
 // wedding data:1.6
 import weddingData from "./schemes/weddings/weddingData.js";
@@ -105,12 +120,24 @@ const schemes = {
 
 	"StardewValley.GameData.Crops.CropData": cropData,
 
+	"StardewValley.GameData.FarmAnimals.FarmAnimalData": farmAnimalData,
+	"StardewValley.GameData.FarmAnimals.AlternatePurchaseAnimals": alternatePurchaseAnimals,
+	"StardewValley.GameData.FarmAnimals.FarmAnimalProduce": farmAnimalProduce,
+	"StardewValley.GameData.FarmAnimals.FarmAnimalShadowData": farmAnimalShadowData,
+	"StardewValley.GameData.FarmAnimals.FarmAnimalSkin": farmAnimalSkin,
+
+	"StardewValley.GameData.Fences.FenceData": fenceData,
+	"StardewValley.GameData.FloorsAndPaths.FloorPathData": floorPathData,
+
+	"StardewValley.GameData.FruitTrees.FruitTreeData": fruitTreeData,
+	"StardewValley.GameData.FruitTrees.FruitTreeFruitData": fruitTreeFruitData,
+
 	"StardewValley.GameData.GarbageCans.GarbageCanData": garbageCanData,
 	"StardewValley.GameData.GarbageCans.GarbageCanEntryData": garbageCanEntryData,
 	"StardewValley.GameData.GarbageCans.GarbageCanItemData": garbageCanItemData,
 
-	"StardewValley.GameData.Fences.FenceData": fenceData,
-	"StardewValley.GameData.FloorsAndPaths.FloorPathData": floorPathData,
+	"StardewValley.GameData.GiantCrops.GiantCropData": giantCropData,
+	"StardewValley.GameData.GiantCrops.GiantCropHarvestItemData": giantCropHarvestItemData,
 
 	"StardewValley.GameData.Weddings.WeddingData": weddingData,
 	"StardewValley.GameData.Weddings.WeddingAttendeeData": weddingAttendeeData
