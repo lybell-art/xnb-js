@@ -20,11 +20,13 @@ export default class ConcessionItemDataReader extends BaseReader {
 	}
 	static parseTypeList() {
 		return ["ConcessionItemData", 
-		null, //ID
+		'String', //ID
 		'String', //name
 		'String', //displayName
 		'String', //description
 		null, //price
+		'String', // texture
+		null, //spriteIndex
 		'Nullable<List<String>>:2', "List<String>", 'String' //itemTag
 		];
 	}
@@ -43,11 +45,13 @@ export default class ConcessionItemDataReader extends BaseReader {
 		const int32Reader = new Int32Reader();
 		const nullableStringListReader = new NullableReader(new ListReader(new StringReader()));
 
-		let ID = int32Reader.read(buffer);
+		let ID = resolver.read(buffer);
 		let Name = resolver.read(buffer);
 		let DisplayName = resolver.read(buffer);
 		let Description = resolver.read(buffer);
 		let Price = int32Reader.read(buffer);
+		let Texture = resolver.read(buffer);
+		let SpriteIndex = int32Reader.read(buffer);
 		let ItemTags = nullableStringListReader.read(buffer, resolver);
 
 		return {
@@ -56,6 +60,8 @@ export default class ConcessionItemDataReader extends BaseReader {
 			DisplayName,
 			Description,
 			Price,
+			Texture,
+			SpriteIndex,
 			ItemTags
 		};
 	}
@@ -67,11 +73,13 @@ export default class ConcessionItemDataReader extends BaseReader {
 		
 		this.writeIndex(buffer, resolver);
 
-		int32Reader.write(buffer, content.ID, null);
+		stringReader.write(buffer, content.ID, resolver);
 		stringReader.write(buffer, content.Name, resolver);
 		stringReader.write(buffer, content.DisplayName, resolver);
 		stringReader.write(buffer, content.Description, resolver);
 		int32Reader.write(buffer, content.Price, null);
+		stringReader.write(buffer, content.Texture, resolver);
+		int32Reader.write(buffer, content.SpriteIndex, null);
 		nullableStringListReader.write(buffer, content.ItemTags, resolver);
 	}
 

@@ -98,6 +98,18 @@ import machineOutputRule from "./schemes/machines/machineOutputRule.js";
 import machineOutputTriggerRule from "./schemes/machines/machineOutputTriggerRule.js";
 import machineSoundData from "./schemes/machines/machineSoundData.js";
 
+// makeover outfits data:1.6
+import makeoverOutfit from "./schemes/makeoverOutfits/makeoverOutfit.js";
+import makeoverItem from "./schemes/makeoverOutfits/makeoverItem.js";
+
+// minecart data:1.6
+import minecartNetworkData from "./schemes/minecarts/minecartNetworkData.js";
+import minecartDestinationData from "./schemes/minecarts/minecartDestinationData.js";
+
+// movie data:1.4=>1.6
+import movieData from "./schemes/movies/movieData.js";
+import movieCranePrizeData from "./schemes/movies/movieCranePrizeData.js";
+
 // wedding data:1.6
 import weddingData from "./schemes/weddings/weddingData.js";
 import weddingAttendeeData from "./schemes/weddings/weddingAttendeeData.js";
@@ -186,6 +198,14 @@ const schemes = {
 	"StardewValley.GameData.Machines.MachineOutputTriggerRule": machineOutputTriggerRule,
 	"StardewValley.GameData.Machines.MachineSoundData": machineSoundData,
 
+	"StardewValley.GameData.MakeoverOutfits.MakeoverOutfit": makeoverOutfit,
+	"StardewValley.GameData.MakeoverOutfits.MakeoverItem": makeoverItem,
+
+	"StardewValley.GameData.Minecarts.MinecartNetworkData": minecartNetworkData,
+	"StardewValley.GameData.Minecarts.MinecartDestinationData": minecartDestinationData,
+	
+	"StardewValley.GameData.Movies.MovieData": movieData,
+	"StardewValley.GameData.Movies.MovieCranePrizeData": movieCranePrizeData,
 
 	"StardewValley.GameData.Weddings.WeddingData": weddingData,
 	"StardewValley.GameData.Weddings.WeddingAttendeeData": weddingAttendeeData

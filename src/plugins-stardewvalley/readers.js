@@ -1,6 +1,6 @@
 // movie scene data:1.4
 export {default as MovieSceneReader} from "./Readers/MovieSceneReader.js";
-export {default as MovieDataReader} from "./Readers/MovieDataReader.js";
+// movie scene data is now reflective schemes readers
 
 // movie character reaction data:1.4
 export {default as MovieCharacterReactionReader} from "./Readers/MovieCharacterReactionReader.js";
