@@ -73,6 +73,31 @@ import garbageCanItemData from "./schemes/garbageCans/garbageCanItemData.js";
 import giantCropData from "./schemes/giantCrops/giantCropData.js";
 import giantCropHarvestItemData from "./schemes/giantCrops/giantCropHarvestItemData.js";
 
+// location context data:1.6
+import locationContextData from "./schemes/locationContexts/locationContextData.js";
+import passOutMailData from "./schemes/locationContexts/passOutMailData.js";
+import reviveLocation from "./schemes/locationContexts/reviveLocation.js";
+import weatherCondition from "./schemes/locationContexts/weatherCondition.js";
+
+// location data:1.6
+import locationData from "./schemes/locations/locationData.js";
+import artifactSpotDropData from "./schemes/locations/artifactSpotDropData.js";
+import createLocationData from "./schemes/locations/createLocationData.js";
+import fishAreaData from "./schemes/locations/fishAreaData.js";
+import locationMusicData from "./schemes/locations/locationMusicData.js";
+import spawnFishData from "./schemes/locations/spawnFishData.js";
+import spawnForageData from "./schemes/locations/spawnForageData.js";
+
+// machine data:1.6
+import machineData from "./schemes/machines/machineData.js";
+import machineEffects from "./schemes/machines/machineEffects.js";
+import machineItemAdditionalConsumedItems from "./schemes/machines/machineItemAdditionalConsumedItems.js";
+import machineItemOutput from "./schemes/machines/machineItemOutput.js";
+import machineLight from "./schemes/machines/machineLight.js";
+import machineOutputRule from "./schemes/machines/machineOutputRule.js";
+import machineOutputTriggerRule from "./schemes/machines/machineOutputTriggerRule.js";
+import machineSoundData from "./schemes/machines/machineSoundData.js";
+
 // wedding data:1.6
 import weddingData from "./schemes/weddings/weddingData.js";
 import weddingAttendeeData from "./schemes/weddings/weddingAttendeeData.js";
@@ -138,6 +163,29 @@ const schemes = {
 
 	"StardewValley.GameData.GiantCrops.GiantCropData": giantCropData,
 	"StardewValley.GameData.GiantCrops.GiantCropHarvestItemData": giantCropHarvestItemData,
+
+	"StardewValley.GameData.LocationContexts.LocationContextData": locationContextData,
+	"StardewValley.GameData.LocationContexts.PassOutMailData": passOutMailData,
+	"StardewValley.GameData.LocationContexts.ReviveLocation": reviveLocation,
+	"StardewValley.GameData.LocationContexts.WeatherCondition": weatherCondition,
+
+	"StardewValley.GameData.Locations.LocationData": locationData,
+	"StardewValley.GameData.Locations.ArtifactSpotDropData": artifactSpotDropData,
+	"StardewValley.GameData.Locations.CreateLocationData": createLocationData,
+	"StardewValley.GameData.Locations.FishAreaData": fishAreaData,
+	"StardewValley.GameData.Locations.LocationMusicData": locationMusicData,
+	"StardewValley.GameData.Locations.SpawnFishData": spawnFishData,
+	"StardewValley.GameData.Locations.SpawnForageData": spawnForageData,
+
+	"StardewValley.GameData.Machines.MachineData": machineData,
+	"StardewValley.GameData.Machines.MachineEffects": machineEffects,
+	"StardewValley.GameData.Machines.MachineItemAdditionalConsumedItems": machineItemAdditionalConsumedItems,
+	"StardewValley.GameData.Machines.MachineItemOutput": machineItemOutput,
+	"StardewValley.GameData.Machines.MachineLight": machineLight,
+	"StardewValley.GameData.Machines.MachineOutputRule": machineOutputRule,
+	"StardewValley.GameData.Machines.MachineOutputTriggerRule": machineOutputTriggerRule,
+	"StardewValley.GameData.Machines.MachineSoundData": machineSoundData,
+
 
 	"StardewValley.GameData.Weddings.WeddingData": weddingData,
 	"StardewValley.GameData.Weddings.WeddingAttendeeData": weddingAttendeeData

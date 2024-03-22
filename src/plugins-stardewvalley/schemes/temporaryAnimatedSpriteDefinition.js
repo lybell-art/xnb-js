@@ -15,5 +15,5 @@ export default {
 	ScaleChange: "Single",
 	Rotation: "Single",
 	RotationChange: "Single",
-	Color: "String"
+	$Color: "String"
 }

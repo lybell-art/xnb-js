@@ -27,5 +27,12 @@ export default [
 
 	// floors andd paths
 	"StardewValley.GameData.FloorsAndPaths.FloorPathConnectType",
-	"StardewValley.GameData.FloorsAndPaths.FloorPathShadowType"
+	"StardewValley.GameData.FloorsAndPaths.FloorPathShadowType",
+
+	// machines
+	"StardewValley.GameData.Machines.MachineOutputTrigger",
+	"StardewValley.GameData.Machines.MachineTimeBlockers",
+
+	// pets
+	"StardewValley.GameData.Pets.PetAnimationLoopMode"
 ];
