@@ -34,5 +34,10 @@ export default [
 	"StardewValley.GameData.Machines.MachineTimeBlockers",
 
 	// pets
-	"StardewValley.GameData.Pets.PetAnimationLoopMode"
+	"StardewValley.GameData.Pets.PetAnimationLoopMode",
+
+	// shops
+	"StardewValley.GameData.Shops.LimitedStockMode",
+	"StardewValley.GameData.Shops.ShopOwnerType",
+	"StardewValley.GameData.Shops.StackSizeVisibility"
 ];

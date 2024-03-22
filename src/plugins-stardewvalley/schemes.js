@@ -110,6 +110,31 @@ import minecartDestinationData from "./schemes/minecarts/minecartDestinationData
 import movieData from "./schemes/movies/movieData.js";
 import movieCranePrizeData from "./schemes/movies/movieCranePrizeData.js";
 
+// museum data:1.6
+import museumRewards from "./schemes/museum/museumRewards.js";
+import museumDonationRequirement from "./schemes/museum/museumDonationRequirement.js";
+
+// object data:1.6
+import objectData from "./schemes/objects/objectData.js";
+import objectBuffData from "./schemes/objects/objectBuffData.js";
+import objectGeodeDropData from "./schemes/objects/objectGeodeDropData.js";
+
+// shirt&pants data:1.6
+import shirtData from "./schemes/shirtData.js";
+import pantsData from "./schemes/pantsData.js";
+
+// pet data:1.6
+import petData from "./schemes/pets/petData.js";
+import petAnimationFrame from "./schemes/pets/petAnimationFrame.js";
+import petBehavior from "./schemes/pets/petBehavior.js";
+import petBehaviorChanges from "./schemes/pets/petBehaviorChanges.js";
+import petBreed from "./schemes/pets/petBreed.js";
+import petGift from "./schemes/pets/petGift.js";
+import petSummitPerfectionEventData from "./schemes/pets/petSummitPerfectionEventData.js";
+
+// power data:1.6
+import powerData from "./schemes/powerData.js";
+
 // wedding data:1.6
 import weddingData from "./schemes/weddings/weddingData.js";
 import weddingAttendeeData from "./schemes/weddings/weddingAttendeeData.js";
@@ -206,6 +231,26 @@ const schemes = {
 	
 	"StardewValley.GameData.Movies.MovieData": movieData,
 	"StardewValley.GameData.Movies.MovieCranePrizeData": movieCranePrizeData,
+
+	"StardewValley.GameData.Museum.MuseumRewards": museumRewards,
+	"StardewValley.GameData.Museum.MuseumDonationRequirement": museumDonationRequirement,
+
+	"StardewValley.GameData.Objects.ObjectData": objectData,
+	"StardewValley.GameData.Objects.ObjectBuffData": objectBuffData,
+	"StardewValley.GameData.Objects.ObjectGeodeDropData": objectGeodeDropData,
+
+	"StardewValley.GameData.Shirts.ShirtData": shirtData,
+	"StardewValley.GameData.Pants.PantsData": pantsData,
+
+	"StardewValley.GameData.Pets.PetData": petData,
+	"StardewValley.GameData.Pets.PetAnimationFrame": petAnimationFrame,
+	"StardewValley.GameData.Pets.PetBehavior": petBehavior,
+	"StardewValley.GameData.Pets.PetBehaviorChanges": petBehaviorChanges,
+	"StardewValley.GameData.Pets.PetBreed": petBreed,
+	"StardewValley.GameData.Pets.PetGift": petGift,
+	"StardewValley.GameData.Pets.PetSummitPerfectionEventData": petSummitPerfectionEventData,
+
+	"StardewValley.GameData.Powers.PowersData": powerData,
 
 	"StardewValley.GameData.Weddings.WeddingData": weddingData,
 	"StardewValley.GameData.Weddings.WeddingAttendeeData": weddingAttendeeData
