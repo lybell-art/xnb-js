@@ -47,6 +47,7 @@ export default class ReflectiveSchemeReader {
 	 * @param {ReaderResolver} resolver
 	 */
 	write(buffer, content, resolver) {
+		buffer.alloc(163518);
 		this.writeIndex(buffer, resolver);
 		for(let [key, reader] of this.readers.entries())
 		{
