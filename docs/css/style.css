@@ -44,7 +44,7 @@ main{
 
 .title-wrapper {
 	display: flex;
-		gap: 20px;
+	gap: 20px;
 }
 
 .title {
@@ -80,9 +80,9 @@ main{
 	box-shadow: inset 5px 5px 8px 0px #0003, inset -5px -5px 10px #0001;
 
 	overflow: auto;
-		display: flex;
-		justify-content: center;
-		align-items: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .image-box-aligner {
@@ -119,8 +119,8 @@ main{
 .checkbox-wrapper {
 	margin-bottom: 5px;
 	display: flex;
-		justify-content: flex-start;
-		gap: 20px;
+	justify-content: flex-start;
+	gap: 20px;
 }
 
 .checkbox-item {
@@ -277,8 +277,8 @@ main::-webkit-scrollbar-track, .result-image-box::-webkit-scrollbar-track {
 	main {
 		width: calc(100vw - 60px);
 		justify-content: flex-start;
-			flex-direction: column;
-			overflow: auto;
+		flex-direction: column;
+		overflow-y: auto;
 	}
 
 	.controller-wrapper{
@@ -314,7 +314,7 @@ main::-webkit-scrollbar-track, .result-image-box::-webkit-scrollbar-track {
 		flex-direction: column;
 		justify-content: flex-start;
 		gap: 20px;
-		overflow: auto;
+		overflow-y: auto;
 
 		border-width: 8px;
 		border-radius: 10px;
