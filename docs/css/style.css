@@ -253,6 +253,7 @@ footer p{
 	border: 4px dashed #5ba67b;
 	border-radius: 20px;
 	background-color: #fffc;
+	pointer-events: none;
 }
 
 .drag-indicator img {
@@ -267,7 +268,6 @@ footer p{
 
 .drag-indicator.hidden {
 	visibility: hidden;
-	pointer-events: none;
 }
 
 /* Tablet(Horizontal) */
