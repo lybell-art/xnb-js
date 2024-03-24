@@ -321,7 +321,6 @@ function convertSchemeToReader(scheme)
 		}
 		result.set(key, reader);
 	}
-	console.log(result);
 	return result;
 }
 
