@@ -135,9 +135,41 @@ import petSummitPerfectionEventData from "./schemes/pets/petSummitPerfectionEven
 // power data:1.6
 import powerData from "./schemes/powerData.js";
 
+// shop data:1.6
+import shopData from "./schemes/shops/shopData.js";
+import shopDialogueData from "./schemes/shops/shopDialogueData.js";
+import shopItemData from "./schemes/shops/shopItemData.js";
+import shopOwnerData from "./schemes/shops/shopOwnerData.js";
+import shopThemeData from "./schemes/shops/shopThemeData.js";
+
+// tool data:1.6
+import toolData from "./schemes/tools/toolData.js";
+import toolUpgradeData from "./schemes/tools/toolUpgradeData.js";
+
+// weapon data:1.6
+import weaponData from "./schemes/weapons/weaponData.js";
+import weaponProjectile from "./schemes/weapons/weaponProjectile.js";
+
 // wedding data:1.6
 import weddingData from "./schemes/weddings/weddingData.js";
 import weddingAttendeeData from "./schemes/weddings/weddingAttendeeData.js";
+
+// wild tree data:1.6
+import wildTreeData from "./schemes/wildTrees/wildTreeData.js";
+import wildTreeItemData from "./schemes/wildTrees/wildTreeItemData.js";
+import wildTreeChopItemData from "./schemes/wildTrees/wildTreeChopItemData.js";
+import wildTreeSeedDropItemData from "./schemes/wildTrees/wildTreeSeedDropItemData.js";
+import wildTreeTapItemData from "./schemes/wildTrees/wildTreeTapItemData.js";
+import wildTreeTextureData from "./schemes/wildTrees/wildTreeTextureData.js";
+
+// world map data:1.6
+import worldMapAreaData from "./schemes/worldMap/worldMapAreaData.js";
+import worldMapAreaPositionData from "./schemes/worldMap/worldMapAreaPositionData.js";
+import worldMapAreaPositionScrollTextZoneData from "./schemes/worldMap/worldMapAreaPositionScrollTextZoneData.js";
+import worldMapRegionData from "./schemes/worldMap/worldMapRegionData.js";
+import worldMapTextureData from "./schemes/worldMap/worldMapTextureData.js";
+import worldMapTooltipData from "./schemes/worldMap/worldMapTooltipData.js";
+
 
 const schemes = {
 	"StardewValley.GameData.GenericSpawnItemData": genericSpawnItemData,
@@ -252,8 +284,34 @@ const schemes = {
 
 	"StardewValley.GameData.Powers.PowersData": powerData,
 
+	"StardewValley.GameData.Shops.ShopData": shopData,
+	"StardewValley.GameData.Shops.ShopDialogueData": shopDialogueData,
+	"StardewValley.GameData.Shops.ShopItemData": shopItemData,
+	"StardewValley.GameData.Shops.ShopOwnerData": shopOwnerData,
+	"StardewValley.GameData.Shops.ShopThemeData": shopThemeData,
+
+	"StardewValley.GameData.Tools.ToolData": toolData,
+	"StardewValley.GameData.Tools.ToolUpgradeData": toolUpgradeData,
+
+	"StardewValley.GameData.Weapons.WeaponData": weaponData,
+	"StardewValley.GameData.Weapons.WeaponProjectile": weaponProjectile,
+
 	"StardewValley.GameData.Weddings.WeddingData": weddingData,
-	"StardewValley.GameData.Weddings.WeddingAttendeeData": weddingAttendeeData
+	"StardewValley.GameData.Weddings.WeddingAttendeeData": weddingAttendeeData,
+
+	"StardewValley.GameData.WildTrees.WildTreeData": wildTreeData,
+	"StardewValley.GameData.WildTrees.WildTreeItemData": wildTreeItemData,
+	"StardewValley.GameData.WildTrees.WildTreeChopItemData": wildTreeChopItemData,
+	"StardewValley.GameData.WildTrees.WildTreeSeedDropItemData": wildTreeSeedDropItemData,
+	"StardewValley.GameData.WildTrees.WildTreeTapItemData": wildTreeTapItemData,
+	"StardewValley.GameData.WildTrees.WildTreeTextureData": wildTreeTextureData,
+
+	"StardewValley.GameData.WorldMaps.WorldMapAreaData": worldMapAreaData,
+	"StardewValley.GameData.WorldMaps.WorldMapAreaPositionData": worldMapAreaPositionData,
+	"StardewValley.GameData.WorldMaps.WorldMapAreaPositionScrollTextZoneData": worldMapAreaPositionScrollTextZoneData,
+	"StardewValley.GameData.WorldMaps.WorldMapRegionData": worldMapRegionData,
+	"StardewValley.GameData.WorldMaps.WorldMapTextureData": worldMapTextureData,
+	"StardewValley.GameData.WorldMaps.WorldMapTooltipData": worldMapTooltipData
 };
 
 export default schemes;
