@@ -1,7 +1,7 @@
 import { pack } from "./libs/xnb.js";
 import zipDownloadMaker from "./zipDownloadMaker.js";
 
-const options = {compression:"default"};
+const options = {compression:"LZ4"};
 
 /******************************************************************************/
 /*                             Add Event Listener                             */

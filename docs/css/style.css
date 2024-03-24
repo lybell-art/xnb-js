@@ -29,25 +29,32 @@ body {
 }
 
 main{
-	padding: 30px 60px;
+	position: relative;
 	border: solid 16px #fff0;
 	border-image: url("../assets/border.png") 16 round;
 	border-radius: 20px;
 	background-color: white;
-	display: flex;
-	justify-content: center;
-	flex-direction: row;
-	align-items: center;
-	gap:50px;
 }
 
+.content-wrapper {
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+	position: relative;
+	padding: 30px 60px;
+	display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    gap: 50px;
+}
 
 .title-wrapper {
 	display: flex;
 	gap: 20px;
 }
 
-.title {
+.title, .drag-area-title {
 	font-family: "Raleway";
 	font-weight: 700;
 	font-size: 24px;
@@ -219,17 +226,48 @@ footer p{
 }
 
 
-main::-webkit-scrollbar, .result-image-box::-webkit-scrollbar{
+.content-wrapper::-webkit-scrollbar, .result-image-box::-webkit-scrollbar{
 	width: 10px;
 	height: 10px;
 }
-main::-webkit-scrollbar-thumb, .result-image-box::-webkit-scrollbar-thumb{
+.content-wrapper::-webkit-scrollbar-thumb, .result-image-box::-webkit-scrollbar-thumb{
 	background: linear-gradient(135deg, #009688, #aaaaaa);
 		background-clip: padding-box;
 		border: 3px solid transparent;
 }
-main::-webkit-scrollbar-track, .result-image-box::-webkit-scrollbar-track {
+.content-wrapper::-webkit-scrollbar-track, .result-image-box::-webkit-scrollbar-track {
 	background-color: transparent;
+}
+
+.drag-indicator {
+	position: absolute;
+	top: 30px;
+	left: 30px;
+	width: calc(100% - 60px);
+	height: calc(100% - 60px);
+	box-sizing: border-box;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	border: 4px dashed #5ba67b;
+	border-radius: 20px;
+	background-color: #fffc;
+}
+
+.drag-indicator img {
+	width: 80px;
+	height: 80px;
+}
+
+.drag-area-caption {
+	font-size: 12px;
+	color: #666666;
+}
+
+.drag-indicator.hidden {
+	visibility: hidden;
+	pointer-events: none;
 }
 
 /* Tablet(Horizontal) */
@@ -238,12 +276,15 @@ main::-webkit-scrollbar-track, .result-image-box::-webkit-scrollbar-track {
 		width: calc(100vw - 20px);
 		height: calc(100vh - 100px);
 		box-sizing: border-box;
-		padding: 10px;
-		gap: 20px;
-		overflow: hidden;
 
 		border-width: 12px;
 		border-radius: 14px;
+	}
+
+	.content-wrapper {
+		padding: 10px;
+		gap: 20px;
+		overflow: hidden;
 	}
 
 	.result-image-box {
@@ -276,6 +317,9 @@ main::-webkit-scrollbar-track, .result-image-box::-webkit-scrollbar-track {
 @media screen and (min-width: 768px) and (max-width: 899px) {
 	main {
 		width: calc(100vw - 60px);
+	}
+
+	.content-wrapper {
 		justify-content: flex-start;
 		flex-direction: column;
 		overflow-y: auto;
@@ -310,14 +354,17 @@ main::-webkit-scrollbar-track, .result-image-box::-webkit-scrollbar-track {
 		width: calc(100vw - 20px);
 		height: calc(100vh - 60px);
 		box-sizing: border-box;
+
+		border-width: 8px;
+		border-radius: 10px;
+	}
+
+	.content-wrapper {
 		padding: 10px;
 		flex-direction: column;
 		justify-content: flex-start;
 		gap: 20px;
 		overflow-y: auto;
-
-		border-width: 8px;
-		border-radius: 10px;
 	}
 
 	.result-image-box {

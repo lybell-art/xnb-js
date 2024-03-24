@@ -11,84 +11,91 @@
 	<link rel="shortcut icon" href="#">
 </head>
 <body>
-	<main>
-		<div class="preview-wrapper">
-			<p class="title big">Preview</p>
-			<div class="result-image-box">
-				<div class="image-box-aligner">
-					<img id="imageResult" class="result-img" src="assets/blank.png" />
+	<main id="dragArea">
+		<div class="content-wrapper">
+			<section class="preview-wrapper">
+				<p class="title big">Preview</p>
+				<div class="result-image-box">
+					<div class="image-box-aligner">
+						<img id="imageResult" class="result-img" src="assets/blank.png" />
+					</div>
+					<pre id="textResult" class="result-text"></pre>
 				</div>
-				<pre id="textResult" class="result-text"></pre>
-			</div>
+			</section>
+			<section class="controller-wrapper">
+				<div class="pack-wrapper">
+					<div class="title-wrapper">
+						<p class="title">Unpack XNB</p>
+						<div id="unpack_loading" class="spinner">
+							<div class="cube1"></div>
+							<div class="cube2"></div>
+						</div>
+					</div>
+					<div class="checkbox-wrapper">
+						<div class="checkbox-item">
+							<input id="check_yaml" type="checkbox" name="unpack_options" value="yaml">
+							<label for="check_yaml">Export to YAML</label>
+							<div class="checkbox-desc">
+								Export to a yaml file that is compatible with the XNB Extractor.
+							</div>
+						</div>
+						<div class="checkbox-item">
+							<input id="check_content" type="checkbox" name="unpack_options" value="content_only">
+							<label for="check_content">Content Only</label>
+							<div class="checkbox-desc desc-120px">
+								Export content file only.
+							</div>
+						</div>
+					</div>
+					<div class="button-wrapper">
+						<div id="unpackButton" class="button">
+							<img src="assets/unpack.svg" />
+							<p>Unpack</p>
+						</div>
+						<div id="downloadUnpacked" class="button inactive">
+							<img src="assets/download.svg" />
+							<p class="no-bottom-margin">Download Result</p>
+							<p class="js-result-filename small"></p>
+						</div>
+					</div>
+				</div>
+				<div class="pack-wrapper">
+					<div class="title-wrapper">
+						<p class="title">Pack XNB</p>
+					</div>
+					<div class="checkbox-wrapper">
+						<div class="checkbox-item">
+							<input id="check_lz4" type="checkbox" name="pack_options" value="lz4" checked>
+							<label for="check_lz4">LZ4 Compression</label>
+							<div class="checkbox-desc">
+								Returns the xnb file using the LZ4 compression algorithm.<br/>
+								Guarantees a smaller file size, but incompatible with XnbExtractor.
+							</div>
+						</div>
+					</div>
+					<div class="button-wrapper">
+						<div id="packButton" class="button">
+							<img src="assets/pack.svg" />
+							<p>Pack</p>
+						</div>
+						<div id="downloadPacked" class="button inactive">
+							<img src="assets/download.svg" />
+							<p class="no-bottom-margin">Download Result</p>
+							<p class="js-result-filename small"></p>
+						</div>
+					</div>
+				</div>
+				<div class="code-wrapper">
+					<p class="title">Code Demo</p>
+					<div id="code" class="code">
+					</div>
+				</div>
+			</section>
 		</div>
-		<div class="controller-wrapper">
-			<div class="pack-wrapper">
-				<div class="title-wrapper">
-					<p class="title">Unpack XNB</p>
-					<div id="unpack_loading" class="spinner">
-						<div class="cube1"></div>
-						<div class="cube2"></div>
-					</div>
-				</div>
-				<div class="checkbox-wrapper">
-					<div class="checkbox-item">
-						<input id="check_yaml" type="checkbox" name="unpack_options" value="yaml">
-						<label for="check_yaml">Export to YAML</label>
-						<div class="checkbox-desc">
-							Export to a yaml file that is compatible with the XNB Extractor.
-						</div>
-					</div>
-					<div class="checkbox-item">
-						<input id="check_content" type="checkbox" name="unpack_options" value="content_only">
-						<label for="check_content">Content Only</label>
-						<div class="checkbox-desc desc-120px">
-							Export content file only.
-						</div>
-					</div>
-				</div>
-				<div class="button-wrapper">
-					<div id="unpackButton" class="button">
-						<img src="assets/unpack.svg" />
-						<p>Unpack</p>
-					</div>
-					<div id="downloadUnpacked" class="button inactive">
-						<img src="assets/download.svg" />
-						<p class="no-bottom-margin">Download Result</p>
-						<p class="js-result-filename small"></p>
-					</div>
-				</div>
-			</div>
-			<div class="pack-wrapper">
-				<div class="title-wrapper">
-					<p class="title">Pack XNB</p>
-				</div>
-				<div class="checkbox-wrapper">
-					<div class="checkbox-item">
-						<input id="check_lz4" type="checkbox" name="pack_options" value="lz4">
-						<label for="check_lz4">LZ4 Compression</label>
-						<div class="checkbox-desc">
-							Returns the xnb file using the LZ4 compression algorithm.<br/>
-							Guarantees a smaller file size, but incompatible with XnbExtractor.
-						</div>
-					</div>
-				</div>
-				<div class="button-wrapper">
-					<div id="packButton" class="button">
-						<img src="assets/pack.svg" />
-						<p>Pack</p>
-					</div>
-					<div id="downloadPacked" class="button inactive">
-						<img src="assets/download.svg" />
-						<p class="no-bottom-margin">Download Result</p>
-						<p class="js-result-filename small"></p>
-					</div>
-				</div>
-			</div>
-			<div class="code-wrapper">
-				<p class="title">Code Demo</p>
-				<div id="code" class="code">
-				</div>
-			</div>
+		<div class="drag-indicator hidden">
+			<img src="./assets/drag.svg">
+			<p class="drag-area-title">Drag Files!</p>
+			<p class="drag-area-caption">Supported Files: xnb, png, json, yaml, tbin, cso, xml</p>
 		</div>
 	</main>
 	<a href="https://github.com/lybell-art/xnb-js/tree/main/docs" class="github-corner" aria-label="View source on GitHub">
