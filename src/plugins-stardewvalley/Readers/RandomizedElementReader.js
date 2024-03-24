@@ -12,6 +12,7 @@ import RandomizedElementItemReader from "./RandomizedElementItemReader.js";
 export default class RandomizedElementReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
+			case 'StardewValley.GameData.SpecialOrders.RandomizedElement':
 			case 'StardewValley.GameData.RandomizedElement':
 				return true;
 			default: return false;

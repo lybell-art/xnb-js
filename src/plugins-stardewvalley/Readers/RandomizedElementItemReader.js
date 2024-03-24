@@ -11,6 +11,7 @@ import {BaseReader,
 export default class RandomizedElementItemReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
+			case 'StardewValley.GameData.SpecialOrders.RandomizedElementItem':
 			case 'StardewValley.GameData.RandomizedElementItem':
 				return true;
 			default: return false;

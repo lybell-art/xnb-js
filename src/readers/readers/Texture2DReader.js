@@ -31,11 +31,28 @@ export default class Texture2DReader extends BaseReader {
 		let width = uint32Reader.read(buffer);
 		let height = uint32Reader.read(buffer);
 		let mipCount = uint32Reader.read(buffer);
+		let usedWidth = null;
+		let usedHeight = null;
 
 		if (mipCount > 1)
 			console.warn(`Found mipcount of ${mipCount}, only the first will be used.`);
 
 		let dataSize = uint32Reader.read(buffer);
+
+		// for stardew valley 1.5 ios adjustment
+		// sdv 1.5 ios img size format is (imgwidth)/(usedWidth)/(imgHeight)/(usedHeight)
+		if(width*height > dataSize)
+		{
+			usedWidth = (width >> 16) & 0xffff;
+			width = width & 0xffff;
+			usedHeight = (height >> 16) & 0xffff;
+			height = height & 0xffff;
+			if(width * height !== dataSize)
+			{
+				console.warn(`invalid width & height! ${width} x ${height}`);
+			}
+		}
+
 		let data = buffer.read(dataSize);
 
 		if (format == 4)
@@ -61,14 +78,18 @@ export default class Texture2DReader extends BaseReader {
 			data[i + 2] = Math.min(Math.ceil(data[i + 2] * inverseAlpha), 255);
 		}
 
+		const exporter = {
+			type: this.type, 
+			data, width, height
+		};
+		if(usedWidth !== null) {
+			exporter.usedWidth = usedWidth;
+			exporter.usedHeight = usedHeight;
+		}
+
 		return {
 			format,
-			export: { 
-				type: this.type, 
-				data,
-				width,
-				height
-			}
+			export: exporter
 		};
 	}
 
@@ -84,12 +105,16 @@ export default class Texture2DReader extends BaseReader {
 
 		this.writeIndex(buffer, resolver);
 
-		const width = content.export.width;
-		const height = content.export.height;
+		let width = content.export.width;
+		let height = content.export.height;
+		if (content.export.usedWidth != null && content.export.usedHeight != null) {
+			width = width & (content.export.usedWidth << 16);
+			height = height & (content.export.usedHeight << 16);
+		}
 
 		int32Reader.write(buffer, content.format, null);
-		uint32Reader.write(buffer, content.export.width, null);
-		uint32Reader.write(buffer, content.export.height, null);
+		uint32Reader.write(buffer, width, null);
+		uint32Reader.write(buffer, height, null);
 		uint32Reader.write(buffer, 1, null);
 
 		let data = content.export.data;

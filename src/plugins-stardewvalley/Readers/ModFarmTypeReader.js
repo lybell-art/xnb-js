@@ -27,7 +27,7 @@ export default class ModFarmTypeReader extends BaseReader {
 			"Nullable<String>:1", "String", //worldMapTexture
 			null, //spawnMonstersByDefault
 			"Nullable<Dictionary<String,String>>:3", "Dictionary<String,String>", "String", "String", //modData
-			"Nullable<Dictionary<String,String>>:3", "Dictionary<String,String>", "String", "String", //customFields
+			"Nullable<Dictionary<String,String>>:3", "Dictionary<String,String>", "String", "String" //customFields
 		];
 	}
 	static type()

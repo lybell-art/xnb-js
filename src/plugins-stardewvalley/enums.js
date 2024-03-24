@@ -39,5 +39,11 @@ export default [
 	// shops
 	"StardewValley.GameData.Shops.LimitedStockMode",
 	"StardewValley.GameData.Shops.ShopOwnerType",
-	"StardewValley.GameData.Shops.StackSizeVisibility"
+	"StardewValley.GameData.Shops.StackSizeVisibility",
+
+	// specialOrders
+	"StardewValley.GameData.SpecialOrders.QuestDuration",
+
+	// wilddtrees
+	"StardewValley.GameData.WildTrees.WildTreeGrowthStage"
 ];

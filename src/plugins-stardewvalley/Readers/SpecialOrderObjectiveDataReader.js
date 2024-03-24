@@ -11,6 +11,7 @@ import {BaseReader,
 export default class SpecialOrderObjectiveDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
+		case 'StardewValley.GameData.SpecialOrders.SpecialOrderObjectiveData':
 			case 'StardewValley.GameData.SpecialOrderObjectiveData':
 				return true;
 			default: return false;
