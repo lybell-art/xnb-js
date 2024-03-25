@@ -1,3 +1,7 @@
+import { extractFileName } from "./utils.js";
+import { setPackFiles } from "./pack.js";
+import { setUnpackFiles } from "./unpack.js";
+
 /******************************************************************************/
 /*                             Add Event Listener                             */
 /*----------------------------------------------------------------------------*/
@@ -6,8 +10,6 @@ function addEventlistener_drag()
 {
 	const dropElement = document.getElementById("dropArea");
 	const dropIndicator = document.querySelector(".drag-indicator");
-	const unpackFileImpirter = document.getElementById("toUnpackFile");
-	const packFileImporter = document.getElementById("toPackFile");
 
 	dropElement.addEventListener("dragenter", (e)=> {
 		dropIndicator.classList.remove("hidden");
@@ -23,8 +25,24 @@ function addEventlistener_drag()
 	dropElement.addEventListener("drop", (e)=>{
 		e.preventDefault();
 		dropIndicator.classList.add("hidden");
-		console.log(e.dataTransfer.files);
+		distributeFiles(e.dataTransfer.files);
 	});
+}
+
+const packFileExtern = new Set(["png", "json", "yaml", "tbin", "cso", "xml"]);
+
+function distributeFiles(files)
+{
+	let toUnpackFiles = [];
+	let toPackFiles = [];
+	for(let file of files)
+	{
+		let [, extern] = extractFileName(file.name);
+		if(extern === "xnb") toUnpackFiles.push(file);
+		else if(packFileExtern.has(extern) ) toPackFiles.push(file);
+	}
+	setPackFiles(toPackFiles);
+	setUnpackFiles(toUnpackFiles);
 }
 
 function isInElement(child, parent)

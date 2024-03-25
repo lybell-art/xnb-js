@@ -1,7 +1,9 @@
 import { bufferToXnb } from "./workerHelper.js";
+import { extractFileName } from "./utils.js";
 import { xnbDataToContent, xnbDataToFiles } from "./libs/xnb.js";
 import zipDownloadMaker from "./zipDownloadMaker.js";
 
+let fileState = [];
 const options = {yaml:false, contentOnly:false};
 
 /******************************************************************************/
@@ -12,7 +14,7 @@ function addEventlistener_unpack()
 {
 	// add file change event handler
 	const fileImporter = document.getElementById("toUnpackFile");
-	fileImporter.addEventListener("change", handleFiles);
+	fileImporter.addEventListener("change", ()=>setFiles(fileImporter.files));
 
 	// add file import button
 	const fileImportButton = document.getElementById("unpackButton");
@@ -30,7 +32,7 @@ function addEventlistener_unpack()
 			options.contentOnly = false;
 		}
 		showCode();
-		handleFiles.call(fileImporter);
+		handleFiles();
 	});
 	contentOnlyChecker.addEventListener("change", function(){
 		options.contentOnly = this.checked;
@@ -40,7 +42,7 @@ function addEventlistener_unpack()
 			options.yaml = false;
 		} 
 		showCode();
-		handleFiles.call(fileImporter);
+		handleFiles();
 	});
 }
 
@@ -49,38 +51,34 @@ function addEventlistener_unpack()
 /*----------------------------------------------------------------------------*/
 const loadingSpinner = document.getElementById("unpack_loading");
 
+function setFiles(files)
+{
+	if(!files || files.length === 0) return;
+	fileState = files;
+	showCode();
+	handleFiles();
+}
+
 function handleFiles()
 {
-	if(!this.files || this.files.length === 0) return;
+	if(!fileState || fileState.length === 0) return;
 
 	// read files, image check
-	const file=this.files[0];
-	const isImage = (file.type.search("image/") > -1);
+	const file=fileState[0];
 
-	// if the file is xnb file, make zip files
-	if(isImage) {
-		console.log("this is image!");
-		const fileReader = new FileReader();
-		fileReader.readAsArrayBuffer(file);
-		fileReader.onload = pngLoad;
-	}
-	else {
-		console.log("this is xnb file!");
-		const [baseName] = extractFileName(file.name);
-		const exportFiles = xnbData => xnbDataToFiles(xnbData, {...options, fileName:baseName});
+	const [baseName] = extractFileName(file.name);
+	const exportFiles = xnbData => xnbDataToFiles(xnbData, {...options, fileName:baseName});
 
-		loadingSpinner.classList.add("shown");
-		showCode();
+	loadingSpinner.classList.add("shown");
 
-		zipper.initialize(baseName);
-		file.arrayBuffer()
-			.then(bufferToXnb)
-			.then(showXnbData)
-			.then(exportFiles)
-			.then(zipper.export.bind(zipper))
-			.catch(closeButton)
-			.finally(()=>{loadingSpinner.classList.remove("shown")});
-	}
+	zipper.initialize(baseName);
+	file.arrayBuffer()
+		.then(bufferToXnb)
+		.then(showXnbData)
+		.then(exportFiles)
+		.then(zipper.export.bind(zipper))
+		.catch(closeButton)
+		.finally(()=>{loadingSpinner.classList.remove("shown")});
 }
 
 /******************************************************************************/
@@ -112,12 +110,6 @@ function showXnbData(xnbData)
 	return xnbData;
 }
 
-function pngLoad({target})
-{
-	let result = target.result;
-	arrayToImg(result);
-}
-
 function arrayToImg(buffer)
 {
 	window.URL.revokeObjectURL(previewUrl);
@@ -137,12 +129,7 @@ const zipper = new zipDownloadMaker(
 	({extension}, baseName)=>`${baseName}.${extension}`
 );
 
-function extractFileName(fullname)
-{
-	let matcher = fullname.match(/(.*)\.([^\s.]+)$/);
-	if(matcher === null) return [fullname,null];
-	return [ matcher[1], matcher[2] ];
-}
+
 
 function closeButton(error)
 {
@@ -178,4 +165,4 @@ async function handleFile(file)
 
 
 
-export {addEventlistener_unpack};
+export {addEventlistener_unpack, setFiles as setUnpackFiles};

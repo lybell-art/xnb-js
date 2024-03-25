@@ -1,6 +1,7 @@
 import { pack } from "./libs/xnb.js";
 import zipDownloadMaker from "./zipDownloadMaker.js";
 
+let fileState = [];
 const options = {compression:"LZ4"};
 
 /******************************************************************************/
@@ -11,7 +12,7 @@ function addEventlistener_pack()
 {
 	// add file change event handler
 	const fileImporter = document.getElementById("toPackFile");
-	fileImporter.addEventListener("change", handleFiles);
+	fileImporter.addEventListener("change", ()=>setFiles(fileImporter.files));
 
 	// add file import button
 	const fileImportButton = document.getElementById("packButton");
@@ -23,7 +24,7 @@ function addEventlistener_pack()
 	lz4Checker.addEventListener("change", function(){
 		options.compression = this.checked ? "LZ4" : "default";
 		showCode();
-		handleFiles.call(fileImporter);
+		handleFiles();
 	});
 }
 
@@ -31,18 +32,24 @@ function addEventlistener_pack()
 /*                                Handle Files                                */
 /*----------------------------------------------------------------------------*/
 
+function setFiles(files)
+{
+	if(!files || files.length === 0) return;
+	fileState = files;
+	showCode();
+	handleFiles();
+}
+
 function handleFiles()
 {
-	if(!this.files || this.files.length === 0) return;
+	if(!fileState || fileState.length === 0) return;
 
-	showCode();
-
-	// pack(this.files, {...options, debug:true}).then((files)=>{console.log(files); return files;})
+	// pack(fileState, {...options, debug:true}).then((files)=>{console.log(files); return files;})
 	// 	.catch( (e)=>{
 	// 		console.warn(e);
 	// 		closeButton();
 	// 	} );
-	pack(this.files, options).then(xnbPackToZip).catch((e)=>{
+	pack(fileState, options).then(xnbPackToZip).catch((e)=>{
 		console.warn(e);
 		closeButton();
 	});
@@ -94,4 +101,4 @@ async function handleFile(files)
 }
 
 
-export {addEventlistener_pack};
+export {addEventlistener_pack, setFiles as setPackFiles};
