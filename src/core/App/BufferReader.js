@@ -276,7 +276,7 @@ class BufferReader {
 	 * @returns {Number}
 	 */
 	readDouble() {
-		const value = this._dataView.getFloat32(this._offset, this._endianus);
+		const value = this._dataView.getFloat64(this._offset, this._endianus);
 		this.seek(8);
 		return value;
 	}

@@ -1,8 +1,9 @@
 import {BaseReader,
+	BooleanReader,
 	NullableReader,
 	StringReader,
 	DictionaryReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 
 /**
  * ModFarmType Reader
@@ -24,7 +25,9 @@ export default class ModFarmTypeReader extends BaseReader {
 			"String", // mapName
 			"Nullable<String>:1", "String", //iconTexture
 			"Nullable<String>:1", "String", //worldMapTexture
-			"Nullable<Dictionary<String,String>>:4", "Dictionary<String,String>", "String", "String" //modData
+			null, //spawnMonstersByDefault
+			"Nullable<Dictionary<String,String>>:3", "Dictionary<String,String>", "String", "String", //modData
+			"Nullable<Dictionary<String,String>>:3", "Dictionary<String,String>", "String", "String" //customFields
 		];
 	}
 	static type()
@@ -41,15 +44,18 @@ export default class ModFarmTypeReader extends BaseReader {
 	read(buffer, resolver) {
 		const nullableStringReader = new NullableReader( new StringReader() );
 		const nullableStringDictReader = new NullableReader(
-			new DictionaryReader( new StringReader() )
+			new DictionaryReader( new StringReader(), new StringReader() )
 		);
+		const booleanReader = new BooleanReader();
 
 		const ID = resolver.read(buffer);
 		const TooltipStringPath = resolver.read(buffer);
 		const MapName = resolver.read(buffer);
 		const IconTexture = nullableStringReader.read(buffer, resolver);
 		const WorldMapTexture = nullableStringReader.read(buffer, resolver);
+		const SpawnMonstersByDefault = booleanReader.read(buffer);
 		const ModData = nullableStringDictReader.read(buffer, resolver);
+		const CustomFields = nullableStringDictReader.read(buffer, resolver);
 
 		return {
 			ID,
@@ -57,7 +63,9 @@ export default class ModFarmTypeReader extends BaseReader {
 			MapName,
 			IconTexture,
 			WorldMapTexture,
-			ModData
+			SpawnMonstersByDefault,
+			ModData,
+			CustomFields
 		};
 	}
 
@@ -67,6 +75,7 @@ export default class ModFarmTypeReader extends BaseReader {
 		const nullableStringDictReader = new NullableReader(
 			new DictionaryReader( new StringReader() )
 		);
+		const booleanReader = new BooleanReader();
 
 		this.writeIndex(buffer, resolver);
 
@@ -75,7 +84,9 @@ export default class ModFarmTypeReader extends BaseReader {
 		stringReader.write(buffer, content.MapName, resolver);
 		nullableStringReader.write(buffer, content.IconTexture, resolver);
 		nullableStringReader.write(buffer, content.WorldMapTexture, resolver);
+		booleanReader.write(buffer, content.SpawnMonstersByDefault, null);
 		nullableStringDictReader.write(buffer, content.ModData, resolver);
+		nullableStringDictReader.write(buffer, content.CustomFields, resolver);
 	}
 
 	isValueType() {

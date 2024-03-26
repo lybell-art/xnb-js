@@ -48,12 +48,12 @@ export default class NullableReader extends BaseReader {
 			booleanReader.read(buffer);
 			return null;
 		}
-		if(resolver === null)
+		if(resolver === null || this.reader.isValueType())
 		{
 			booleanReader.read(buffer);
 			return this.reader.read(buffer);
 		}
-		return (this.reader.isValueType()) ? this.reader.read(buffer) : resolver.read(buffer);
+		return resolver.read(buffer);
 	}
 
 	/**
@@ -71,7 +71,7 @@ export default class NullableReader extends BaseReader {
 			buffer.writeByte(0);
 			return;
 		}
-		if(resolver === null) buffer.writeByte(1);
+		if(resolver === null || this.reader.isValueType()) buffer.writeByte(1);
 		this.reader.write(buffer, content, (this.reader.isValueType() ? null : resolver));
 	}
 

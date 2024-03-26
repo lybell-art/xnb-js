@@ -1,7 +1,7 @@
 import {BaseReader,
 	Int32Reader,
 	StringReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 
 /**
  * BundleData Reader
@@ -12,6 +12,7 @@ export default class BundleDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'StardewValley.GameData.BundleData':
+			case "StardewValley.GameData.Bundles.BundleData":
 				return true;
 			default: return false;
 		}

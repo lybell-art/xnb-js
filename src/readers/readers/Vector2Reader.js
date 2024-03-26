@@ -29,4 +29,11 @@ export default class Vector2Reader extends BaseReader {
 
 		return { x, y };
 	}
+
+	write(buffer, content, resolver) {
+		this.writeIndex(buffer, resolver);
+		const singleReader = new SingleReader();
+		singleReader.write(buffer, content.x, null);
+		singleReader.write(buffer, content.y, null);
+	}
 }

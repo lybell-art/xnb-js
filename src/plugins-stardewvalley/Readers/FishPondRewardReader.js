@@ -1,7 +1,8 @@
 import {BaseReader,
 	SingleReader,
 	Int32Reader,
-} from "../../readers/src/readers.js"; //@xnb/readers
+	StringReader
+} from "../../readers/readers.js"; //@xnb/readers
 
 /**
  * FishPondReward Reader
@@ -11,14 +12,14 @@ import {BaseReader,
 export default class FishPondRewardReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
-			case 'StardewValley.GameData.FishPond.FishPondReward':
+			case 'StardewValley.GameData.FishPonds.FishPondReward':
 				return true;
 			default: return false;
 		}
 	}
 	static parseTypeList() {
 		return ["FishPondReward", 
-			null,null,null,null,null
+			null,null,"String",null,null
 		];
 	}
 	static type()
@@ -38,7 +39,7 @@ export default class FishPondRewardReader extends BaseReader {
 
 		const RequiredPopulation = int32Reader.read(buffer);
 		const Chance = Math.round(floatReader.read(buffer) * 100000) / 100000;
-		const ItemId = int32Reader.read(buffer);
+		const ItemId = resolver.read(buffer);
 		const MinQuantity = int32Reader.read(buffer);
 		const MaxQuantity = int32Reader.read(buffer);
 
@@ -54,12 +55,13 @@ export default class FishPondRewardReader extends BaseReader {
 	write(buffer, content, resolver) {
 		const int32Reader = new Int32Reader();
 		const floatReader = new SingleReader();
+		const stringReader = new StringReader();
 		
 		this.writeIndex(buffer, resolver);
 
 		int32Reader.write(buffer, content.RequiredPopulation, null);
 		floatReader.write(buffer, content.Chance, null);
-		int32Reader.write(buffer, content.ItemId, null);
+		stringReader.write(buffer, content.ItemId, resolver);
 		int32Reader.write(buffer, content.MinQuantity, null);
 		int32Reader.write(buffer, content.MaxQuantity, null);
 	}

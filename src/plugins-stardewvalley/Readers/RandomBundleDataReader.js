@@ -2,7 +2,7 @@ import {BaseReader,
 	StringReader,
 	NullableReader,
 	ListReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 import BundleSetDataReader from "./BundleSetDataReader.js";
 import BundleDataReader from "./BundleDataReader.js";
 
@@ -14,7 +14,7 @@ import BundleDataReader from "./BundleDataReader.js";
 export default class RandomBundleDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
-			case 'StardewValley.GameData.RandomBundleData':
+			case 'StardewValley.GameData.Bundles.RandomBundleData':
 				return true;
 			default: return false;
 		}
@@ -23,7 +23,7 @@ export default class RandomBundleDataReader extends BaseReader {
 		return ["RandomBundleData", 
 			"String", // AreaName
 			"String", // Keys
-			"Nullable<List<BundleSetData>>:13", "List<BundleSetData>", ...BundleSetDataReader.parseTypeList(),// BundleSets
+			"Nullable<List<BundleSetData>>:14", "List<BundleSetData>", ...BundleSetDataReader.parseTypeList(),// BundleSets
 			"Nullable<List<BundleData>>:11", "List<BundleData>", ...BundleDataReader.parseTypeList()//Bundles
 		];
 	}

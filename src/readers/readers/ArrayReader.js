@@ -66,9 +66,10 @@ export default class ArrayReader extends BaseReader {
 		// create a uint32 reader
 		const uint32Reader = new UInt32Reader();
 		// write the number of elements in the array
-		uint32Reader.write(buffer, content.length, resolver);
+		uint32Reader.write(buffer, content.length, null);
 		
 		// loop over array to write array contents
+
 		for (let i = 0; i < content.length; i++)
 			this.reader.write(buffer, content[i], (this.reader.isValueType() ? null : resolver));
 	}
@@ -82,6 +83,7 @@ export default class ArrayReader extends BaseReader {
 	}
 
 	parseTypeList() {
-		return [this.type, ...this.reader.parseTypeList()];
+		const inBlock = this.reader.parseTypeList();
+		return [`${this.type}:${inBlock.length}`, ...inBlock];
 	}
 }

@@ -1,4 +1,5 @@
 import XnbError from "../../Utils/XnbError.js";
+import ReflectiveReader from "./ReflectiveReader.js";
 
 // remove first bracket
 function removeExternBracket(str)
@@ -23,6 +24,8 @@ function removeExternBracket(str)
 class TypeReader
 {
 	static readers = {};
+	static schemes = {};
+	static enumList = new Set();
 	/**
 	 * Used to set readers plugin.
 	 * @function setReaders
@@ -41,6 +44,50 @@ class TypeReader
 	{
 		TypeReader.readers = {...(TypeReader.readers), ...readers};
 	}
+
+	/**
+	 * Used to set custom schemes.
+	 * @function setSchemes
+	 * @param  {Object<String, Object>} 
+	 * 	@key c# class name
+	 * 	@value scheme object
+	 */
+	static setSchemes(schemes)
+	{
+		TypeReader.schemes = {...schemes};
+	}
+	/**
+	 * Used to add custom schemes.
+	 * @function addReaders
+	 * @param  {Object<String, Object>}
+	 * 	@key c# class name
+	 * 	@value scheme object
+	 */
+	static addSchemes(schemes)
+	{
+		TypeReader.schemes = {...(TypeReader.schemes), ...schemes};
+	}
+	/**
+	 * Used to set custom enum data.
+	 * The c# enum name here is bypassed as an int32 data type when xnb.js interprets it.
+	 * @function setEnum
+	 * @param  {List<string>} 
+	 */
+	static setEnum(enumList)
+	{
+		TypeReader.enumList.clear();
+		enumList.forEach( id=>TypeReader.enumList.add(id) );
+	}
+	/**
+	 * Used to add custom enumList.
+	 * @function addEnum
+	 * @param  {List<string>} 
+	 */
+	static addEnum(enumList)
+	{
+		enumList.forEach( id=>TypeReader.enumList.add(id) );
+	}
+
 	static makeSimplied(type, reader)
 	{
 		let simple = type.split(/`|,/)[0];
@@ -56,6 +103,19 @@ class TypeReader
 		return null;
 	}
 
+	static simplifyReflectiveType(subType)
+	{
+		// split subtype, and check readers for match subtype
+		let simple = subType.split(/`|,/)[0];
+		for(let reader of Object.values(TypeReader.readers))
+		{
+			if(reader.isTypeOf(simple)) return reader.type();
+		}
+		// check scheme
+		if(TypeReader.schemes.hasOwnProperty(simple)) return `ReflectiveScheme<${simple}>`;
+
+		throw new XnbError(`Non-implemented scheme found, cannot resolve scheme "${simple}", "${subType}".`);
+	}
 
 	/**
 	 * Used to simplify type from XNB file.
@@ -72,22 +132,27 @@ class TypeReader
 		let isArray = simple.endsWith('[]');
 		// if its an array then get the array type
 		if (isArray)
-			return `Array<${simplifyType(simple.slice(0, -2))}>`;
-		if (simple === 'Microsoft.Xna.Framework.Content.ReflectiveReader') //reflective
-		{
-			let reflectiveType = TypeReader.parseSubtypes(type).map( TypeReader.simplifyType.bind(TypeReader) );
-			return `${reflectiveType}`;
-		}
+			return `Array<${TypeReader.simplifyType(simple.slice(0, -2))}>`;
 
+		// reflective
+		if (simple === 'Microsoft.Xna.Framework.Content.ReflectiveReader') 
+			return TypeReader.simplifyReflectiveType(TypeReader.parseSubtypes(type)[0]);
+
+		// traverse readers and match type
 		for(let reader of Object.values(TypeReader.readers))
 		{
 			let result = TypeReader.makeSimplied(type, reader);
 			if(result !== null) return result;
 		}
 
+		// check scheme
+		if(TypeReader.schemes.hasOwnProperty(simple)) return `ReflectiveScheme<${simple}>`;
+
+		// check enum bypass
+		if(TypeReader.enumList.has(simple)) return "Int32";
+
 		throw new XnbError(`Non-implemented type found, cannot resolve type "${simple}", "${type}".`);
 	}
-
 
 	/**
 	 * Parses subtypes from a type like Dictionary or List
@@ -152,6 +217,10 @@ class TypeReader
 	static getReader(typeString){
 	    // get type info for complex types
 	    let {type, subtypes} = TypeReader.getTypeInfo(typeString);
+
+	    // if type is new reflective
+	    if(type === "ReflectiveScheme") return makeReflectiveReader(subtypes[0]);
+
 	    // loop over subtypes and resolve readers for them
 	    subtypes = subtypes.map(TypeReader.getReader.bind(TypeReader));
 
@@ -159,8 +228,22 @@ class TypeReader
 	    if (TypeReader.readers.hasOwnProperty(`${type}Reader`))
 	        return new (TypeReader.readers[`${type}Reader`])(...subtypes);
 
+	    if (TypeReader.schemes.hasOwnProperty(type)) return makeReflectiveReader(type);
+
 	    // throw an error as type is not supported
 	    throw new XnbError(`Invalid reader type "${typeString}" passed, unable to resolve!`);
+	}
+
+	/**
+	 * Gets an XnbReader class based on type.
+	 * @function getReader
+	 * @param {String} reader class name to get reader.
+	 * @returns {Class BaseReader} returns an class of BaseReader for given type.
+	 */
+	static getReaderClass(typeString){
+		if (TypeReader.readers.hasOwnProperty(typeString))
+			return TypeReader.readers[typeString];
+		throw new XnbError(`There is no "${typeString}" class in reader list!`);
 	}
 
 	/**
@@ -175,6 +258,70 @@ class TypeReader
 	}
 }
 
+/**
+ * Reflective Scheme Reader maker 
+ */
+function makeReflectiveReader(className)
+{
+	if(!TypeReader.schemes.hasOwnProperty(className)) throw new XnbError(`Unsupported scheme : ${className}`);
+	let scheme = TypeReader.schemes[className];
 
+	// convert scheme object to reader map.
+	// if already converted, it will skip
+	if(scheme instanceof Map === false) {
+		scheme = convertSchemeToReader(scheme);
+		TypeReader.schemes[className] = scheme;
+	}
+
+	return new ReflectiveReader(className, scheme);
+}
+
+
+function convertSchemeEntryToReader(scheme)
+{
+	if(typeof scheme === "string") return TypeReader.getReader(scheme);
+
+	if(Array.isArray(scheme)) {
+		const ListReader = TypeReader.getReaderClass("ListReader");
+		return new ListReader(convertSchemeEntryToReader(scheme[0]));
+	}
+	if(typeof scheme === "object") {
+		const keyCount = Object.keys(scheme).length;
+		if(keyCount === 1) {
+			const DictionaryReader = TypeReader.getReaderClass("DictionaryReader");
+			const [key, value] = Object.entries(scheme)[0];
+
+			return new DictionaryReader(
+				convertSchemeEntryToReader(key),
+				convertSchemeEntryToReader(value)
+			);
+		}
+		else if(keyCount > 1) {
+			return convertSchemeToReader(scheme);
+		}
+	}
+	throw new XnbError(`Invalid Scheme to convert! : ${scheme}`);
+}
+
+function convertSchemeToReader(scheme)
+{
+	const result = new Map();
+	for(let [key, type] of Object.entries(scheme))
+	{
+		let reader = convertSchemeEntryToReader(type);
+		
+		if(key.startsWith("$")) {
+			key = key.slice(1);
+			try {
+				reader = new TypeReader.readers.NullableReader(reader);
+			}
+			catch {
+				throw new XnbError("There is no NullableReader from reader list!");
+			}
+		}
+		result.set(key, reader);
+	}
+	return result;
+}
 
 export default TypeReader;

@@ -1,6 +1,7 @@
 import {BaseReader,
-	ListReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+	ListReader,
+	StringReader
+} from "../../readers/readers.js"; //@xnb/readers
 import BundleDataReader from "./BundleDataReader.js";
 
 /**
@@ -11,13 +12,14 @@ import BundleDataReader from "./BundleDataReader.js";
 export default class BundleSetDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
-			case 'StardewValley.GameData.BundleSetData':
+			case 'StardewValley.GameData.Bundles.BundleSetData':
 				return true;
 			default: return false;
 		}
 	}
 	static parseTypeList() {
 		return ["BundleSetData", 
+			"String",
 			"List<BundleData>", ...BundleDataReader.parseTypeList() //Bundles
 		];
 	}
@@ -33,16 +35,19 @@ export default class BundleSetDataReader extends BaseReader {
 	 * @returns {object}
 	 */
 	read(buffer, resolver) {
+		let Id = resolver.read(buffer);
 		let Bundles = resolver.read(buffer);
 
-		return {Bundles};
+		return {Id, Bundles};
 	}
 
 	write(buffer, content, resolver) {
+		const stringReader = new StringReader();
 		const bundleListReader = new ListReader( new BundleDataReader() );
 
 		this.writeIndex(buffer, resolver);
 
+		stringReader.write(buffer, content.Id, resolver);
 		bundleListReader.write(buffer, content.Bundles, resolver);
 	}
 

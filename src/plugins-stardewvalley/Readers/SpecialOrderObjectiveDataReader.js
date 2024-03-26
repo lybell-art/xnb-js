@@ -1,7 +1,7 @@
 import {BaseReader,
 	StringReader,
 	DictionaryReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 
 /**
  * SpecialOrderObjectiveData Reader
@@ -11,6 +11,7 @@ import {BaseReader,
 export default class SpecialOrderObjectiveDataReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
+		case 'StardewValley.GameData.SpecialOrders.SpecialOrderObjectiveData':
 			case 'StardewValley.GameData.SpecialOrderObjectiveData':
 				return true;
 			default: return false;

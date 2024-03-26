@@ -206,10 +206,30 @@ function addReaders(readers)
 {
 	return TypeReader.addReaders(readers);
 }
+function setSchemes(schemes)
+{
+	return TypeReader.setSchemes(schemes);
+}
+function addSchemes(schemes)
+{
+	return TypeReader.addSchemes(schemes);
+}
+function setEnum(enumList)
+{
+	return TypeReader.setEnum(enumList);
+}
+function addEnum(enumList)
+{
+	return TypeReader.addEnum(enumList);
+}
 
 export {
 	setReaders,
 	addReaders,
+	setSchemes,
+	addSchemes,
+	setEnum,
+	addEnum,
 
 	unpackToXnbData, 
 	unpackToContent, 

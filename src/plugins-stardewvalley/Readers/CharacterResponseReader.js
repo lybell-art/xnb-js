@@ -1,7 +1,7 @@
 import {BaseReader,
 	NullableReader,
 	StringReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 
 /**
  * CharacterResponse Reader
@@ -38,8 +38,8 @@ export default class CharacterResponseReader extends BaseReader {
 		const nullableStringReader = new NullableReader( new StringReader() );
 
 		const ResponsePoint = nullableStringReader.read(buffer, resolver);
-		const Script = nullableStringReader.read(buffer, resolver) || "";
-		const Text = nullableStringReader.read(buffer, resolver) || "";
+		const Script = nullableStringReader.read(buffer, resolver);
+		const Text = nullableStringReader.read(buffer, resolver);
 		
 		return {
 			ResponsePoint,

@@ -1,7 +1,19 @@
-import {bufferToXnb} from "./xnb.js";
+import {bufferToXnb, toggleLegacy} from "./xnb.js";
+
 
 onmessage = function(e) {
-	let result = bufferToXnb(e.data);
-	console.log(result);
-	postMessage(result);
+	if(e.data.type === "toggleLegacy") {
+		toggleLegacy(e.data.isLegacy);
+		return;
+	}
+
+	try {
+		let result = bufferToXnb(e.data.buffer);
+		postMessage({result, uuid:e.data.uuid});
+	}
+	catch(err) {
+		err.message += `<uuid:${e.data.uuid}>`
+		throw err;
+	}
+	
 }

@@ -5,7 +5,7 @@ function header()
 	return {
 		renderChunk(code){
 			return `/** 
- * @xnb/stardewvalley 1.2.0
+ * @xnb/stardewvalley 1.3.0
  * made by Lybell( https://github.com/lybell-art/ )
  * special thanks to Concernedape(Stardew Valley Producer), 진의(Unoffical XnbCli updater)
  * 
@@ -21,7 +21,7 @@ function replaceDependency()
 {
 	return {
 		transform(code) {
-			code = code.replace('from "../../readers/src/readers.js"; //@xnb-js/readers', 'from "@xnb-js/readers";');
+			code = code.replace('from "../../readers/readers.js"; //@xnb-js/readers', 'from "@xnb-js/readers";');
 			return {
 				code: code,
 				map: null
@@ -151,7 +151,7 @@ function buildTargetMaker(target=-1)
 {
 	const targetArray = [
 		["src/plugins-stardewvalley", 
-		"readers", 
+		"index", 
 		"src/plugins-stardewvalley/dist/index", 
 		"dist/plugins/stardewvalley/index"]
 	]

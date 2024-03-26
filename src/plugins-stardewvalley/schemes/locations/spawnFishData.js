@@ -1,0 +1,26 @@
+import genericSpawnItemDataWithCondition from "../genericSpawnItemDataWithCondition.js";
+
+export default {
+	...genericSpawnItemDataWithCondition,
+	"Chance": "Single",
+	"$Season": "Int32",
+	"$FishAreaId": "String",
+	"$BobberPosition": "Rectangle",
+	"$PlayerPosition": "Rectangle",
+	"MinFishingLevel": "Int32",
+	"MinDistanceFromShore": "Int32",
+	"MaxDistanceFromShore": "Int32",
+	"ApplyDailyLuck": "Boolean",
+	"CuriosityLureBuff": "Single",
+	"CatchLimit": "Int32",
+	"IsBossFish": "Boolean",
+	"$SetFlagOnCatch": "String",
+	"RequireMagicBait": "Boolean",
+	"Precedence": "Int32",
+	"IgnoreFishDataRequirements": "Boolean",
+	"CanBeInherited": "Boolean",
+	"$ChanceModifiers": ["StardewValley.GameData.QuantityModifier"],
+	"ChanceModifierMode": "Int32",
+	"ChanceBoostPerLuckLevel": "Single",
+	"UseFishCaughtSeededRandom": "Boolean"
+};

@@ -46,14 +46,14 @@ export default class ListReader extends BaseReader {
 	/**
 	 * Writes List into the buffer
 	 * @param {BufferWriter} buffer
-	 * @param {Mixed} data The data
+	 * @param {Array} data
 	 * @param {ReaderResolver} resolver
 	 */
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		const uint32Reader = new UInt32Reader();
 		uint32Reader.write(buffer, content.length, null);
-		for (let data of Object.values(content) )
+		for (let data of content )
 		{
 			this.reader.write(buffer, data, (this.reader.isValueType() ? null : resolver));
 		}
@@ -69,6 +69,7 @@ export default class ListReader extends BaseReader {
 	}
 
 	parseTypeList() {
-		return [this.type, ...this.reader.parseTypeList()];
+		const inBlock = this.reader.parseTypeList();
+		return [`${this.type}:${inBlock.length}`, ...inBlock];
 	}
 }

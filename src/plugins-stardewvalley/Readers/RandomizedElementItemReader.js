@@ -1,7 +1,7 @@
 import {BaseReader,
 	StringReader,
 	NullableReader
-} from "../../readers/src/readers.js"; //@xnb/readers
+} from "../../readers/readers.js"; //@xnb/readers
 
 /**
  * RandomizedElementItem Reader
@@ -11,6 +11,7 @@ import {BaseReader,
 export default class RandomizedElementItemReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
+			case 'StardewValley.GameData.SpecialOrders.RandomizedElementItem':
 			case 'StardewValley.GameData.RandomizedElementItem':
 				return true;
 			default: return false;

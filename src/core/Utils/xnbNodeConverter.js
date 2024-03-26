@@ -44,6 +44,7 @@ function isPrimitiveReaderType(reader)
 		case 'Vector4':
 		case 'Rectangle':
 		case 'Rect':
+		case 'Point':
 		return true;
 		default: return false;
 	}
@@ -70,7 +71,6 @@ function convertJsonContentsToXnbNode(raw, readers)
 	const {converted} = (function recursiveConvert(obj, path, index=0)
 	{
 		const reader = readers[index];
-
 		//primitive
 		if(isPrimitiveReaderType(reader))
 		{
@@ -91,6 +91,7 @@ function convertJsonContentsToXnbNode(raw, readers)
 
 		//nullable
 		//Nullable format is Nullable<subtype>:(traversed block size)
+		//console.log(reader, index);
 		if(reader.startsWith('Nullable'))
 		{
 			let nullableData, trav;
@@ -153,12 +154,21 @@ function convertJsonContentsToXnbNode(raw, readers)
 		let traversed = index;
 		let first = true;
 		let isComplex = ( !reader.startsWith("Dictionary") && !reader.startsWith("Array") && !reader.startsWith("List") );
+		let [readerType, complexBlockTraversed=1] = reader.split(":");
+
+		// zero-length list
+		if(Object.keys(obj).length === 0) {
+			return {
+				converted: {type:readerType, data},
+				traversed : index + (+complexBlockTraversed)
+			}
+		}
 
 		for(let [key, value] of Object.entries(obj))
 		{
 			let newIndex;
-			if( reader.startsWith("Dictionary") ) newIndex = index+2;
-			else if( reader.startsWith("Array") || reader.startsWith("List")) newIndex = index+1;
+			if( readerType.startsWith("Dictionary") ) newIndex = index+2;
+			else if( readerType.startsWith("Array") || readerType.startsWith("List")) newIndex = index+1;
 			else newIndex = traversed + 1;
 
 			const {converted, traversed:nexter} = recursiveConvert( obj[key], [...path, key], newIndex );
@@ -172,7 +182,7 @@ function convertJsonContentsToXnbNode(raw, readers)
 		}
 
 		return {
-			converted : { type:reader, data },
+			converted : { type:readerType, data },
 			traversed
 		};
 	})(raw, []);

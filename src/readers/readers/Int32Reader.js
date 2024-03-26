@@ -9,6 +9,7 @@ export default class Int32Reader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'Microsoft.Xna.Framework.Content.Int32Reader':
+			case 'Microsoft.Xna.Framework.Content.EnumReader':
 			case 'System.Int32':
 				return true;
 			default: return false;

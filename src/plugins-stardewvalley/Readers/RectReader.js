@@ -1,4 +1,4 @@
-import {RectangleReader} from "../../readers/src/readers.js"; //@xnb/readers
+import {RectangleReader} from "../../readers/readers.js"; //@xnb/readers
 
 /**
  * Stardew Valley Rect Reader
