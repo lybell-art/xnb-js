@@ -1,7 +1,14 @@
 import {bufferToXnb} from "./xnb.js";
 
+
 onmessage = function(e) {
-	let result = bufferToXnb(e.data);
-	console.log(result);
-	postMessage(result);
+	try {
+		let result = bufferToXnb(e.data.buffer);
+		postMessage({result, uuid:e.data.uuid});
+	}
+	catch(err) {
+		err.message += `<uuid:${e.data.uuid}>`
+		throw err;
+	}
+	
 }

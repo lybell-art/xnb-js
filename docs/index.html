@@ -15,21 +15,12 @@
 		<div class="content-wrapper">
 			<section class="preview-wrapper">
 				<p class="title big">Preview</p>
-				<div class="result-image-box">
-					<div class="image-box-aligner">
-						<img id="imageResult" class="result-img" src="assets/blank.png" />
-					</div>
-					<pre id="textResult" class="result-text"></pre>
-				</div>
+				<preview-component id="preview"></preview-component>
 			</section>
 			<section class="controller-wrapper">
 				<div class="pack-wrapper">
 					<div class="title-wrapper">
 						<p class="title">Unpack XNB</p>
-						<div id="unpack_loading" class="spinner">
-							<div class="cube1"></div>
-							<div class="cube2"></div>
-						</div>
 					</div>
 					<div class="checkbox-wrapper">
 						<div class="checkbox-item">
@@ -105,7 +96,7 @@
 		<p>Web XNB Converter v1.3.0 indev | Made by Lybell | Credit to <a href="https://github.com/LeonBlade">Leonblade</a> - original code(xnbcil) developer</p>
 	</footer>
 
-	<input id="toUnpackFile" type="file" style="display:none" accept=".xnb"/>
+	<input id="toUnpackFile" type="file" style="display:none" accept=".xnb" multiple/>
 	<input id="toPackFile" type="file" style="display:none" accept=".png, .json, .yaml, .tbin, .cso, .xml" multiple/>
 
 	<script src="https://cdn.jsdelivr.net/npm/jszip@3.9.1/dist/jszip.min.js" ></script>

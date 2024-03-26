@@ -1,3 +1,5 @@
+import "./preview/previewText.js";
+import "./preview/previewComponent.js";
 import {addEventlistener_unpack} from "./unpack.js";
 import {addEventlistener_pack} from "./pack.js";
 import {addEventlistener_drag} from "./handleDrag.js";

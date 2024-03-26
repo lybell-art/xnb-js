@@ -49,12 +49,12 @@ function addEventlistener_unpack()
 /******************************************************************************/
 /*                                Handle Files                                */
 /*----------------------------------------------------------------------------*/
-const loadingSpinner = document.getElementById("unpack_loading");
+const outputPreviewer = document.getElementById("preview");
 
 function setFiles(files)
 {
 	if(!files || files.length === 0) return;
-	fileState = files;
+	fileState = [...files];
 	showCode();
 	handleFiles();
 }
@@ -63,60 +63,58 @@ function handleFiles()
 {
 	if(!fileState || fileState.length === 0) return;
 
-	// read files, image check
-	const file=fileState[0];
+	let zipFileName;
+	if(fileState.length === 1) [zipFileName] = extractFileName(fileState[0].name);
+	else zipFileName = "result";
 
-	const [baseName] = extractFileName(file.name);
-	const exportFiles = xnbData => xnbDataToFiles(xnbData, {...options, fileName:baseName});
+	zipper.initialize(zipFileName);
+	outputPreviewer.reset(fileState.length);
 
-	loadingSpinner.classList.add("shown");
-
-	zipper.initialize(baseName);
-	file.arrayBuffer()
-		.then(bufferToXnb)
-		.then(showXnbData)
-		.then(exportFiles)
-		.then(zipper.export.bind(zipper))
-		.catch(closeButton)
-		.finally(()=>{loadingSpinner.classList.remove("shown")});
+	return Promise.allSettled( fileState.map( handleEachFile ) )
+		.then( (result)=>result
+			.filter( ({status})=>status === "fulfilled" )
+			.map( ({value})=>value )
+			.flat()
+		)
+		.then( (result)=>{
+			if(result.length === 0) return zipper.inactiveDownloadButton();
+			else return zipper.export(result);
+		} )
 }
 
+async function handleEachFile(file, index)
+{
+	const [baseName] = extractFileName(file.name);
+
+	outputPreviewer.showLoading(index);
+	try{
+		const data = await file.arrayBuffer().then(bufferToXnb);
+		const previewData = convertXnbDataToShow(data);
+		outputPreviewer.showData(previewData, index);
+		const result = await xnbDataToFiles(data, {...options, fileName:baseName});
+		result.forEach( file=>file.fileName=baseName );
+		return result;
+	}
+	catch(error) {
+		console.log(error);
+		outputPreviewer.showError(error, index);
+	}
+}
+
+
 /******************************************************************************/
-/*                            Show Preview Images                             */
+/*                           Convert Preview Data                             */
 /*----------------------------------------------------------------------------*/
-const outputImageCanvas = document.getElementById("imageResult");
-const outputTextBox = document.getElementById("textResult");
-let previewUrl;
 
-
-function showXnbData(xnbData)
+function convertXnbDataToShow(xnbData)
 {
 	if(xnbData.contentType === "Texture2D")
 	{
 		const {content} = xnbDataToContent(xnbData);
-		arrayToImg(content);
-		outputTextBox.textContent = "";
+		return new Blob([content], {type: "image/png"});
 	}
-	else if(xnbData.contentType === "JSON")
-	{
-		outputTextBox.textContent = xnbData.rawContent;
-		outputImageCanvas.src="assets/blank.png";
-	}
-	else
-	{
-		outputTextBox.textContent = "[Binary Data]";
-		outputImageCanvas.src="assets/blank.png";
-	}
-	return xnbData;
-}
-
-function arrayToImg(buffer)
-{
-	window.URL.revokeObjectURL(previewUrl);
-
-	const blob = new Blob([buffer], {type: "image/png"});
-	previewUrl = window.URL.createObjectURL(blob);
-	outputImageCanvas.src = previewUrl;
+	else if(xnbData.contentType === "JSON") return xnbData.rawContent;
+	else return "[Binary Data]";
 }
 
 
@@ -126,7 +124,7 @@ function arrayToImg(buffer)
 const zipper = new zipDownloadMaker(
 	document.getElementById("downloadUnpacked"),
 	({data})=>data,
-	({extension}, baseName)=>`${baseName}.${extension}`
+	({fileName, extension}, baseName)=>`${fileName ?? baseName}.${extension}`
 );
 
 

@@ -3,6 +3,7 @@ import genericSpawnItemData from "./schemes/genericSpawnItemData.js";
 import genericSpawnItemDataWithCondition from "./schemes/genericSpawnItemDataWithCondition.js";
 
 // other game data: 1.6
+import audioCueData from "./schemes/audioCueData.js";
 import incomingPhoneCallData from "./schemes/incomingPhoneCallData.js";
 import jukeboxTrackData from "./schemes/jukeboxTrackData.js";
 import mannequinData from "./schemes/mannequinData.js";
@@ -175,6 +176,7 @@ const schemes = {
 	"StardewValley.GameData.GenericSpawnItemData": genericSpawnItemData,
 	"StardewValley.GameData.GenericSpawnItemDataWithCondition": genericSpawnItemDataWithCondition,
 
+	"StardewValley.GameData.AudioCueData": audioCueData,
 	"StardewValley.GameData.IncomingPhoneCallData": incomingPhoneCallData,
 	"StardewValley.GameData.JukeboxTrackData": jukeboxTrackData,
 	"StardewValley.GameData.MannequinData": mannequinData,
