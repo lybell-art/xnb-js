@@ -368,3 +368,17 @@ footer p{
 		flex-wrap: nowrap;
 	}
 }
+
+
+/* legacy toggle */
+.legacy-toggle-wrapper {
+	display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    position: relative;
+    height: min-content;
+}
+.small {
+	font-size: 0.75em;
+}

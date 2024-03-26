@@ -23,10 +23,14 @@ import * as StardewLegacyReader from "./plugins/xnb-stardew-legacy.module.js"; /
 
 const readers_1_6 = {...Reader, ...StardewReader};
 const readers_1_5 = {...Reader, ...StardewLegacyReader};
+let loaded = false;
 
-setReaders(readers_1_6);
-setSchemes(StardewScheme);
-setEnum(StardewEnum);
+if(!loaded) {
+	setReaders(readers_1_6);
+	setSchemes(StardewScheme);
+	setEnum(StardewEnum);
+	console.log("---loaded readers!---");
+}
 
 // for stardew valley 1.5 mobile / console
 function toggleLegacy(isLegacy)

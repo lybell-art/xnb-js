@@ -1,32 +1,38 @@
 import {XnbData} from "./libs/xnb.js";
 
-const bufferToXnb = (function(){
+const [bufferToXnb, toggleLegacy] = (function(){
 	const worker = new Worker("./js/libs/unpackWorker.js", {type:"module"});
 
-	return function bufferToXnb(buffer)
-	{
-		return new Promise( (resolve, reject)=>{
-			const uuid = makeUUID();
-			worker.postMessage({buffer, uuid});
-			const onMessage = (e)=>{
-				if(uuid !== e.data.uuid) return;
-				const {header, readers, content} = e.data.result;
-				resolve(new XnbData(header, readers, content));
-				worker.removeEventListener("message", onMessage);
-				worker.removeEventListener("error", onError);
-			};
-			const onError = (e)=>{
-				const errorUUID = extractUUID(e.message);
-				if(uuid !== errorUUID) return;
-				reject(e);
-				worker.removeEventListener("message", onMessage);
-				worker.removeEventListener("error", onError);
-			};
-
-			worker.addEventListener( "message", onMessage );
-			worker.addEventListener( "error", onError );
-		});
-	}
+	return [
+		function bufferToXnb(buffer)
+		{
+			return new Promise( (resolve, reject)=>{
+				const uuid = makeUUID();
+				worker.postMessage({buffer, uuid, type:"unpack"});
+				const onMessage = (e)=>{
+					if(uuid !== e.data.uuid) return;
+					const {header, readers, content} = e.data.result;
+					resolve(new XnbData(header, readers, content));
+					worker.removeEventListener("message", onMessage);
+					worker.removeEventListener("error", onError);
+				};
+				const onError = (e)=>{
+					const errorUUID = extractUUID(e.message);
+					if(uuid !== errorUUID) return;
+					reject(e);
+					worker.removeEventListener("message", onMessage);
+					worker.removeEventListener("error", onError);
+				};
+	
+				worker.addEventListener( "message", onMessage );
+				worker.addEventListener( "error", onError );
+			});
+		},
+		function toggleLegacy(isLegacy)
+		{
+			worker.postMessage({isLegacy, type:"toggleLegacy"});
+		}
+	]
 })();
 
 
@@ -52,4 +58,4 @@ function extractUUID(errorMessage)
 
 
 
-export {bufferToXnb};
+export {bufferToXnb, toggleLegacy};
