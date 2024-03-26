@@ -1,5 +1,5 @@
 /** 
- * xnb.js 1.2.0
+ * xnb.js 1.3.0
  * made by Lybell( https://github.com/lybell-art/ )
  * This library is based on the XnbCli made by Leonblade.
  * 
@@ -1284,17 +1284,14 @@
 
 	function ownKeys(object, enumerableOnly) {
 		var keys = Object.keys(object);
-
 		if (Object.getOwnPropertySymbols) {
 			var symbols = Object.getOwnPropertySymbols(object);
 			enumerableOnly && (symbols = symbols.filter(function (sym) {
 				return Object.getOwnPropertyDescriptor(object, sym).enumerable;
 			})), keys.push.apply(keys, symbols);
 		}
-
 		return keys;
 	}
-
 	function _objectSpread2(target) {
 		for (var i = 1; i < arguments.length; i++) {
 			var source = null != arguments[i] ? arguments[i] : {};
@@ -1304,10 +1301,8 @@
 				Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
 			});
 		}
-
 		return target;
 	}
-
 	function _typeof(obj) {
 		"@babel/helpers - typeof";
 
@@ -1317,13 +1312,11 @@
 			return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
 		}, _typeof(obj);
 	}
-
 	function _classCallCheck(instance, Constructor) {
 		if (!(instance instanceof Constructor)) {
 			throw new TypeError("Cannot call a class as a function");
 		}
 	}
-
 	function _defineProperties(target, props) {
 		for (var i = 0; i < props.length; i++) {
 			var descriptor = props[i];
@@ -1333,7 +1326,6 @@
 			Object.defineProperty(target, descriptor.key, descriptor);
 		}
 	}
-
 	function _createClass(Constructor, protoProps, staticProps) {
 		if (protoProps) _defineProperties(Constructor.prototype, protoProps);
 		if (staticProps) _defineProperties(Constructor, staticProps);
@@ -1342,7 +1334,6 @@
 		});
 		return Constructor;
 	}
-
 	function _defineProperty(obj, key, value) {
 		if (key in obj) {
 			Object.defineProperty(obj, key, {
@@ -1354,15 +1345,12 @@
 		} else {
 			obj[key] = value;
 		}
-
 		return obj;
 	}
-
 	function _inherits(subClass, superClass) {
 		if (typeof superClass !== "function" && superClass !== null) {
 			throw new TypeError("Super expression must either be null or a function");
 		}
-
 		subClass.prototype = Object.create(superClass && superClass.prototype, {
 			constructor: {
 				value: subClass,
@@ -1375,28 +1363,23 @@
 		});
 		if (superClass) _setPrototypeOf(subClass, superClass);
 	}
-
 	function _getPrototypeOf(o) {
 		_getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
 			return o.__proto__ || Object.getPrototypeOf(o);
 		};
 		return _getPrototypeOf(o);
 	}
-
 	function _setPrototypeOf(o, p) {
 		_setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
 			o.__proto__ = p;
 			return o;
 		};
-
 		return _setPrototypeOf(o, p);
 	}
-
 	function _isNativeReflectConstruct() {
 		if (typeof Reflect === "undefined" || !Reflect.construct) return false;
 		if (Reflect.construct.sham) return false;
 		if (typeof Proxy === "function") return true;
-
 		try {
 			Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
 			return true;
@@ -1404,7 +1387,6 @@
 			return false;
 		}
 	}
-
 	function _construct(Parent, args, Class) {
 		if (_isNativeReflectConstruct()) {
 			_construct = Reflect.construct;
@@ -1418,53 +1400,28 @@
 				return instance;
 			};
 		}
-
 		return _construct.apply(null, arguments);
 	}
-
 	function _assertThisInitialized(self) {
 		if (self === void 0) {
 			throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
 		}
-
 		return self;
 	}
-
 	function _possibleConstructorReturn(self, call) {
 		if (call && (typeof call === "object" || typeof call === "function")) {
 			return call;
 		} else if (call !== void 0) {
 			throw new TypeError("Derived constructors may only return object or undefined");
 		}
-
 		return _assertThisInitialized(self);
-	}
-
-	function _createSuper(Derived) {
-		var hasNativeReflectConstruct = _isNativeReflectConstruct();
-
-		return function _createSuperInternal() {
-			var Super = _getPrototypeOf(Derived),
-					result;
-
-			if (hasNativeReflectConstruct) {
-				var NewTarget = _getPrototypeOf(this).constructor;
-
-				result = Reflect.construct(Super, arguments, NewTarget);
-			} else {
-				result = Super.apply(this, arguments);
-			}
-
-			return _possibleConstructorReturn(this, result);
-		};
 	}
 
 	var BaseReader = function () {
 		function BaseReader() {
 			_classCallCheck(this, BaseReader);
 		}
-
-		_createClass(BaseReader, [{
+		return _createClass(BaseReader, [{
 			key: "isValueType",
 			value: function isValueType() {
 				return true;
@@ -1520,22 +1477,29 @@
 				return this.name.slice(0, -6);
 			}
 		}]);
-
-		return BaseReader;
 	}();
 
+	function _callSuper$n(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var UInt32Reader = function (_BaseReader) {
-		_inherits(UInt32Reader, _BaseReader);
-
-		var _super = _createSuper(UInt32Reader);
-
 		function UInt32Reader() {
 			_classCallCheck(this, UInt32Reader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$n(this, UInt32Reader, arguments);
 		}
-
-		_createClass(UInt32Reader, [{
+		_inherits(UInt32Reader, _BaseReader);
+		return _createClass(UInt32Reader, [{
 			key: "read",
 			value: function read(buffer) {
 				return buffer.readUInt32();
@@ -1553,43 +1517,46 @@
 					case 'Microsoft.Xna.Framework.Content.UInt32Reader':
 					case 'System.UInt32':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return UInt32Reader;
 	}(BaseReader);
 
-	var ArrayReader = function (_BaseReader) {
-		_inherits(ArrayReader, _BaseReader);
-
-		var _super = _createSuper(ArrayReader);
-
-		function ArrayReader(reader) {
-			var _this;
-
-			_classCallCheck(this, ArrayReader);
-
-			_this = _super.call(this);
-			_this.reader = reader;
-			return _this;
+	function _callSuper$m(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
 		}
-
-		_createClass(ArrayReader, [{
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
+	var ArrayReader = function (_BaseReader) {
+		function ArrayReader(reader) {
+			var _this2;
+			_classCallCheck(this, ArrayReader);
+			_this2 = _callSuper$m(this, ArrayReader);
+			_this2.reader = reader;
+			return _this2;
+		}
+		_inherits(ArrayReader, _BaseReader);
+		return _createClass(ArrayReader, [{
 			key: "read",
 			value: function read(buffer, resolver) {
 				var uint32Reader = new UInt32Reader();
 				var size = uint32Reader.read(buffer);
 				var array = [];
-
 				for (var i = 0; i < size; i++) {
 					var value = this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer);
 					array.push(value);
 				}
-
 				return array;
 			}
 		}, {
@@ -1597,11 +1564,8 @@
 			value: function write(buffer, content, resolver) {
 				this.writeIndex(buffer, resolver);
 				var uint32Reader = new UInt32Reader();
-				uint32Reader.write(buffer, content.length, resolver);
-
-				for (var i = 0; i < content.length; i++) {
-					this.reader.write(buffer, content[i], this.reader.isValueType() ? null : resolver);
-				}
+				uint32Reader.write(buffer, content.length, null);
+				for (var i = 0; i < content.length; i++) this.reader.write(buffer, content[i], this.reader.isValueType() ? null : resolver);
 			}
 		}, {
 			key: "isValueType",
@@ -1616,7 +1580,8 @@
 		}, {
 			key: "parseTypeList",
 			value: function parseTypeList() {
-				return [this.type].concat(this.reader.parseTypeList());
+				var inBlock = this.reader.parseTypeList();
+				return ["".concat(this.type, ":").concat(inBlock.length)].concat(inBlock);
 			}
 		}], [{
 			key: "isTypeOf",
@@ -1624,7 +1589,6 @@
 				switch (type) {
 					case 'Microsoft.Xna.Framework.Content.ArrayReader':
 						return true;
-
 					default:
 						return false;
 				}
@@ -1635,27 +1599,21 @@
 				return true;
 			}
 		}]);
-
-		return ArrayReader;
 	}(BaseReader);
 
 	function __arrayMaker(obj, func) {
 		if (!obj || _typeof(obj) !== "object") throw new Error("Invalid Data!");
 		var result = [];
 		var length = obj.length;
-
 		for (var i = 0; i < length; i++) {
 			result[i] = func(obj[i], i);
 		}
-
 		return result;
 	}
-
 	function __trunc(number) {
 		if (number < 0) return Math.ceil(number);
 		return Math.floor(number);
 	}
-
 	Promise.allSettled !== undefined ? Promise.allSettled.bind(Promise) : function (promises) {
 		var mappedPromises = promises.map(function (p) {
 			return p.then(function (value) {
@@ -1675,30 +1633,24 @@
 
 	var UTF16_BITES = [0xD800, 0xDC00];
 	var UTF16_MASK = 1023;
-
 	function UTF16Decode(codeSet) {
 		var _codeSet2;
-
 		if (typeof codeSet === "number") codeSet = [codeSet];
 		if (!((_codeSet2 = codeSet) !== null && _codeSet2 !== void 0 && _codeSet2.length)) throw new Error("Invalid codeset!");
 		var codeSetRange = codeSet.length;
 		if (codeSetRange === 1) return codeSet[0];
 		return ((codeSet[0] & UTF16_MASK) << 10) + (codeSet[1] & UTF16_MASK) + 0x10000;
 	}
-
 	function stringToUnicode(str) {
 		var utf16Map = __arrayMaker({
 			length: str.length
 		}, function (_, i) {
 			return str.charCodeAt(i);
 		});
-
 		var result = [];
 		var index = 0;
-
 		while (index < str.length) {
 			var code = utf16Map[index];
-
 			if ((UTF16_BITES[0] & code) !== UTF16_BITES[0]) {
 				result.push(code);
 				index++;
@@ -1707,10 +1659,8 @@
 				index += 2;
 			}
 		}
-
 		return result;
 	}
-
 	function UTF8Length(str) {
 		var codes = stringToUnicode(str);
 		return codes.reduce(function (sum, unicode) {
@@ -1721,18 +1671,27 @@
 		}, 0);
 	}
 
+	function _callSuper$l(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var StringReader = function (_BaseReader) {
-		_inherits(StringReader, _BaseReader);
-
-		var _super = _createSuper(StringReader);
-
 		function StringReader() {
 			_classCallCheck(this, StringReader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$l(this, StringReader, arguments);
 		}
-
-		_createClass(StringReader, [{
+		_inherits(StringReader, _BaseReader);
+		return _createClass(StringReader, [{
 			key: "read",
 			value: function read(buffer) {
 				var length = buffer.read7BitNumber();
@@ -1758,28 +1717,34 @@
 					case 'Microsoft.Xna.Framework.Content.StringReader':
 					case 'System.String':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return StringReader;
 	}(BaseReader);
 
+	function _callSuper$k(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var BmFontReader = function (_BaseReader) {
-		_inherits(BmFontReader, _BaseReader);
-
-		var _super = _createSuper(BmFontReader);
-
 		function BmFontReader() {
 			_classCallCheck(this, BmFontReader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$k(this, BmFontReader, arguments);
 		}
-
-		_createClass(BmFontReader, [{
+		_inherits(BmFontReader, _BaseReader);
+		return _createClass(BmFontReader, [{
 			key: "read",
 			value: function read(buffer) {
 				var stringReader = new StringReader();
@@ -1809,28 +1774,34 @@
 				switch (type) {
 					case 'BmFont.XmlSourceReader':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return BmFontReader;
 	}(BaseReader);
 
+	function _callSuper$j(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var BooleanReader = function (_BaseReader) {
-		_inherits(BooleanReader, _BaseReader);
-
-		var _super = _createSuper(BooleanReader);
-
 		function BooleanReader() {
 			_classCallCheck(this, BooleanReader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$j(this, BooleanReader, arguments);
 		}
-
-		_createClass(BooleanReader, [{
+		_inherits(BooleanReader, _BaseReader);
+		return _createClass(BooleanReader, [{
 			key: "read",
 			value: function read(buffer) {
 				return Boolean(buffer.readInt());
@@ -1848,32 +1819,37 @@
 					case 'Microsoft.Xna.Framework.Content.BooleanReader':
 					case 'System.Boolean':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return BooleanReader;
 	}(BaseReader);
 
+	function _callSuper$i(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var CharReader = function (_BaseReader) {
-		_inherits(CharReader, _BaseReader);
-
-		var _super = _createSuper(CharReader);
-
 		function CharReader() {
 			_classCallCheck(this, CharReader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$i(this, CharReader, arguments);
 		}
-
-		_createClass(CharReader, [{
+		_inherits(CharReader, _BaseReader);
+		return _createClass(CharReader, [{
 			key: "read",
 			value: function read(buffer) {
 				var charSize = this._getCharSize(buffer.peekInt());
-
 				return buffer.readString(charSize);
 			}
 		}, {
@@ -1894,46 +1870,49 @@
 					case 'Microsoft.Xna.Framework.Content.CharReader':
 					case 'System.Char':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return CharReader;
 	}(BaseReader);
 
-	var DictionaryReader = function (_BaseReader) {
-		_inherits(DictionaryReader, _BaseReader);
-
-		var _super = _createSuper(DictionaryReader);
-
-		function DictionaryReader(key, value) {
-			var _this;
-
-			_classCallCheck(this, DictionaryReader);
-
-			if (key == undefined || value == undefined) throw new Error('Cannot create instance of DictionaryReader without Key and Value.');
-			_this = _super.call(this);
-			_this.key = key;
-			_this.value = value;
-			return _this;
+	function _callSuper$h(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
 		}
-
-		_createClass(DictionaryReader, [{
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
+	var DictionaryReader = function (_BaseReader) {
+		function DictionaryReader(key, value) {
+			var _this2;
+			_classCallCheck(this, DictionaryReader);
+			if (key == undefined || value == undefined) throw new Error('Cannot create instance of DictionaryReader without Key and Value.');
+			_this2 = _callSuper$h(this, DictionaryReader);
+			_this2.key = key;
+			_this2.value = value;
+			return _this2;
+		}
+		_inherits(DictionaryReader, _BaseReader);
+		return _createClass(DictionaryReader, [{
 			key: "read",
 			value: function read(buffer, resolver) {
 				var dictionary = {};
 				var uint32Reader = new UInt32Reader();
 				var size = uint32Reader.read(buffer);
-
 				for (var i = 0; i < size; i++) {
 					var key = this.key.isValueType() ? this.key.read(buffer) : resolver.read(buffer);
 					var value = this.value.isValueType() ? this.value.read(buffer) : resolver.read(buffer);
 					dictionary[key] = value;
 				}
-
 				return dictionary;
 			}
 		}, {
@@ -1941,7 +1920,6 @@
 			value: function write(buffer, content, resolver) {
 				this.writeIndex(buffer, resolver);
 				buffer.writeUInt32(Object.keys(content).length);
-
 				for (var _i2 = 0, _Object$keys2 = Object.keys(content); _i2 < _Object$keys2.length; _i2++) {
 					var key = _Object$keys2[_i2];
 					this.key.write(buffer, key, this.key.isValueType() ? null : resolver);
@@ -1969,7 +1947,6 @@
 				switch (type) {
 					case 'Microsoft.Xna.Framework.Content.DictionaryReader':
 						return true;
-
 					default:
 						return false;
 				}
@@ -1980,22 +1957,29 @@
 				return true;
 			}
 		}]);
-
-		return DictionaryReader;
 	}(BaseReader);
 
+	function _callSuper$g(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var DoubleReader = function (_BaseReader) {
-		_inherits(DoubleReader, _BaseReader);
-
-		var _super = _createSuper(DoubleReader);
-
 		function DoubleReader() {
 			_classCallCheck(this, DoubleReader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$g(this, DoubleReader, arguments);
 		}
-
-		_createClass(DoubleReader, [{
+		_inherits(DoubleReader, _BaseReader);
+		return _createClass(DoubleReader, [{
 			key: "read",
 			value: function read(buffer) {
 				return buffer.readDouble();
@@ -2013,28 +1997,34 @@
 					case 'Microsoft.Xna.Framework.Content.DoubleReader':
 					case 'System.Double':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return DoubleReader;
 	}(BaseReader);
 
+	function _callSuper$f(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var EffectReader = function (_BaseReader) {
-		_inherits(EffectReader, _BaseReader);
-
-		var _super = _createSuper(EffectReader);
-
 		function EffectReader() {
 			_classCallCheck(this, EffectReader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$f(this, EffectReader, arguments);
 		}
-
-		_createClass(EffectReader, [{
+		_inherits(EffectReader, _BaseReader);
+		return _createClass(EffectReader, [{
 			key: "read",
 			value: function read(buffer) {
 				var uint32Reader = new UInt32Reader();
@@ -2068,28 +2058,34 @@
 					case 'Microsoft.Xna.Framework.Content.EffectReader':
 					case 'Microsoft.Xna.Framework.Graphics.Effect':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return EffectReader;
 	}(BaseReader);
 
+	function _callSuper$e(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var Int32Reader = function (_BaseReader) {
-		_inherits(Int32Reader, _BaseReader);
-
-		var _super = _createSuper(Int32Reader);
-
 		function Int32Reader() {
 			_classCallCheck(this, Int32Reader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$e(this, Int32Reader, arguments);
 		}
-
-		_createClass(Int32Reader, [{
+		_inherits(Int32Reader, _BaseReader);
+		return _createClass(Int32Reader, [{
 			key: "read",
 			value: function read(buffer) {
 				return buffer.readInt32();
@@ -2105,45 +2101,49 @@
 			value: function isTypeOf(type) {
 				switch (type) {
 					case 'Microsoft.Xna.Framework.Content.Int32Reader':
+					case 'Microsoft.Xna.Framework.Content.EnumReader':
 					case 'System.Int32':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return Int32Reader;
 	}(BaseReader);
 
-	var ListReader = function (_BaseReader) {
-		_inherits(ListReader, _BaseReader);
-
-		var _super = _createSuper(ListReader);
-
-		function ListReader(reader) {
-			var _this;
-
-			_classCallCheck(this, ListReader);
-
-			_this = _super.call(this);
-			_this.reader = reader;
-			return _this;
+	function _callSuper$d(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
 		}
-
-		_createClass(ListReader, [{
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
+	var ListReader = function (_BaseReader) {
+		function ListReader(reader) {
+			var _this2;
+			_classCallCheck(this, ListReader);
+			_this2 = _callSuper$d(this, ListReader);
+			_this2.reader = reader;
+			return _this2;
+		}
+		_inherits(ListReader, _BaseReader);
+		return _createClass(ListReader, [{
 			key: "read",
 			value: function read(buffer, resolver) {
 				var uint32Reader = new UInt32Reader();
 				var size = uint32Reader.read(buffer);
 				var list = [];
-
 				for (var i = 0; i < size; i++) {
 					var value = this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer);
 					list.push(value);
 				}
-
 				return list;
 			}
 		}, {
@@ -2152,12 +2152,8 @@
 				this.writeIndex(buffer, resolver);
 				var uint32Reader = new UInt32Reader();
 				uint32Reader.write(buffer, content.length, null);
-
-				var __keys = Object.keys(content);
-
-				for (var __i = 0; __i < __keys.length; __i++) {
-					var __key = __keys[__i],
-							data = content[__key];
+				for (var _i2 = 0; _i2 < content.length; _i2++) {
+					var data = content[_i2];
 					this.reader.write(buffer, data, this.reader.isValueType() ? null : resolver);
 				}
 			}
@@ -2174,7 +2170,8 @@
 		}, {
 			key: "parseTypeList",
 			value: function parseTypeList() {
-				return [this.type].concat(this.reader.parseTypeList());
+				var inBlock = this.reader.parseTypeList();
+				return ["".concat(this.type, ":").concat(inBlock.length)].concat(inBlock);
 			}
 		}], [{
 			key: "isTypeOf",
@@ -2183,7 +2180,6 @@
 					case 'Microsoft.Xna.Framework.Content.ListReader':
 					case 'System.Collections.Generic.List':
 						return true;
-
 					default:
 						return false;
 				}
@@ -2194,43 +2190,46 @@
 				return true;
 			}
 		}]);
-
-		return ListReader;
 	}(BaseReader);
 
-	var NullableReader = function (_BaseReader) {
-		_inherits(NullableReader, _BaseReader);
-
-		var _super = _createSuper(NullableReader);
-
-		function NullableReader(reader) {
-			var _this;
-
-			_classCallCheck(this, NullableReader);
-
-			_this = _super.call(this);
-			_this.reader = reader;
-			return _this;
+	function _callSuper$c(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
 		}
-
-		_createClass(NullableReader, [{
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
+	var NullableReader = function (_BaseReader) {
+		function NullableReader(reader) {
+			var _this2;
+			_classCallCheck(this, NullableReader);
+			_this2 = _callSuper$c(this, NullableReader);
+			_this2.reader = reader;
+			return _this2;
+		}
+		_inherits(NullableReader, _BaseReader);
+		return _createClass(NullableReader, [{
 			key: "read",
 			value: function read(buffer) {
 				var resolver = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 				var booleanReader = new BooleanReader();
 				var hasValue = buffer.peekByte(1);
-
 				if (!hasValue) {
 					booleanReader.read(buffer);
 					return null;
 				}
-
-				if (resolver === null) {
+				if (resolver === null || this.reader.isValueType()) {
 					booleanReader.read(buffer);
 					return this.reader.read(buffer);
 				}
-
-				return this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer);
+				return resolver.read(buffer);
 			}
 		}, {
 			key: "write",
@@ -2238,13 +2237,11 @@
 				var content = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 				var resolver = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 				new BooleanReader();
-
 				if (content === null) {
 					buffer.writeByte(0);
 					return;
 				}
-
-				if (resolver === null) buffer.writeByte(1);
+				if (resolver === null || this.reader.isValueType()) buffer.writeByte(1);
 				this.reader.write(buffer, content, this.reader.isValueType() ? null : resolver);
 			}
 		}, {
@@ -2269,7 +2266,6 @@
 				switch (type) {
 					case 'Microsoft.Xna.Framework.Content.NullableReader':
 						return true;
-
 					default:
 						return false;
 				}
@@ -2280,26 +2276,85 @@
 				return true;
 			}
 		}]);
-
-		return NullableReader;
 	}(BaseReader);
 
-	var ReflectiveReader = function (_BaseReader) {
-		_inherits(ReflectiveReader, _BaseReader);
-
-		var _super = _createSuper(ReflectiveReader);
-
-		function ReflectiveReader(reader) {
-			var _this;
-
-			_classCallCheck(this, ReflectiveReader);
-
-			_this = _super.call(this);
-			_this.reader = reader;
-			return _this;
+	function _callSuper$b(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
 		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
+	var PointReader = function (_BaseReader) {
+		function PointReader() {
+			_classCallCheck(this, PointReader);
+			return _callSuper$b(this, PointReader, arguments);
+		}
+		_inherits(PointReader, _BaseReader);
+		return _createClass(PointReader, [{
+			key: "read",
+			value: function read(buffer) {
+				var int32Reader = new Int32Reader();
+				var x = int32Reader.read(buffer);
+				var y = int32Reader.read(buffer);
+				return {
+					x: x,
+					y: y
+				};
+			}
+		}, {
+			key: "write",
+			value: function write(buffer, content, resolver) {
+				this.writeIndex(buffer, resolver);
+				var int32Reader = new Int32Reader();
+				int32Reader.write(buffer, content.x, null);
+				int32Reader.write(buffer, content.y, null);
+			}
+		}], [{
+			key: "isTypeOf",
+			value: function isTypeOf(type) {
+				switch (type) {
+					case 'Microsoft.Xna.Framework.Content.PointReader':
+					case 'Microsoft.Xna.Framework.Point':
+						return true;
+					default:
+						return false;
+				}
+			}
+		}]);
+	}(BaseReader);
 
-		_createClass(ReflectiveReader, [{
+	function _callSuper$a(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
+	var ReflectiveReader = function (_BaseReader) {
+		function ReflectiveReader(reader) {
+			var _this2;
+			_classCallCheck(this, ReflectiveReader);
+			_this2 = _callSuper$a(this, ReflectiveReader);
+			_this2.reader = reader;
+			return _this2;
+		}
+		_inherits(ReflectiveReader, _BaseReader);
+		return _createClass(ReflectiveReader, [{
 			key: "read",
 			value: function read(buffer, resolver) {
 				var reflective = this.reader.read(buffer, resolver);
@@ -2331,7 +2386,6 @@
 				switch (type) {
 					case 'Microsoft.Xna.Framework.Content.ReflectiveReader':
 						return true;
-
 					default:
 						return false;
 				}
@@ -2342,22 +2396,29 @@
 				return true;
 			}
 		}]);
-
-		return ReflectiveReader;
 	}(BaseReader);
 
+	function _callSuper$9(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var RectangleReader = function (_BaseReader) {
-		_inherits(RectangleReader, _BaseReader);
-
-		var _super = _createSuper(RectangleReader);
-
 		function RectangleReader() {
 			_classCallCheck(this, RectangleReader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$9(this, RectangleReader, arguments);
 		}
-
-		_createClass(RectangleReader, [{
+		_inherits(RectangleReader, _BaseReader);
+		return _createClass(RectangleReader, [{
 			key: "read",
 			value: function read(buffer) {
 				var int32Reader = new Int32Reader();
@@ -2389,28 +2450,34 @@
 					case 'Microsoft.Xna.Framework.Content.RectangleReader':
 					case 'Microsoft.Xna.Framework.Rectangle':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return RectangleReader;
 	}(BaseReader);
 
+	function _callSuper$8(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var SingleReader = function (_BaseReader) {
-		_inherits(SingleReader, _BaseReader);
-
-		var _super = _createSuper(SingleReader);
-
 		function SingleReader() {
 			_classCallCheck(this, SingleReader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$8(this, SingleReader, arguments);
 		}
-
-		_createClass(SingleReader, [{
+		_inherits(SingleReader, _BaseReader);
+		return _createClass(SingleReader, [{
 			key: "read",
 			value: function read(buffer) {
 				return buffer.readSingle();
@@ -2428,14 +2495,11 @@
 					case 'Microsoft.Xna.Framework.Content.SingleReader':
 					case 'System.Single':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return SingleReader;
 	}(BaseReader);
 
 	var kDxt1 = 1 << 0;
@@ -2452,20 +2516,16 @@
 		var Mat = [[Math.cos(theta), Math.sin(theta)], [-Math.sin(theta), Math.cos(theta)]];
 		return Mat;
 	}
-
 	function Rij(k, l, theta, N) {
 		var Mat = Array(N);
-
 		for (var i = 0; i < N; i++) {
 			Mat[i] = Array(N);
 		}
-
 		for (var _i = 0; _i < N; _i++) {
 			for (var j = 0; j < N; j++) {
 				Mat[_i][j] = (_i === j) * 1.0;
 			}
 		}
-
 		var Rotij = Rot(theta);
 		Mat[k][k] = Rotij[0][0];
 		Mat[l][l] = Rotij[1][1];
@@ -2473,25 +2533,20 @@
 		Mat[l][k] = Rotij[1][0];
 		return Mat;
 	}
-
 	function getTheta(aii, ajj, aij) {
 		var th = 0.0;
 		var denom = ajj - aii;
-
 		if (Math.abs(denom) <= 1E-12) {
 			th = Math.PI / 4.0;
 		} else {
 			th = 0.5 * Math.atan(2.0 * aij / (ajj - aii));
 		}
-
 		return th;
 	}
-
 	function getAij(Mij) {
 		var N = Mij.length;
 		var maxMij = 0.0;
 		var maxIJ = [0, 1];
-
 		for (var i = 0; i < N; i++) {
 			for (var j = i + 1; j < N; j++) {
 				if (Math.abs(maxMij) <= Math.abs(Mij[i][j])) {
@@ -2500,22 +2555,17 @@
 				}
 			}
 		}
-
 		return [maxIJ, maxMij];
 	}
-
 	function unitary(U, H) {
 		var N = U.length;
 		var Mat = Array(N);
-
 		for (var i = 0; i < N; i++) {
 			Mat[i] = Array(N);
 		}
-
 		for (var _i2 = 0; _i2 < N; _i2++) {
 			for (var j = 0; j < N; j++) {
 				Mat[_i2][j] = 0;
-
 				for (var k = 0; k < N; k++) {
 					for (var l = 0; l < N; l++) {
 						Mat[_i2][j] = Mat[_i2][j] + U[k][_i2] * H[k][l] * U[l][j];
@@ -2523,50 +2573,39 @@
 				}
 			}
 		}
-
 		return Mat;
 	}
-
 	function AxB(A, B) {
 		var N = A.length;
 		var Mat = Array(N);
-
 		for (var i = 0; i < N; i++) {
 			Mat[i] = Array(N);
 		}
-
 		for (var _i3 = 0; _i3 < N; _i3++) {
 			for (var j = 0; j < N; j++) {
 				Mat[_i3][j] = 0;
-
 				for (var k = 0; k < N; k++) {
 					Mat[_i3][j] = Mat[_i3][j] + A[_i3][k] * B[k][j];
 				}
 			}
 		}
-
 		return Mat;
 	}
-
 	function eigens(Hij) {
 		var convergence = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1E-7;
 		var N = Hij.length;
 		var Ei = Array(N);
 		var e0 = Math.abs(convergence / N);
 		var Sij = Array(N);
-
 		for (var i = 0; i < N; i++) {
 			Sij[i] = Array(N);
 		}
-
 		for (var _i4 = 0; _i4 < N; _i4++) {
 			for (var j = 0; j < N; j++) {
 				Sij[_i4][j] = (_i4 === j) * 1.0;
 			}
 		}
-
 		var Vab = getAij(Hij);
-
 		while (Math.abs(Vab[1]) >= Math.abs(e0)) {
 			var _i5 = Vab[0][0];
 			var _j = Vab[0][1];
@@ -2576,18 +2615,14 @@
 			Sij = AxB(Sij, Gij);
 			Vab = getAij(Hij);
 		}
-
 		for (var _i6 = 0; _i6 < N; _i6++) {
 			Ei[_i6] = Hij[_i6][_i6];
 		}
-
 		return sorting(Ei, Sij);
 	}
-
 	function sorting(values, vectors) {
 		var eigsCount = values.length;
 		vectors.length;
-
 		var pairs = __arrayMaker({
 			length: eigsCount
 		}, function (_, i) {
@@ -2599,7 +2634,6 @@
 				vec: vector
 			};
 		});
-
 		pairs.sort(function (a, b) {
 			return b.value - a.value;
 		});
@@ -2613,12 +2647,10 @@
 		});
 		return [sortedValues, sortedVectors];
 	}
-
 	function dominentPrincipalVector(matrix) {
 		var _eigens = eigens(matrix),
-				_eigens$ = _eigens[1],
-				dominentVector = _eigens$[0];
-
+			_eigens$ = _eigens[1],
+			dominentVector = _eigens$[0];
 		return dominentVector;
 	}
 
@@ -2627,13 +2659,10 @@
 			var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 			var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : x;
 			var z = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : x;
-
 			_classCallCheck(this, Vec3);
-
 			this._values = [x, y, z];
 		}
-
-		_createClass(Vec3, [{
+		return _createClass(Vec3, [{
 			key: "x",
 			get: function get() {
 				return this._values[0];
@@ -2680,7 +2709,6 @@
 					var result = parseInt(value * 255 + 0.5);
 					return Math.max(Math.min(result, 255), 0);
 				};
-
 				return this._values.map(floatToInt);
 			}
 		}, {
@@ -2742,7 +2770,6 @@
 				var clamper = function clamper(v) {
 					return min > v ? min : max < v ? max : v;
 				};
-
 				this._values[0] = clamper(this._values[0]);
 				this._values[1] = clamper(this._values[1]);
 				this._values[2] = clamper(this._values[2]);
@@ -2754,11 +2781,9 @@
 				var clamper = function clamper(v) {
 					return 0 > v ? 0 : 1 < v ? 1 : v;
 				};
-
 				var gridClamper = function gridClamper(value, grid) {
 					return __trunc(clamper(value) * grid + 0.5) / grid;
 				};
-
 				this._values[0] = gridClamper(this._values[0], 31);
 				this._values[1] = gridClamper(this._values[1], 63);
 				this._values[2] = gridClamper(this._values[2], 31);
@@ -2810,23 +2835,17 @@
 				return Vec3.add(a_, b_);
 			}
 		}]);
-
-		return Vec3;
 	}();
-
 	var Vec4 = function () {
 		function Vec4() {
 			var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 			var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : x;
 			var z = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : x;
 			var w = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : x;
-
 			_classCallCheck(this, Vec4);
-
 			this._values = [x, y, z, w];
 		}
-
-		_createClass(Vec4, [{
+		return _createClass(Vec4, [{
 			key: "x",
 			get: function get() {
 				return this._values[0];
@@ -2981,7 +3000,6 @@
 				var clamper = function clamper(v) {
 					return min > v ? min : max < v ? max : v;
 				};
-
 				this._values[0] = clamper(this._values[0]);
 				this._values[1] = clamper(this._values[1]);
 				this._values[2] = clamper(this._values[2]);
@@ -2994,11 +3012,9 @@
 				var clamper = function clamper(v) {
 					return 0 > v ? 0 : 1 < v ? 1 : v;
 				};
-
 				var gridClamper = function gridClamper(value, grid) {
 					return __trunc(clamper(value) * grid + 0.5) / grid;
 				};
-
 				this._values[0] = gridClamper(this._values[0], 31);
 				this._values[1] = gridClamper(this._values[1], 63);
 				this._values[2] = gridClamper(this._values[2], 31);
@@ -3076,10 +3092,7 @@
 				return left.x < right.x || left.y < right.y || left.z < right.z || left.w < right.w;
 			}
 		}]);
-
-		return Vec4;
 	}();
-
 	function computeWeightedCovariance(values, weights) {
 		var total = 0;
 		var mean = values.reduce(function (sum, value, i) {
@@ -3104,7 +3117,6 @@
 		covariance[2][1] = covariance[1][2];
 		return covariance;
 	}
-
 	function computePCA(values, weights) {
 		var covariance = computeWeightedCovariance(values, weights);
 		return _construct(Vec3, dominentPrincipalVector(covariance));
@@ -3121,30 +3133,25 @@
 		if (integer > limit) return integer;
 		return integer;
 	}
-
 	function floatTo565(color) {
 		var r = floatToInt(31.0 * color.x, 31);
 		var g = floatToInt(63.0 * color.y, 63);
 		var b = floatToInt(31.0 * color.z, 31);
 		return r << 11 | g << 5 | b;
 	}
-
 	function writeColourBlock(firstColor, secondColor, indices, result, blockOffset) {
 		result[blockOffset + 0] = firstColor & 0xff;
 		result[blockOffset + 1] = firstColor >> 8;
 		result[blockOffset + 2] = secondColor & 0xff;
 		result[blockOffset + 3] = secondColor >> 8;
-
 		for (var y = 0; y < 4; y++) {
 			result[blockOffset + 4 + y] = indices[4 * y + 0] | indices[4 * y + 1] << 2 | indices[4 * y + 2] << 4 | indices[4 * y + 3] << 6;
 		}
 	}
-
 	function writeColourBlock3(start, end, indices, result, blockOffset) {
 		var firstColor = floatTo565(start);
 		var secondColor = floatTo565(end);
 		var remapped;
-
 		if (firstColor <= secondColor) {
 			remapped = indices.slice();
 		} else {
@@ -3155,15 +3162,12 @@
 				return index === 0 ? 1 : index === 1 ? 0 : index;
 			});
 		}
-
 		writeColourBlock(firstColor, secondColor, remapped, result, blockOffset);
 	}
-
 	function writeColourBlock4(start, end, indices, result, blockOffset) {
 		var firstColor = floatTo565(start);
 		var secondColor = floatTo565(end);
 		var remapped;
-
 		if (firstColor < secondColor) {
 			var _ref2 = [secondColor, firstColor];
 			firstColor = _ref2[0];
@@ -3176,14 +3180,26 @@
 		} else {
 			remapped = indices.slice();
 		}
-
 		writeColourBlock(firstColor, secondColor, remapped, result, blockOffset);
 	}
 
+	function _callSuper$7(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var ColorSet = function () {
 		function ColorSet(rgba, mask, flags) {
 			_classCallCheck(this, ColorSet);
-
 			this.flags = flags;
 			this._count = 0;
 			this._transparent = false;
@@ -3192,21 +3208,17 @@
 			this._points = [];
 			var isDxt1 = (this.flags & kDxt1) != 0;
 			var weightByAlpha = (this.flags & kWeightColourByAlpha) != 0;
-
 			for (var i = 0; i < 16; i++) {
 				var bit = 1 << i;
-
 				if ((mask & bit) == 0) {
 					this._remap[i] = -1;
 					continue;
 				}
-
 				if (isDxt1 && rgba[4 * i + 3] < 128) {
 					this._remap[i] = -1;
 					this._transparent = true;
 					continue;
 				}
-
 				for (var j = 0;; j++) {
 					if (j == i) {
 						var r = rgba[4 * i] / 255.0;
@@ -3219,10 +3231,8 @@
 						this._count++;
 						break;
 					}
-
 					var oldbit = 1 << j;
 					var match = (mask & oldbit) != 0 && rgba[4 * i] == rgba[4 * j] && rgba[4 * i + 1] == rgba[4 * j + 1] && rgba[4 * i + 2] == rgba[4 * j + 2] && (rgba[4 * j + 3] >= 128 || !isDxt1);
-
 					if (match) {
 						var index = this._remap[j];
 						var w = (rgba[4 * i + 3] + 1) / 256.0;
@@ -3232,13 +3242,9 @@
 					}
 				}
 			}
-
-			for (var _i = 0; _i < this._count; ++_i) {
-				this._weights[_i] = Math.sqrt(this._weights[_i]);
-			}
+			for (var _i = 0; _i < this._count; ++_i) this._weights[_i] = Math.sqrt(this._weights[_i]);
 		}
-
-		_createClass(ColorSet, [{
+		return _createClass(ColorSet, [{
 			key: "transparent",
 			get: function get() {
 				return this._transparent;
@@ -3264,7 +3270,6 @@
 				var result = this._remap.map(function (index) {
 					return index === -1 ? 3 : singleIndex;
 				});
-
 				target.forEach(function (_, i) {
 					return target[i] = result[i];
 				});
@@ -3275,29 +3280,22 @@
 				var result = this._remap.map(function (index) {
 					return index === -1 ? 3 : indexMap[index];
 				});
-
 				target.forEach(function (_, i) {
 					return target[i] = result[i];
 				});
 			}
 		}]);
-
-		return ColorSet;
 	}();
-
 	var ColorFit = function () {
 		function ColorFit(colorSet) {
 			_classCallCheck(this, ColorFit);
-
 			this.colors = colorSet;
 			this.flags = colorSet.flags;
 		}
-
-		_createClass(ColorFit, [{
+		return _createClass(ColorFit, [{
 			key: "compress",
 			value: function compress(result, offset) {
 				var isDxt1 = (this.flags & kDxt1) != 0;
-
 				if (isDxt1) {
 					this.compress3(result, offset);
 					if (!this.colors.transparent) this.compress4(result, offset);
@@ -3310,36 +3308,26 @@
 			key: "compress4",
 			value: function compress4(result, offset) {}
 		}]);
-
-		return ColorFit;
 	}();
-
 	var SingleColourFit = function (_ColorFit) {
-		_inherits(SingleColourFit, _ColorFit);
-
-		var _super = _createSuper(SingleColourFit);
-
 		function SingleColourFit(colorSet) {
-			var _this;
-
+			var _this2;
 			_classCallCheck(this, SingleColourFit);
-
-			_this = _super.call(this, colorSet);
+			_this2 = _callSuper$7(this, SingleColourFit, [colorSet]);
 			var singleColor = colorSet.points[0];
-			_this.color = singleColor.colorInt;
-			_this.start = new Vec3(0);
-			_this.end = new Vec3(0);
-			_this.index = 0;
-			_this.error = Infinity;
-			_this.bestError = Infinity;
-			return _this;
+			_this2.color = singleColor.colorInt;
+			_this2.start = new Vec3(0);
+			_this2.end = new Vec3(0);
+			_this2.index = 0;
+			_this2.error = Infinity;
+			_this2.bestError = Infinity;
+			return _this2;
 		}
-
-		_createClass(SingleColourFit, [{
+		_inherits(SingleColourFit, _ColorFit);
+		return _createClass(SingleColourFit, [{
 			key: "compressBase",
 			value: function compressBase(lookups, saveFunc) {
 				this.computeEndPoints(lookups);
-
 				if (this.error < this.bestError) {
 					var indices = new Uint8Array(16);
 					this.colors.remapIndicesSingle(this.index, indices);
@@ -3351,33 +3339,27 @@
 			key: "compress3",
 			value: function compress3(result, offset) {
 				var lookups = [lookup_5_3, lookup_6_3, lookup_5_3];
-
 				var saveFunc = function saveFunc(start, end, indices) {
 					return writeColourBlock3(start, end, indices, result, offset);
 				};
-
 				this.compressBase(lookups, saveFunc);
 			}
 		}, {
 			key: "compress4",
 			value: function compress4(result, offset) {
 				var lookups = [lookup_5_4, lookup_6_4, lookup_5_4];
-
 				var saveFunc = function saveFunc(start, end, indices) {
 					return writeColourBlock4(start, end, indices, result, offset);
 				};
-
 				this.compressBase(lookups, saveFunc);
 			}
 		}, {
 			key: "computeEndPoints",
 			value: function computeEndPoints(lookups) {
 				this.error = Infinity;
-
 				for (var index = 0; index < 2; index++) {
 					var sources = [];
 					var error = 0;
-
 					for (var channel = 0; channel < 3; channel++) {
 						var lookup = lookups[channel];
 						var target = this.color[channel];
@@ -3385,7 +3367,6 @@
 						var diff = sources[channel][2];
 						error += diff * diff;
 					}
-
 					if (error < this.error) {
 						this.start = new Vec3(sources[0][0] / 31.0, sources[1][0] / 63.0, sources[2][0] / 31.0);
 						this.end = new Vec3(sources[0][1] / 31.0, sources[1][1] / 63.0, sources[2][1] / 31.0);
@@ -3395,47 +3376,33 @@
 				}
 			}
 		}]);
-
-		return SingleColourFit;
 	}(ColorFit);
-
 	var RangeFit = function (_ColorFit2) {
-		_inherits(RangeFit, _ColorFit2);
-
-		var _super2 = _createSuper(RangeFit);
-
 		function RangeFit(colorSet) {
-			var _this2;
-
+			var _this3;
 			_classCallCheck(this, RangeFit);
-
-			_this2 = _super2.call(this, colorSet);
-			_this2.metric = new Vec3(1);
-
-			if ((_this2.flags & kColourMetricPerceptual) !== 0) {
-				_this2.metric.set(0.2126, 0.7152, 0.0722);
+			_this3 = _callSuper$7(this, RangeFit, [colorSet]);
+			_this3.metric = new Vec3(1);
+			if ((_this3.flags & kColourMetricPerceptual) !== 0) {
+				_this3.metric.set(0.2126, 0.7152, 0.0722);
 			}
-
-			_this2.start = new Vec3(0);
-			_this2.end = new Vec3(0);
-			_this2.bestError = Infinity;
-
-			_this2.computePoints();
-
-			return _this2;
+			_this3.start = new Vec3(0);
+			_this3.end = new Vec3(0);
+			_this3.bestError = Infinity;
+			_this3.computePoints();
+			return _this3;
 		}
-
-		_createClass(RangeFit, [{
+		_inherits(RangeFit, _ColorFit2);
+		return _createClass(RangeFit, [{
 			key: "compressBase",
 			value: function compressBase(codes, saveFunc) {
-				var _this3 = this;
-
+				var _this4 = this;
 				var values = this.colors.points;
 				var error = 0;
 				var closest = values.map(function (color) {
 					var minDist = Infinity;
 					var packedIndex = codes.reduce(function (idx, code, j) {
-						var dist = Vec3.sub(color, code).multVector(_this3.metric).lengthSq;
+						var dist = Vec3.sub(color, code).multVector(_this4.metric).lengthSq;
 						if (dist >= minDist) return idx;
 						minDist = dist;
 						return j;
@@ -3443,7 +3410,6 @@
 					error += minDist;
 					return packedIndex;
 				});
-
 				if (error < this.bestError) {
 					var indices = new Uint8Array(16);
 					this.colors.remapIndices(closest, indices);
@@ -3455,40 +3421,34 @@
 			key: "compress3",
 			value: function compress3(result, offset) {
 				var codes = [this.start.clone(), this.end.clone(), Vec3.interpolate(this.start, this.end, 0.5)];
-
 				var saveFunc = function saveFunc(start, end, indices) {
 					return writeColourBlock3(start, end, indices, result, offset);
 				};
-
 				this.compressBase(codes, saveFunc);
 			}
 		}, {
 			key: "compress4",
 			value: function compress4(result, offset) {
 				var codes = [this.start.clone(), this.end.clone(), Vec3.interpolate(this.start, this.end, 1 / 3), Vec3.interpolate(this.start, this.end, 2 / 3)];
-
 				var saveFunc = function saveFunc(start, end, indices) {
 					return writeColourBlock4(start, end, indices, result, offset);
 				};
-
 				this.compressBase(codes, saveFunc);
 			}
 		}, {
 			key: "computePoints",
 			value: function computePoints() {
 				var _this$colors = this.colors,
-						count = _this$colors.count,
-						values = _this$colors.points,
-						weights = _this$colors.weights;
+					count = _this$colors.count,
+					values = _this$colors.points,
+					weights = _this$colors.weights;
 				if (count <= 0) return;
 				var principle = computePCA(values, weights);
 				var start, end, min, max;
 				start = end = values[0];
 				min = max = Vec3.dot(start, principle);
-
 				for (var i = 1; i < count; i++) {
 					var value = Vec3.dot(values[i], principle);
-
 					if (value < min) {
 						start = values[i];
 						min = value;
@@ -3497,46 +3457,34 @@
 						max = value;
 					}
 				}
-
 				this.start = start.clampGrid().clone();
 				this.end = end.clampGrid().clone();
 			}
 		}]);
-
-		return RangeFit;
 	}(ColorFit);
-
 	var ClusterFit = function (_ColorFit3) {
-		_inherits(ClusterFit, _ColorFit3);
-
-		var _super3 = _createSuper(ClusterFit);
-
 		function ClusterFit(colorSet) {
-			var _this4;
-
+			var _this5;
 			_classCallCheck(this, ClusterFit);
-
-			_this4 = _super3.call(this, colorSet);
+			_this5 = _callSuper$7(this, ClusterFit, [colorSet]);
 			var kMaxIterations = 8;
-			_this4.iterationCount = colorSet.flags & kColourIterativeClusterFit ? kMaxIterations : 1;
-			_this4.bestError = Infinity;
-			_this4.metric = new Vec4(1);
-
-			if ((_this4.flags & kColourMetricPerceptual) !== 0) {
-				_this4.metric.set(0.2126, 0.7152, 0.0722, 0);
+			_this5.iterationCount = colorSet.flags & kColourIterativeClusterFit ? kMaxIterations : 1;
+			_this5.bestError = Infinity;
+			_this5.metric = new Vec4(1);
+			if ((_this5.flags & kColourMetricPerceptual) !== 0) {
+				_this5.metric.set(0.2126, 0.7152, 0.0722, 0);
 			}
-
-			var _this4$colors = _this4.colors,
-					values = _this4$colors.points,
-					weights = _this4$colors.weights;
-			_this4.principle = computePCA(values, weights);
-			_this4.order = new Uint8Array(16 * kMaxIterations);
-			_this4.pointsWeights = [];
-			_this4.xSum_wSum = new Vec4(0);
-			return _this4;
+			var _this5$colors = _this5.colors,
+				values = _this5$colors.points,
+				weights = _this5$colors.weights;
+			_this5.principle = computePCA(values, weights);
+			_this5.order = new Uint8Array(16 * kMaxIterations);
+			_this5.pointsWeights = [];
+			_this5.xSum_wSum = new Vec4(0);
+			return _this5;
 		}
-
-		_createClass(ClusterFit, [{
+		_inherits(ClusterFit, _ColorFit3);
+		return _createClass(ClusterFit, [{
 			key: "constructOrdering",
 			value: function constructOrdering(axis, iteration) {
 				var currentOrder = this.makeOrder(axis);
@@ -3551,8 +3499,8 @@
 			value: function compress3(result, offset) {
 				var aabbx = function aabbx(_ref) {
 					var part0 = _ref[0],
-							part1 = _ref[2],
-							part2 = _ref[3];
+						part1 = _ref[2],
+						part2 = _ref[3];
 					var const1_2 = new Vec4(1 / 2, 1 / 2, 1 / 2, 1 / 4);
 					var alphax_sum = Vec4.multiplyAdd(part1, const1_2, part0);
 					var alpha2_sum = alphax_sum.splatW;
@@ -3567,11 +3515,9 @@
 						ab: alphabeta_sum
 					};
 				};
-
 				var saveFunc = function saveFunc(start, end, indices) {
 					return writeColourBlock3(start, end, indices, result, offset);
 				};
-
 				this.compressBase(aabbx, saveFunc, 2);
 			}
 		}, {
@@ -3579,9 +3525,9 @@
 			value: function compress4(result, offset) {
 				var aabbx = function aabbx(_ref2) {
 					var part0 = _ref2[0],
-							part1 = _ref2[1],
-							part2 = _ref2[2],
-							part3 = _ref2[3];
+						part1 = _ref2[1],
+						part2 = _ref2[2],
+						part3 = _ref2[3];
 					var const1_3 = new Vec4(1 / 3, 1 / 3, 1 / 3, 1 / 9);
 					var const2_3 = new Vec4(2 / 3, 2 / 3, 2 / 3, 4 / 9);
 					var const2_9 = new Vec4(2 / 9);
@@ -3598,18 +3544,15 @@
 						ab: alphabeta_sum
 					};
 				};
-
 				var saveFunc = function saveFunc(start, end, indices) {
 					return writeColourBlock4(start, end, indices, result, offset);
 				};
-
 				this.compressBase(aabbx, saveFunc, 3);
 			}
 		}, {
 			key: "compressBase",
 			value: function compressBase(aabbFunc, saveFunc) {
-				var _this5 = this;
-
+				var _this6 = this;
 				var repeater = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 2;
 				this.constructOrdering(this.principle, 0);
 				var best = {
@@ -3621,20 +3564,15 @@
 					bestJ: 0
 				};
 				if (repeater === 3) best.bestK = 0;
-
 				var leastSquares = function leastSquares(parts, internalIndices) {
 					var aabbx = aabbFunc(parts);
-
-					var internalBest = _this5.computeOptimalPoints(aabbx);
-
+					var internalBest = _this6.computeOptimalPoints(aabbx);
 					if (internalBest.error < best.error) {
 						best = _objectSpread2(_objectSpread2({}, internalBest), internalIndices);
 						return true;
 					}
-
 					return false;
 				};
-
 				for (var iterationIndex = 0;;) {
 					this.clusterIterate(iterationIndex, leastSquares, repeater);
 					if (best.iteration != iterationIndex) break;
@@ -3643,15 +3581,14 @@
 					var newAxis = Vec4.sub(best.end, best.start).xyz;
 					if (!this.constructOrdering(newAxis, iterationIndex)) break;
 				}
-
 				if (best.error < this.bestError) this.saveBlock(best, saveFunc);
 			}
 		}, {
 			key: "makeOrder",
 			value: function makeOrder(axis) {
 				var _this$colors2 = this.colors,
-						count = _this$colors2.count,
-						values = _this$colors2.points;
+					count = _this$colors2.count,
+					values = _this$colors2.points;
 				var dotProducts = values.map(function (color, i) {
 					return Vec3.dot(color, axis);
 				});
@@ -3667,43 +3604,37 @@
 		}, {
 			key: "copyOrderToThisOrder",
 			value: function copyOrderToThisOrder(order, iteration) {
-				var _this6 = this;
-
+				var _this7 = this;
 				var orderOffset = iteration * 16;
 				order.forEach(function (ord, i) {
-					_this6.order[orderOffset + i] = ord;
+					_this7.order[orderOffset + i] = ord;
 				});
 			}
 		}, {
 			key: "checkOrderUnique",
 			value: function checkOrderUnique(order, iteration) {
 				var count = this.colors.count;
-
 				for (var it = 0; it < iteration; it++) {
 					var prevOffset = it * 16;
 					var same = true;
-
 					for (var i = 0; i < count; i++) {
 						if (order[i] !== this.order[prevOffset + i]) {
 							same = false;
 							break;
 						}
 					}
-
 					if (same) return false;
 				}
-
 				return true;
 			}
 		}, {
 			key: "copyOrderWeight",
 			value: function copyOrderWeight(order) {
 				var _this$colors3 = this.colors,
-						count = _this$colors3.count,
-						unweighted = _this$colors3.points,
-						weights = _this$colors3.weights;
+					count = _this$colors3.count,
+					unweighted = _this$colors3.points,
+					weights = _this$colors3.weights;
 				this.xSum_wSum.set(0);
-
 				for (var i = 0; i < count; i++) {
 					var j = order[i];
 					var p = unweighted[j].toVec4(1);
@@ -3717,10 +3648,10 @@
 			key: "computeOptimalPoints",
 			value: function computeOptimalPoints(vectorPoint) {
 				var ax = vectorPoint.ax,
-						bx = vectorPoint.bx,
-						aa = vectorPoint.aa,
-						bb = vectorPoint.bb,
-						ab = vectorPoint.ab;
+					bx = vectorPoint.bx,
+					aa = vectorPoint.aa,
+					bb = vectorPoint.bb,
+					ab = vectorPoint.ab;
 				var factor = Vec4.negativeMultiplySubtract(ab, ab, Vec4.multVector(aa, bb)).reciprocal();
 				var a = Vec4.negativeMultiplySubtract(bx, ab, Vec4.multVector(ax, bb)).multVector(factor);
 				var b = Vec4.negativeMultiplySubtract(ax, ab, Vec4.multVector(bx, aa)).multVector(factor);
@@ -3740,12 +3671,12 @@
 			key: "computeError",
 			value: function computeError(_ref3) {
 				var a = _ref3.a,
-						b = _ref3.b,
-						ax = _ref3.ax,
-						bx = _ref3.bx,
-						aa = _ref3.aa,
-						bb = _ref3.bb,
-						ab = _ref3.ab;
+					b = _ref3.b,
+					ax = _ref3.ax,
+					bx = _ref3.bx,
+					aa = _ref3.aa,
+					bb = _ref3.bb,
+					ab = _ref3.ab;
 				var two = new Vec4(2);
 				var e1 = Vec4.multiplyAdd(Vec4.multVector(a, a), aa, Vec4.multVector(b, b).multVector(bb));
 				var e2 = Vec4.negativeMultiplySubtract(a, ax, Vec4.multVector(a, b).multVector(ab));
@@ -3759,27 +3690,24 @@
 			value: function saveBlock(best, writeFunc) {
 				var count = this.colors.count;
 				var start = best.start,
-						end = best.end,
-						iteration = best.iteration,
-						error = best.error,
-						bestI = best.bestI,
-						bestJ = best.bestJ,
-						_best$bestK = best.bestK,
-						bestK = _best$bestK === void 0 ? -1 : _best$bestK;
+					end = best.end,
+					iteration = best.iteration,
+					error = best.error,
+					bestI = best.bestI,
+					bestJ = best.bestJ,
+					_best$bestK = best.bestK,
+					bestK = _best$bestK === void 0 ? -1 : _best$bestK;
 				var orderOffset = iteration * 16;
 				var unordered = new Uint8Array(16);
-
 				var mapper = function mapper(m) {
 					if (m < bestI) return 0;
 					if (m < bestJ) return 2;
 					if (m < bestK) return 3;
 					return 1;
 				};
-
 				for (var i = 0; i < count; i++) {
 					unordered[this.order[orderOffset + i]] = mapper(i);
 				}
-
 				var bestIndices = new Uint8Array(16);
 				this.colors.remapIndices(unordered, bestIndices);
 				writeFunc(start.xyz, end.xyz, bestIndices);
@@ -3790,7 +3718,6 @@
 			value: function clusterIterate(index, func) {
 				var iterCount = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 2;
 				var count = this.colors.count;
-
 				var indexMapper = function indexMapper(i, j, k) {
 					var mapper = {
 						bestI: i,
@@ -3800,16 +3727,12 @@
 					if (iterCount === 3) mapper.bestK = k;
 					return mapper;
 				};
-
 				var part0 = new Vec4(0.0);
-
 				for (var i = 0; i < count; i++) {
 					var part1 = new Vec4(0.0);
-
 					for (var j = i;;) {
 						var preLastPart = j == 0 ? this.pointsWeights[0].clone() : new Vec4(0.0);
 						var kmin = j == 0 ? 1 : j;
-
 						for (var k = kmin;;) {
 							var restPart = Vec4.sub(this.xSum_wSum, preLastPart).subVector(part1).subVector(part0);
 							func([part0, part1, preLastPart, restPart], indexMapper(i, j, k));
@@ -3817,19 +3740,15 @@
 							preLastPart.addVector(this.pointsWeights[k]);
 							k++;
 						}
-
 						if (iterCount === 2) break;
 						if (j === count) break;
 						part1.addVector(this.pointsWeights[j]);
 						j++;
 					}
-
 					part0.addVector(this.pointsWeights[i]);
 				}
 			}
 		}]);
-
-		return ClusterFit;
 	}(ColorFit);
 
 	function quantise(alpha) {
@@ -3839,7 +3758,6 @@
 		if (result > GRID) return GRID;
 		return result;
 	}
-
 	function compressAlphaDxt3(rgba, mask, result, offset) {
 		for (var i = 0; i < 8; i++) {
 			var quant1 = quantise(rgba[8 * i + 3]);
@@ -3851,18 +3769,15 @@
 			result[offset + i] = quant1 | quant2 << 4;
 		}
 	}
-
 	function compressAlphaDxt5(rgba, mask, result, offset) {
 		var step5 = interpolateAlpha(rgba, mask, 5);
 		var step7 = interpolateAlpha(rgba, mask, 7);
 		if (step5.error <= step7.error) writeAlphaBlock5(step5, result, offset);else writeAlphaBlock7(step7, result, offset);
 	}
-
 	function interpolateAlpha(rgba, mask, steps) {
 		var _setAlphaRange = setAlphaRange(rgba, mask, steps),
-				min = _setAlphaRange.min,
-				max = _setAlphaRange.max;
-
+			min = _setAlphaRange.min,
+			max = _setAlphaRange.max;
 		var code = setAlphaCodeBook(min, max, steps);
 		var indices = new Uint8Array(16);
 		var error = fitCodes(rgba, mask, code, indices);
@@ -3873,16 +3788,13 @@
 			error: error
 		};
 	}
-
 	function setAlphaRange(rgba, mask, steps) {
 		var min = 255;
 		var max = 0;
-
 		for (var i = 0; i < 16; i++) {
 			var bit = 1 << i;
 			if ((mask & bit) == 0) continue;
 			var value = rgba[4 * i + 3];
-
 			if (steps === 5) {
 				if (value !== 0 && value < min) min = value;
 				if (value !== 255 && value > max) max = value;
@@ -3891,7 +3803,6 @@
 				if (value > max) max = value;
 			}
 		}
-
 		if (min > max) min = max;
 		if (max - min < steps) max = Math.min(min + steps, 255);
 		if (max - min < steps) min = Math.max(max - steps, 0);
@@ -3900,59 +3811,46 @@
 			max: max
 		};
 	}
-
 	function setAlphaCodeBook(min, max, steps) {
 		var codes = [min, max].concat(__arrayMaker({
 			length: steps - 1
 		}, function (_, i) {
 			return Math.floor(((steps - (i + 1)) * min + (i + 1) * max) / steps);
 		}));
-
 		if (steps === 5) {
 			codes[6] = 0;
 			codes[7] = 255;
 		}
-
 		return codes;
 	}
-
 	function fitCodes(rgba, mask, codes, indices) {
 		var err = 0;
-
 		for (var i = 0; i < 16; ++i) {
 			var bit = 1 << i;
-
 			if ((mask & bit) == 0) {
 				indices[i] = 0;
 				continue;
 			}
-
 			var value = rgba[4 * i + 3];
 			var least = Infinity;
 			var index = 0;
-
 			for (var j = 0; j < 8; ++j) {
 				var dist = value - codes[j];
 				dist *= dist;
-
 				if (dist < least) {
 					least = dist;
 					index = j;
 				}
 			}
-
 			indices[i] = index;
 			err += least;
 		}
-
 		return err;
 	}
-
 	function writeAlphaBlock5(_ref, result, offset) {
 		var alpha0 = _ref.min,
-				alpha1 = _ref.max,
-				indices = _ref.indices;
-
+			alpha1 = _ref.max,
+			indices = _ref.indices;
 		if (alpha0 > alpha1) {
 			var swapped = indices.map(function (index) {
 				if (index === 0) return 1;
@@ -3963,12 +3861,10 @@
 			writeAlphaBlock(alpha1, alpha0, swapped, result, offset);
 		} else writeAlphaBlock(alpha0, alpha1, indices, result, offset);
 	}
-
 	function writeAlphaBlock7(_ref2, result, offset) {
 		var alpha0 = _ref2.min,
-				alpha1 = _ref2.max,
-				indices = _ref2.indices;
-
+			alpha1 = _ref2.max,
+			indices = _ref2.indices;
 		if (alpha0 > alpha1) {
 			var swapped = indices.map(function (index) {
 				if (index === 0) return 1;
@@ -3978,22 +3874,18 @@
 			writeAlphaBlock(alpha1, alpha0, swapped, result, offset);
 		} else writeAlphaBlock(alpha0, alpha1, indices, result, offset);
 	}
-
 	function writeAlphaBlock(alpha0, alpha1, indices, result, offset) {
 		result[offset] = alpha0;
 		result[offset + 1] = alpha1;
 		var indicesPointer = 0;
 		var resultPointer = offset + 2;
-
 		for (var i = 0; i < 2; i++) {
 			var value = 0;
-
 			for (var j = 0; j < 8; ++j) {
 				var index = indices[indicesPointer];
 				value |= index << 3 * j;
 				indicesPointer++;
 			}
-
 			for (var _j = 0; _j < 3; ++_j) {
 				var byte = value >> 8 * _j & 0xff;
 				result[resultPointer] = byte;
@@ -4008,7 +3900,6 @@
 		var blue = color16bit & 0x1f;
 		return [red << 3 | red >> 2, green << 2 | green >> 4, blue << 3 | blue >> 2, 255];
 	}
-
 	function interpolateColorArray(a, b, amount) {
 		var result = a.map(function (aColor, i) {
 			return Math.floor(aColor * (1 - amount) + b[i] * amount);
@@ -4016,7 +3907,6 @@
 		result[3] = 255;
 		return result;
 	}
-
 	function unpackColorCodes(block, offset, isDxt1) {
 		var color1 = block[offset] | block[offset + 1] << 8;
 		var color2 = block[offset + 2] | block[offset + 3] << 8;
@@ -4024,11 +3914,9 @@
 		var unpackedColor2 = unpack565(color2);
 		return [unpackedColor1, unpackedColor2, isDxt1 && color1 <= color2 ? interpolateColorArray(unpackedColor1, unpackedColor2, 1 / 2) : interpolateColorArray(unpackedColor1, unpackedColor2, 1 / 3), isDxt1 && color1 <= color2 ? [0, 0, 0, 0] : interpolateColorArray(unpackedColor1, unpackedColor2, 2 / 3)];
 	}
-
 	function unpackIndices(block, blockOffset) {
 		var offset = blockOffset + 4;
 		var result = new Uint8Array(16);
-
 		for (var i = 0; i < 4; i++) {
 			var packedIndices = block[offset + i];
 			result[i * 4 + 0] = packedIndices & 0x3;
@@ -4036,21 +3924,17 @@
 			result[i * 4 + 2] = packedIndices >> 4 & 0x3;
 			result[i * 4 + 3] = packedIndices >> 6 & 0x3;
 		}
-
 		return result;
 	}
-
 	function decompressColor(rgba, block, offset, isDxt1) {
 		var colorCode = unpackColorCodes(block, offset, isDxt1);
 		var indices = unpackIndices(block, offset);
-
 		for (var i = 0; i < 16; i++) {
 			for (var j = 0; j < 4; j++) {
 				rgba[4 * i + j] = colorCode[indices[i]][j];
 			}
 		}
 	}
-
 	function decompressAlphaDxt3(rgba, block, offset) {
 		for (var i = 0; i < 8; ++i) {
 			var quant = block[offset + i];
@@ -4060,7 +3944,6 @@
 			rgba[8 * i + 7] = hi | hi >> 4;
 		}
 	}
-
 	function decompressAlphaDxt5(rgba, block, offset) {
 		var alpha0 = block[offset + 0];
 		var alpha1 = block[offset + 1];
@@ -4068,23 +3951,19 @@
 		var indices = new Uint8Array(16);
 		var indicePointer = 0;
 		var bytePointer = 2;
-
 		for (var i = 0; i < 2; i++) {
 			var value = 0;
-
 			for (var j = 0; j < 3; j++) {
 				var byte = block[offset + bytePointer];
 				value |= byte << 8 * j;
 				bytePointer++;
 			}
-
 			for (var _j = 0; _j < 8; _j++) {
 				var index = value >> 3 * _j & 0x7;
 				indices[indicePointer] = index;
 				indicePointer++;
 			}
 		}
-
 		for (var _i = 0; _i < 16; ++_i) {
 			rgba[4 * _i + 3] = codes[indices[_i]];
 		}
@@ -4115,7 +3994,6 @@
 	var DXT5_COMPRESSED_BYTES = 16;
 	var COLORS = 4;
 	var DECOMPRESSED_BLOCK_SIZE = 16;
-
 	function blockRepeat(width, height, func) {
 		for (var y = 0; y < height; y += 4) {
 			for (var x = 0; x < width; x += 4) {
@@ -4123,7 +4001,6 @@
 			}
 		}
 	}
-
 	function rectRepeat(func) {
 		for (var y = 0; y < 4; y++) {
 			for (var x = 0; x < 4; x++) {
@@ -4131,7 +4008,6 @@
 			}
 		}
 	}
-
 	function FixFlags(flags) {
 		var method = flags & (kDxt1 | kDxt3 | kDxt5);
 		var fit = flags & (kColourIterativeClusterFit | kColourClusterFit | kColourRangeFit);
@@ -4142,39 +4018,33 @@
 		if (metric != kColourMetricUniform) metric = kColourMetricPerceptual;
 		return method | fit | metric | extra;
 	}
-
 	function GetStorageRequirements(width, height, flags) {
 		flags = FixFlags(flags);
 		var blockcount = Math.floor((width + 3) / 4) * Math.floor((height + 3) / 4);
 		var blocksize = (flags & kDxt1) !== 0 ? DXT1_COMPRESSED_BYTES : DXT5_COMPRESSED_BYTES;
 		return blockcount * blocksize;
 	}
-
 	function extractColorBlock(img) {
 		var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-				_ref$x = _ref.x,
-				x = _ref$x === void 0 ? 0 : _ref$x,
-				_ref$y = _ref.y,
-				y = _ref$y === void 0 ? 0 : _ref$y,
-				_ref$width = _ref.width,
-				width = _ref$width === void 0 ? 0 : _ref$width,
-				_ref$height = _ref.height,
-				height = _ref$height === void 0 ? 0 : _ref$height;
-
+			_ref$x = _ref.x,
+			x = _ref$x === void 0 ? 0 : _ref$x,
+			_ref$y = _ref.y,
+			y = _ref$y === void 0 ? 0 : _ref$y,
+			_ref$width = _ref.width,
+			width = _ref$width === void 0 ? 0 : _ref$width,
+			_ref$height = _ref.height,
+			height = _ref$height === void 0 ? 0 : _ref$height;
 		var block = new Uint8Array(DECOMPRESSED_BLOCK_SIZE * COLORS);
 		var mask = 0;
 		var blockColorOffset = 0;
 		rectRepeat(function (px, py) {
 			var sx = x + px;
 			var sy = y + py;
-
 			if (sx < width && sy < height) {
 				var sourceColorOffset = COLORS * (width * sy + sx);
-
 				for (var i = 0; i < COLORS; i++) {
 					block[blockColorOffset++] = img[sourceColorOffset++];
 				}
-
 				mask |= 1 << 4 * py + px;
 			} else blockColorOffset += COLORS;
 		});
@@ -4183,39 +4053,33 @@
 			mask: mask
 		};
 	}
-
 	function copyBuffer(result, block) {
 		var _ref2 = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {},
-				_ref2$x = _ref2.x,
-				x = _ref2$x === void 0 ? 0 : _ref2$x,
-				_ref2$y = _ref2.y,
-				y = _ref2$y === void 0 ? 0 : _ref2$y,
-				_ref2$width = _ref2.width,
-				width = _ref2$width === void 0 ? 0 : _ref2$width,
-				_ref2$height = _ref2.height,
-				height = _ref2$height === void 0 ? 0 : _ref2$height;
-
+			_ref2$x = _ref2.x,
+			x = _ref2$x === void 0 ? 0 : _ref2$x,
+			_ref2$y = _ref2.y,
+			y = _ref2$y === void 0 ? 0 : _ref2$y,
+			_ref2$width = _ref2.width,
+			width = _ref2$width === void 0 ? 0 : _ref2$width,
+			_ref2$height = _ref2.height,
+			height = _ref2$height === void 0 ? 0 : _ref2$height;
 		var blockColorOffset = 0;
 		rectRepeat(function (px, py) {
 			var sx = x + px;
 			var sy = y + py;
-
 			if (sx < width && sy < height) {
 				var resultColorOffset = COLORS * (width * sy + sx);
-
 				for (var i = 0; i < COLORS; i++) {
 					result[resultColorOffset + i] = block[blockColorOffset++];
 				}
 			} else blockColorOffset += COLORS;
 		});
 	}
-
 	function getCompressor(colorSet) {
 		if (colorSet.count === 1) return new SingleColourFit(colorSet);
 		if ((colorSet.flags & kColourRangeFit) != 0 || colorSet.count == 0) return new RangeFit(colorSet);
 		return new ClusterFit(colorSet);
 	}
-
 	function CompressMasked(rgba, mask, result, offset, flags) {
 		flags = FixFlags(flags);
 		var colorOffset = (flags & (kDxt3 | kDxt5)) !== 0 ? 8 : 0;
@@ -4224,38 +4088,33 @@
 		compressor.compress(result, offset + colorOffset);
 		if ((flags & kDxt3) !== 0) compressAlphaDxt3(rgba, mask, result, offset);else if ((flags & kDxt5) !== 0) compressAlphaDxt5(rgba, mask, result, offset);
 	}
-
 	function decompressBlock(result, block, offset, flags) {
 		flags = FixFlags(flags);
 		var colorOffset = (flags & (kDxt3 | kDxt5)) !== 0 ? 8 : 0;
 		decompressColor(result, block, offset + colorOffset, (flags & kDxt1) !== 0);
 		if ((flags & kDxt3) !== 0) decompressAlphaDxt3(result, block, offset);else if ((flags & kDxt5) !== 0) decompressAlphaDxt5(result, block, offset);
 	}
-
 	function compressImage(source, width, height, result, flags) {
 		flags = FixFlags(flags);
 		var bytesPerBlock = (flags & kDxt1) !== 0 ? DXT1_COMPRESSED_BYTES : DXT5_COMPRESSED_BYTES;
 		var targetBlockPointer = 0;
 		blockRepeat(width, height, function (x, y) {
 			var _extractColorBlock = extractColorBlock(source, {
-				x: x,
-				y: y,
-				width: width,
-				height: height
-			}),
-					sourceRGBA = _extractColorBlock.block,
-					mask = _extractColorBlock.mask;
-
+					x: x,
+					y: y,
+					width: width,
+					height: height
+				}),
+				sourceRGBA = _extractColorBlock.block,
+				mask = _extractColorBlock.mask;
 			CompressMasked(sourceRGBA, mask, result, targetBlockPointer, flags);
 			targetBlockPointer += bytesPerBlock;
 		});
 	}
-
 	function decompressImage(result, width, height, source, flags) {
 		flags = FixFlags(flags);
 		var bytesPerBlock = (flags & kDxt1) !== 0 ? DXT1_COMPRESSED_BYTES : DXT5_COMPRESSED_BYTES;
 		var sourceBlockPointer = 0;
-
 		for (var y = 0; y < height; y += 4) {
 			for (var x = 0; x < width; x += 4) {
 				var targetRGBA = new Uint8Array(DECOMPRESSED_BLOCK_SIZE * COLORS);
@@ -4270,7 +4129,6 @@
 			}
 		}
 	}
-
 	var flags = {
 		DXT1: kDxt1,
 		DXT3: kDxt3,
@@ -4282,7 +4140,6 @@
 		ColourMetricUniform: kColourMetricUniform,
 		WeightColourByAlpha: kWeightColourByAlpha
 	};
-
 	function compress(inputData, width, height, flags) {
 		var source = inputData instanceof ArrayBuffer ? new Uint8Array(inputData) : inputData;
 		var targetSize = GetStorageRequirements(width, height, flags);
@@ -4290,7 +4147,6 @@
 		compressImage(source, width, height, result, flags);
 		return result;
 	}
-
 	function decompress(inputData, width, height, flags) {
 		var source = inputData instanceof ArrayBuffer ? new Uint8Array(inputData) : inputData;
 		var targetSize = width * height * 4;
@@ -4302,7 +4158,6 @@
 	function extractBits(bitData, amount, offset) {
 		return bitData >> offset & Math.pow(2, amount) - 1;
 	}
-
 	function colorToBgra5551(red, green, blue, alpha) {
 		var r = Math.round(red / 255 * 31);
 		var g = Math.round(green / 255 * 31);
@@ -4310,30 +4165,24 @@
 		var a = Math.round(alpha / 255);
 		return a << 15 | r << 10 | g << 5 | b;
 	}
-
 	function bgra5551ToColor(bgra5551) {
 		var r = extractBits(bgra5551, 5, 10);
 		var g = extractBits(bgra5551, 5, 5);
 		var b = extractBits(bgra5551, 5, 0);
 		var a = bgra5551 >> 15 & 1;
-
 		var scaleUp = function scaleUp(value) {
 			return value << 3 | value >> 2;
 		};
-
 		var _map = [r, g, b].map(scaleUp),
-				red = _map[0],
-				green = _map[1],
-				blue = _map[2];
-
+			red = _map[0],
+			green = _map[1],
+			blue = _map[2];
 		return [red, green, blue, a * 255];
 	}
-
 	function convertTo5551(colorBuffer) {
 		var colorArray = new Uint8Array(colorBuffer);
 		var length = colorArray.length / 4;
 		var convertedArray = new Uint8Array(length * 2);
-
 		for (var i = 0; i < length; i++) {
 			var red = colorArray[i * 4];
 			var green = colorArray[i * 4 + 1];
@@ -4343,15 +4192,12 @@
 			convertedArray[i * 2] = bgra5551 & 0xff;
 			convertedArray[i * 2 + 1] = bgra5551 >> 8;
 		}
-
 		return convertedArray;
 	}
-
 	function convertFrom5551(colorBuffer) {
 		var colorArray = new Uint8Array(colorBuffer);
 		var length = colorArray.length / 2;
 		var convertedArray = new Uint8Array(length * 4);
-
 		for (var i = 0; i < length; i++) {
 			var colors = bgra5551ToColor(colorArray[i * 2] | colorArray[i * 2 + 1] << 8);
 			convertedArray[i * 4] = colors[0];
@@ -4359,22 +4205,30 @@
 			convertedArray[i * 4 + 2] = colors[2];
 			convertedArray[i * 4 + 3] = colors[3];
 		}
-
 		return convertedArray;
 	}
 
+	function _callSuper$6(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var Texture2DReader = function (_BaseReader) {
-		_inherits(Texture2DReader, _BaseReader);
-
-		var _super = _createSuper(Texture2DReader);
-
 		function Texture2DReader() {
 			_classCallCheck(this, Texture2DReader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$6(this, Texture2DReader, arguments);
 		}
-
-		_createClass(Texture2DReader, [{
+		_inherits(Texture2DReader, _BaseReader);
+		return _createClass(Texture2DReader, [{
 			key: "read",
 			value: function read(buffer) {
 				var int32Reader = new Int32Reader();
@@ -4383,22 +4237,31 @@
 				var width = uint32Reader.read(buffer);
 				var height = uint32Reader.read(buffer);
 				var mipCount = uint32Reader.read(buffer);
+				var usedWidth = null;
+				var usedHeight = null;
 				if (mipCount > 1) console.warn("Found mipcount of ".concat(mipCount, ", only the first will be used."));
 				var dataSize = uint32Reader.read(buffer);
+				if (width * height * 4 > dataSize) {
+					usedWidth = width >> 16 & 0xffff;
+					width = width & 0xffff;
+					usedHeight = height >> 16 & 0xffff;
+					height = height & 0xffff;
+					if (width * height * 4 !== dataSize) {
+						console.warn("invalid width & height! ".concat(width, " x ").concat(height));
+					}
+				}
 				var data = buffer.read(dataSize);
 				if (format == 4) data = decompress(data, width, height, flags.DXT1);else if (format == 5) data = decompress(data, width, height, flags.DXT3);else if (format == 6) data = decompress(data, width, height, flags.DXT5);else if (format == 2) {
 					data = convertFrom5551(data);
 				} else if (format != 0) throw new Error("Non-implemented Texture2D format type (".concat(format, ") found."));
 				if (data instanceof ArrayBuffer) data = new Uint8Array(data);
-
 				for (var i = 0; i < data.length; i += 4) {
 					var inverseAlpha = 255 / data[i + 3];
 					data[i] = Math.min(Math.ceil(data[i] * inverseAlpha), 255);
 					data[i + 1] = Math.min(Math.ceil(data[i + 1] * inverseAlpha), 255);
 					data[i + 2] = Math.min(Math.ceil(data[i + 2] * inverseAlpha), 255);
 				}
-
-				return {
+				var result = {
 					format: format,
 					export: {
 						type: this.type,
@@ -4407,6 +4270,11 @@
 						height: height
 					}
 				};
+				if (usedWidth !== null) result.additional = {
+					usedWidth: usedWidth,
+					usedHeight: usedHeight
+				};
+				return result;
 			}
 		}, {
 			key: "write",
@@ -4416,19 +4284,21 @@
 				this.writeIndex(buffer, resolver);
 				var width = content.export.width;
 				var height = content.export.height;
+				if (content.additional != null) {
+					width = width | content.additional.usedWidth << 16;
+					height = height | content.additional.usedHeight << 16;
+				}
 				int32Reader.write(buffer, content.format, null);
-				uint32Reader.write(buffer, content.export.width, null);
-				uint32Reader.write(buffer, content.export.height, null);
+				uint32Reader.write(buffer, width, null);
+				uint32Reader.write(buffer, height, null);
 				uint32Reader.write(buffer, 1, null);
 				var data = content.export.data;
-
 				for (var i = 0; i < data.length; i += 4) {
 					var alpha = data[i + 3] / 255;
 					data[i] = Math.floor(data[i] * alpha);
 					data[i + 1] = Math.floor(data[i + 1] * alpha);
 					data[i + 2] = Math.floor(data[i + 2] * alpha);
 				}
-
 				if (content.format === 4) data = compress(data, width, height, flags.DXT1);else if (content.format === 5) data = compress(data, width, height, flags.DXT3);else if (content.format === 6) data = compress(data, width, height, flags.DXT5);else if (content.format === 2) data = convertTo5551(data);
 				uint32Reader.write(buffer, data.length, null);
 				buffer.concat(data);
@@ -4444,28 +4314,34 @@
 				switch (type) {
 					case 'Microsoft.Xna.Framework.Content.Texture2DReader':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return Texture2DReader;
 	}(BaseReader);
 
+	function _callSuper$5(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var Vector3Reader = function (_BaseReader) {
-		_inherits(Vector3Reader, _BaseReader);
-
-		var _super = _createSuper(Vector3Reader);
-
 		function Vector3Reader() {
 			_classCallCheck(this, Vector3Reader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$5(this, Vector3Reader, arguments);
 		}
-
-		_createClass(Vector3Reader, [{
+		_inherits(Vector3Reader, _BaseReader);
+		return _createClass(Vector3Reader, [{
 			key: "read",
 			value: function read(buffer) {
 				var singleReader = new SingleReader();
@@ -4494,28 +4370,34 @@
 					case 'Microsoft.Xna.Framework.Content.Vector3Reader':
 					case 'Microsoft.Xna.Framework.Vector3':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return Vector3Reader;
 	}(BaseReader);
 
+	function _callSuper$4(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var SpriteFontReader = function (_BaseReader) {
-		_inherits(SpriteFontReader, _BaseReader);
-
-		var _super = _createSuper(SpriteFontReader);
-
 		function SpriteFontReader() {
 			_classCallCheck(this, SpriteFontReader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$4(this, SpriteFontReader, arguments);
 		}
-
-		_createClass(SpriteFontReader, [{
+		_inherits(SpriteFontReader, _BaseReader);
+		return _createClass(SpriteFontReader, [{
 			key: "read",
 			value: function read(buffer, resolver) {
 				var int32Reader = new Int32Reader();
@@ -4552,7 +4434,6 @@
 				var charListReader = new ListReader(charReader);
 				var vector3ListReader = new ListReader(new Vector3Reader());
 				this.writeIndex(buffer, resolver);
-
 				try {
 					texture2DReader.write(buffer, content.texture, resolver);
 					buffer.alloc(100000);
@@ -4578,7 +4459,6 @@
 				switch (type) {
 					case 'Microsoft.Xna.Framework.Content.SpriteFontReader':
 						return true;
-
 					default:
 						return false;
 				}
@@ -4589,22 +4469,29 @@
 				return ["SpriteFont", "Texture2D", 'List<Rectangle>', 'Rectangle', 'List<Rectangle>', 'Rectangle', 'List<Char>', 'Char', null, null, 'List<Vector3>', 'Vector3', 'Nullable<Char>', 'Char'];
 			}
 		}]);
-
-		return SpriteFontReader;
 	}(BaseReader);
 
+	function _callSuper$3(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var TBinReader = function (_BaseReader) {
-		_inherits(TBinReader, _BaseReader);
-
-		var _super = _createSuper(TBinReader);
-
 		function TBinReader() {
 			_classCallCheck(this, TBinReader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$3(this, TBinReader, arguments);
 		}
-
-		_createClass(TBinReader, [{
+		_inherits(TBinReader, _BaseReader);
+		return _createClass(TBinReader, [{
 			key: "read",
 			value: function read(buffer) {
 				var int32Reader = new Int32Reader();
@@ -4637,28 +4524,34 @@
 				switch (type) {
 					case 'xTile.Pipeline.TideReader':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return TBinReader;
 	}(BaseReader);
 
+	function _callSuper$2(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var LightweightTexture2DReader = function (_BaseReader) {
-		_inherits(LightweightTexture2DReader, _BaseReader);
-
-		var _super = _createSuper(LightweightTexture2DReader);
-
 		function LightweightTexture2DReader() {
 			_classCallCheck(this, LightweightTexture2DReader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$2(this, LightweightTexture2DReader, arguments);
 		}
-
-		_createClass(LightweightTexture2DReader, [{
+		_inherits(LightweightTexture2DReader, _BaseReader);
+		return _createClass(LightweightTexture2DReader, [{
 			key: "read",
 			value: function read(buffer) {
 				var int32Reader = new Int32Reader();
@@ -4672,14 +4565,12 @@
 				var data = buffer.read(dataSize);
 				data = new Uint8Array(data);
 				if (format != 0) throw new Error("Compressed texture format is not supported!");
-
 				for (var i = 0; i < data.length; i += 4) {
 					var inverseAlpha = 255 / data[i + 3];
 					data[i] = Math.min(Math.ceil(data[i] * inverseAlpha), 255);
 					data[i + 1] = Math.min(Math.ceil(data[i + 1] * inverseAlpha), 255);
 					data[i + 2] = Math.min(Math.ceil(data[i + 2] * inverseAlpha), 255);
 				}
-
 				return {
 					format: format,
 					export: {
@@ -4704,14 +4595,12 @@
 				uint32Reader.write(buffer, content.export.height, null);
 				uint32Reader.write(buffer, 1, null);
 				var data = content.export.data;
-
 				for (var i = 0; i < data.length; i += 4) {
 					var alpha = data[i + 3] / 255;
 					data[i] = Math.floor(data[i] * alpha);
 					data[i + 1] = Math.floor(data[i + 1] * alpha);
 					data[i + 2] = Math.floor(data[i + 2] * alpha);
 				}
-
 				uint32Reader.write(buffer, data.length, null);
 				buffer.concat(data);
 			}
@@ -4731,7 +4620,6 @@
 				switch (type) {
 					case 'Microsoft.Xna.Framework.Content.Texture2DReader':
 						return true;
-
 					default:
 						return false;
 				}
@@ -4742,22 +4630,29 @@
 				return "Texture2D";
 			}
 		}]);
-
-		return LightweightTexture2DReader;
 	}(BaseReader);
 
+	function _callSuper$1(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var Vector2Reader = function (_BaseReader) {
-		_inherits(Vector2Reader, _BaseReader);
-
-		var _super = _createSuper(Vector2Reader);
-
 		function Vector2Reader() {
 			_classCallCheck(this, Vector2Reader);
-
-			return _super.apply(this, arguments);
+			return _callSuper$1(this, Vector2Reader, arguments);
 		}
-
-		_createClass(Vector2Reader, [{
+		_inherits(Vector2Reader, _BaseReader);
+		return _createClass(Vector2Reader, [{
 			key: "read",
 			value: function read(buffer) {
 				var singleReader = new SingleReader();
@@ -4768,6 +4663,14 @@
 					y: y
 				};
 			}
+		}, {
+			key: "write",
+			value: function write(buffer, content, resolver) {
+				this.writeIndex(buffer, resolver);
+				var singleReader = new SingleReader();
+				singleReader.write(buffer, content.x, null);
+				singleReader.write(buffer, content.y, null);
+			}
 		}], [{
 			key: "isTypeOf",
 			value: function isTypeOf(type) {
@@ -4775,28 +4678,34 @@
 					case 'Microsoft.Xna.Framework.Content.Vector2Reader':
 					case 'Microsoft.Xna.Framework.Vector2':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return Vector2Reader;
 	}(BaseReader);
 
+	function _callSuper(_this, derived, args) {
+		function isNativeReflectConstruct() {
+			if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+			if (Reflect.construct.sham) return false;
+			if (typeof Proxy === "function") return true;
+			try {
+				return !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+			} catch (e) {
+				return false;
+			}
+		}
+		derived = _getPrototypeOf(derived);
+		return _possibleConstructorReturn(_this, isNativeReflectConstruct() ? Reflect.construct(derived, args || [], _getPrototypeOf(_this).constructor) : derived.apply(_this, args));
+	}
 	var Vector4Reader = function (_BaseReader) {
-		_inherits(Vector4Reader, _BaseReader);
-
-		var _super = _createSuper(Vector4Reader);
-
 		function Vector4Reader() {
 			_classCallCheck(this, Vector4Reader);
-
-			return _super.apply(this, arguments);
+			return _callSuper(this, Vector4Reader, arguments);
 		}
-
-		_createClass(Vector4Reader, [{
+		_inherits(Vector4Reader, _BaseReader);
+		return _createClass(Vector4Reader, [{
 			key: "read",
 			value: function read(buffer) {
 				var singleReader = new SingleReader();
@@ -4811,6 +4720,16 @@
 					w: w
 				};
 			}
+		}, {
+			key: "write",
+			value: function write(buffer, content, resolver) {
+				this.writeIndex(buffer, resolver);
+				var singleReader = new SingleReader();
+				singleReader.write(buffer, content.x, null);
+				singleReader.write(buffer, content.y, null);
+				singleReader.write(buffer, content.z, null);
+				singleReader.write(buffer, content.w, null);
+			}
 		}], [{
 			key: "isTypeOf",
 			value: function isTypeOf(type) {
@@ -4818,14 +4737,11 @@
 					case 'Microsoft.Xna.Framework.Content.Vector4Reader':
 					case 'Microsoft.Xna.Framework.Vector4':
 						return true;
-
 					default:
 						return false;
 				}
 			}
 		}]);
-
-		return Vector4Reader;
 	}(BaseReader);
 
 	exports.ArrayReader = ArrayReader;
@@ -4840,6 +4756,7 @@
 	exports.LightweightTexture2DReader = LightweightTexture2DReader;
 	exports.ListReader = ListReader;
 	exports.NullableReader = NullableReader;
+	exports.PointReader = PointReader;
 	exports.RectangleReader = RectangleReader;
 	exports.ReflectiveReader = ReflectiveReader;
 	exports.SingleReader = SingleReader;

@@ -149,7 +149,7 @@ class XnbConverter {
 			// add local reader
 			readers.push({ type, version });
 		}
-		Debug(readers);
+		Debug( readers.map( ({type})=>TypeReader.simplifyType(type) ) );
 
 		// get the reader for this type
 		this.readers = readers.map( ({type})=>TypeReader.getReaderFromRaw(type) );

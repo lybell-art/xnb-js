@@ -1,5 +1,5 @@
 /** 
- * xnb.js 1.2.0
+ * xnb.js 1.3.0
  * made by Lybell( https://github.com/lybell-art/ )
  * This library is based on the XnbCli made by Leonblade.
  * 
@@ -11,47 +11,36 @@ class BaseReader {
 	static isTypeOf(type) {
 		return false;
 	}
-
 	static hasSubType() {
 		return false;
 	}
-
 	static parseTypeList() {
 		return [this.type()];
 	}
-
 	static type() {
 		return this.name.slice(0, -6);
 	}
-
 	isValueType() {
 		return true;
 	}
-
 	get type() {
 		return this.constructor.type();
 	}
-
 	read(buffer, resolver) {
 		throw new Error('Cannot invoke methods on abstract class.');
 	}
-
 	write(buffer, content, resolver) {
 		throw new Error('Cannot invoke methods on abstract class.');
 	}
-
 	writeIndex(buffer, resolver) {
 		if (resolver != null) buffer.write7BitNumber(Number.parseInt(resolver.getIndex(this)) + 1);
 	}
-
 	toString() {
 		return this.type;
 	}
-
 	parseTypeList() {
 		return this.constructor.parseTypeList();
 	}
-
 }
 
 class UInt32Reader extends BaseReader {
@@ -60,21 +49,17 @@ class UInt32Reader extends BaseReader {
 			case 'Microsoft.Xna.Framework.Content.UInt32Reader':
 			case 'System.UInt32':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		return buffer.readUInt32();
 	}
-
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		buffer.writeUInt32(content);
 	}
-
 }
 
 class ArrayReader extends BaseReader {
@@ -82,79 +67,63 @@ class ArrayReader extends BaseReader {
 		switch (type) {
 			case 'Microsoft.Xna.Framework.Content.ArrayReader':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	static hasSubType() {
 		return true;
 	}
-
 	constructor(reader) {
 		super();
 		this.reader = reader;
 	}
-
 	read(buffer, resolver) {
 		const uint32Reader = new UInt32Reader();
 		let size = uint32Reader.read(buffer);
 		let array = [];
-
 		for (let i = 0; i < size; i++) {
 			let value = this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer);
 			array.push(value);
 		}
-
 		return array;
 	}
-
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		const uint32Reader = new UInt32Reader();
-		uint32Reader.write(buffer, content.length, resolver);
-
+		uint32Reader.write(buffer, content.length, null);
 		for (let i = 0; i < content.length; i++) this.reader.write(buffer, content[i], this.reader.isValueType() ? null : resolver);
 	}
-
 	isValueType() {
 		return false;
 	}
-
 	get type() {
 		return "Array<".concat(this.reader.type, ">");
 	}
-
 	parseTypeList() {
-		return [this.type, ...this.reader.parseTypeList()];
+		const inBlock = this.reader.parseTypeList();
+		return ["".concat(this.type, ":").concat(inBlock.length), ...inBlock];
 	}
-
 }
 
 const UTF16_BITES = [0xD800, 0xDC00];
 const UTF16_MASK = 0b1111111111;
-
 function UTF16Decode(codeSet) {
 	var _codeSet2;
-
 	if (typeof codeSet === "number") codeSet = [codeSet];
 	if (!((_codeSet2 = codeSet) !== null && _codeSet2 !== void 0 && _codeSet2.length)) throw new Error("Invalid codeset!");
 	const codeSetRange = codeSet.length;
 	if (codeSetRange === 1) return codeSet[0];
 	return ((codeSet[0] & UTF16_MASK) << 10) + (codeSet[1] & UTF16_MASK) + 0x10000;
 }
-
 function stringToUnicode(str) {
 	const utf16Map = Array.from({
 		length: str.length
 	}, (_, i) => str.charCodeAt(i));
 	const result = [];
 	let index = 0;
-
 	while (index < str.length) {
 		let code = utf16Map[index];
-
 		if ((UTF16_BITES[0] & code) !== UTF16_BITES[0]) {
 			result.push(code);
 			index++;
@@ -163,10 +132,8 @@ function stringToUnicode(str) {
 			index += 2;
 		}
 	}
-
 	return result;
 }
-
 function UTF8Length(str) {
 	const codes = stringToUnicode(str);
 	return codes.reduce((sum, unicode) => {
@@ -183,28 +150,23 @@ class StringReader extends BaseReader {
 			case 'Microsoft.Xna.Framework.Content.StringReader':
 			case 'System.String':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		let length = buffer.read7BitNumber();
 		return buffer.readString(length);
 	}
-
 	write(buffer, string, resolver) {
 		this.writeIndex(buffer, resolver);
 		const size = UTF8Length(string);
 		buffer.write7BitNumber(size);
 		buffer.writeString(string);
 	}
-
 	isValueType() {
 		return false;
 	}
-
 }
 
 class BmFontReader extends BaseReader {
@@ -212,12 +174,10 @@ class BmFontReader extends BaseReader {
 		switch (type) {
 			case 'BmFont.XmlSourceReader':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		const stringReader = new StringReader();
 		const xml = stringReader.read(buffer);
@@ -228,17 +188,14 @@ class BmFontReader extends BaseReader {
 			}
 		};
 	}
-
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		const stringReader = new StringReader();
 		stringReader.write(buffer, content.export.data, null);
 	}
-
 	isValueType() {
 		return false;
 	}
-
 }
 
 class BooleanReader extends BaseReader {
@@ -247,21 +204,17 @@ class BooleanReader extends BaseReader {
 			case 'Microsoft.Xna.Framework.Content.BooleanReader':
 			case 'System.Boolean':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		return Boolean(buffer.readInt());
 	}
-
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		buffer.writeByte(content);
 	}
-
 }
 
 class CharReader extends BaseReader {
@@ -270,27 +223,21 @@ class CharReader extends BaseReader {
 			case 'Microsoft.Xna.Framework.Content.CharReader':
 			case 'System.Char':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		let charSize = this._getCharSize(buffer.peekInt());
-
 		return buffer.readString(charSize);
 	}
-
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		buffer.writeString(content);
 	}
-
 	_getCharSize(byte) {
 		return (0xE5000000 >> (byte >> 3 & 0x1e) & 3) + 1;
 	}
-
 }
 
 class DictionaryReader extends BaseReader {
@@ -298,59 +245,47 @@ class DictionaryReader extends BaseReader {
 		switch (type) {
 			case 'Microsoft.Xna.Framework.Content.DictionaryReader':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	static hasSubType() {
 		return true;
 	}
-
 	constructor(key, value) {
 		if (key == undefined || value == undefined) throw new Error('Cannot create instance of DictionaryReader without Key and Value.');
 		super();
 		this.key = key;
 		this.value = value;
 	}
-
 	read(buffer, resolver) {
 		let dictionary = {};
 		const uint32Reader = new UInt32Reader();
 		const size = uint32Reader.read(buffer);
-
 		for (let i = 0; i < size; i++) {
 			let key = this.key.isValueType() ? this.key.read(buffer) : resolver.read(buffer);
 			let value = this.value.isValueType() ? this.value.read(buffer) : resolver.read(buffer);
 			dictionary[key] = value;
 		}
-
 		return dictionary;
 	}
-
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		buffer.writeUInt32(Object.keys(content).length);
-
 		for (let key of Object.keys(content)) {
 			this.key.write(buffer, key, this.key.isValueType() ? null : resolver);
 			this.value.write(buffer, content[key], this.value.isValueType() ? null : resolver);
 		}
 	}
-
 	isValueType() {
 		return false;
 	}
-
 	get type() {
 		return "Dictionary<".concat(this.key.type, ",").concat(this.value.type, ">");
 	}
-
 	parseTypeList() {
 		return [this.type, ...this.key.parseTypeList(), ...this.value.parseTypeList()];
 	}
-
 }
 
 class DoubleReader extends BaseReader {
@@ -359,21 +294,17 @@ class DoubleReader extends BaseReader {
 			case 'Microsoft.Xna.Framework.Content.DoubleReader':
 			case 'System.Double':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		return buffer.readDouble();
 	}
-
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		buffer.writeDouble(content);
 	}
-
 }
 
 class EffectReader extends BaseReader {
@@ -382,12 +313,10 @@ class EffectReader extends BaseReader {
 			case 'Microsoft.Xna.Framework.Content.EffectReader':
 			case 'Microsoft.Xna.Framework.Graphics.Effect':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		const uint32Reader = new UInt32Reader();
 		const size = uint32Reader.read(buffer);
@@ -399,7 +328,6 @@ class EffectReader extends BaseReader {
 			}
 		};
 	}
-
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		const data = content.export.data;
@@ -407,34 +335,29 @@ class EffectReader extends BaseReader {
 		uint32Reader.write(buffer, data.byteLength, null);
 		buffer.concat(data);
 	}
-
 	isValueType() {
 		return false;
 	}
-
 }
 
 class Int32Reader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
 			case 'Microsoft.Xna.Framework.Content.Int32Reader':
+			case 'Microsoft.Xna.Framework.Content.EnumReader':
 			case 'System.Int32':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		return buffer.readInt32();
 	}
-
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		buffer.writeInt32(content);
 	}
-
 }
 
 class ListReader extends BaseReader {
@@ -443,56 +366,45 @@ class ListReader extends BaseReader {
 			case 'Microsoft.Xna.Framework.Content.ListReader':
 			case 'System.Collections.Generic.List':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	static hasSubType() {
 		return true;
 	}
-
 	constructor(reader) {
 		super();
 		this.reader = reader;
 	}
-
 	read(buffer, resolver) {
 		const uint32Reader = new UInt32Reader();
 		const size = uint32Reader.read(buffer);
 		const list = [];
-
 		for (let i = 0; i < size; i++) {
 			const value = this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer);
 			list.push(value);
 		}
-
 		return list;
 	}
-
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		const uint32Reader = new UInt32Reader();
 		uint32Reader.write(buffer, content.length, null);
-
-		for (let data of Object.values(content)) {
+		for (let data of content) {
 			this.reader.write(buffer, data, this.reader.isValueType() ? null : resolver);
 		}
 	}
-
 	isValueType() {
 		return false;
 	}
-
 	get type() {
 		return "List<".concat(this.reader.type, ">");
 	}
-
 	parseTypeList() {
-		return [this.type, ...this.reader.parseTypeList()];
+		const inBlock = this.reader.parseTypeList();
+		return ["".concat(this.type, ":").concat(inBlock.length), ...inBlock];
 	}
-
 }
 
 class NullableReader extends BaseReader {
@@ -500,65 +412,78 @@ class NullableReader extends BaseReader {
 		switch (type) {
 			case 'Microsoft.Xna.Framework.Content.NullableReader':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	static hasSubType() {
 		return true;
 	}
-
 	constructor(reader) {
 		super();
 		this.reader = reader;
 	}
-
 	read(buffer) {
 		let resolver = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 		const booleanReader = new BooleanReader();
 		const hasValue = buffer.peekByte(1);
-
 		if (!hasValue) {
 			booleanReader.read(buffer);
 			return null;
 		}
-
-		if (resolver === null) {
+		if (resolver === null || this.reader.isValueType()) {
 			booleanReader.read(buffer);
 			return this.reader.read(buffer);
 		}
-
-		return this.reader.isValueType() ? this.reader.read(buffer) : resolver.read(buffer);
+		return resolver.read(buffer);
 	}
-
 	write(buffer) {
 		let content = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 		let resolver = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
 		if (content === null) {
 			buffer.writeByte(0);
 			return;
 		}
-
-		if (resolver === null) buffer.writeByte(1);
+		if (resolver === null || this.reader.isValueType()) buffer.writeByte(1);
 		this.reader.write(buffer, content, this.reader.isValueType() ? null : resolver);
 	}
-
 	isValueType() {
 		return false;
 	}
-
 	get type() {
 		return "Nullable<".concat(this.reader.type, ">");
 	}
-
 	parseTypeList() {
 		const inBlock = this.reader.parseTypeList();
 		return ["".concat(this.type, ":").concat(inBlock.length), ...inBlock];
 	}
+}
 
+class PointReader extends BaseReader {
+	static isTypeOf(type) {
+		switch (type) {
+			case 'Microsoft.Xna.Framework.Content.PointReader':
+			case 'Microsoft.Xna.Framework.Point':
+				return true;
+			default:
+				return false;
+		}
+	}
+	read(buffer) {
+		const int32Reader = new Int32Reader();
+		const x = int32Reader.read(buffer);
+		const y = int32Reader.read(buffer);
+		return {
+			x,
+			y
+		};
+	}
+	write(buffer, content, resolver) {
+		this.writeIndex(buffer, resolver);
+		const int32Reader = new Int32Reader();
+		int32Reader.write(buffer, content.x, null);
+		int32Reader.write(buffer, content.y, null);
+	}
 }
 
 class ReflectiveReader extends BaseReader {
@@ -566,42 +491,33 @@ class ReflectiveReader extends BaseReader {
 		switch (type) {
 			case 'Microsoft.Xna.Framework.Content.ReflectiveReader':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	static hasSubType() {
 		return true;
 	}
-
 	constructor(reader) {
 		super();
 		this.reader = reader;
 	}
-
 	read(buffer, resolver) {
 		const reflective = this.reader.read(buffer, resolver);
 		return reflective;
 	}
-
 	write(buffer, content, resolver) {
 		this.reader.write(buffer, content, this.reader.isValueType() ? null : resolver);
 	}
-
 	isValueType() {
 		return false;
 	}
-
 	get type() {
 		return "".concat(this.reader.type);
 	}
-
 	parseTypeList() {
 		return [...this.reader.parseTypeList()];
 	}
-
 }
 
 class RectangleReader extends BaseReader {
@@ -610,12 +526,10 @@ class RectangleReader extends BaseReader {
 			case 'Microsoft.Xna.Framework.Content.RectangleReader':
 			case 'Microsoft.Xna.Framework.Rectangle':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		const int32Reader = new Int32Reader();
 		const x = int32Reader.read(buffer);
@@ -629,7 +543,6 @@ class RectangleReader extends BaseReader {
 			height
 		};
 	}
-
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		const int32Reader = new Int32Reader();
@@ -638,7 +551,6 @@ class RectangleReader extends BaseReader {
 		int32Reader.write(buffer, content.width, null);
 		int32Reader.write(buffer, content.height, null);
 	}
-
 }
 
 class SingleReader extends BaseReader {
@@ -647,21 +559,17 @@ class SingleReader extends BaseReader {
 			case 'Microsoft.Xna.Framework.Content.SingleReader':
 			case 'System.Single':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		return buffer.readSingle();
 	}
-
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		buffer.writeSingle(content);
 	}
-
 }
 
 const kDxt1 = 1 << 0;
@@ -676,17 +584,14 @@ const kWeightColourByAlpha = 1 << 7;
 
 function ownKeys(object, enumerableOnly) {
 	var keys = Object.keys(object);
-
 	if (Object.getOwnPropertySymbols) {
 		var symbols = Object.getOwnPropertySymbols(object);
 		enumerableOnly && (symbols = symbols.filter(function (sym) {
 			return Object.getOwnPropertyDescriptor(object, sym).enumerable;
 		})), keys.push.apply(keys, symbols);
 	}
-
 	return keys;
 }
-
 function _objectSpread2(target) {
 	for (var i = 1; i < arguments.length; i++) {
 		var source = null != arguments[i] ? arguments[i] : {};
@@ -696,10 +601,8 @@ function _objectSpread2(target) {
 			Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
 		});
 	}
-
 	return target;
 }
-
 function _defineProperty(obj, key, value) {
 	if (key in obj) {
 		Object.defineProperty(obj, key, {
@@ -711,7 +614,6 @@ function _defineProperty(obj, key, value) {
 	} else {
 		obj[key] = value;
 	}
-
 	return obj;
 }
 
@@ -719,20 +621,16 @@ function Rot(theta) {
 	let Mat = [[Math.cos(theta), Math.sin(theta)], [-Math.sin(theta), Math.cos(theta)]];
 	return Mat;
 }
-
 function Rij(k, l, theta, N) {
 	let Mat = Array(N);
-
 	for (let i = 0; i < N; i++) {
 		Mat[i] = Array(N);
 	}
-
 	for (let i = 0; i < N; i++) {
 		for (let j = 0; j < N; j++) {
 			Mat[i][j] = (i === j) * 1.0;
 		}
 	}
-
 	let Rotij = Rot(theta);
 	Mat[k][k] = Rotij[0][0];
 	Mat[l][l] = Rotij[1][1];
@@ -740,25 +638,20 @@ function Rij(k, l, theta, N) {
 	Mat[l][k] = Rotij[1][0];
 	return Mat;
 }
-
 function getTheta(aii, ajj, aij) {
 	let th = 0.0;
 	let denom = ajj - aii;
-
 	if (Math.abs(denom) <= 1E-12) {
 		th = Math.PI / 4.0;
 	} else {
 		th = 0.5 * Math.atan(2.0 * aij / (ajj - aii));
 	}
-
 	return th;
 }
-
 function getAij(Mij) {
 	let N = Mij.length;
 	let maxMij = 0.0;
 	let maxIJ = [0, 1];
-
 	for (let i = 0; i < N; i++) {
 		for (let j = i + 1; j < N; j++) {
 			if (Math.abs(maxMij) <= Math.abs(Mij[i][j])) {
@@ -767,22 +660,17 @@ function getAij(Mij) {
 			}
 		}
 	}
-
 	return [maxIJ, maxMij];
 }
-
 function unitary(U, H) {
 	let N = U.length;
 	let Mat = Array(N);
-
 	for (let i = 0; i < N; i++) {
 		Mat[i] = Array(N);
 	}
-
 	for (let i = 0; i < N; i++) {
 		for (let j = 0; j < N; j++) {
 			Mat[i][j] = 0;
-
 			for (let k = 0; k < N; k++) {
 				for (let l = 0; l < N; l++) {
 					Mat[i][j] = Mat[i][j] + U[k][i] * H[k][l] * U[l][j];
@@ -790,50 +678,39 @@ function unitary(U, H) {
 			}
 		}
 	}
-
 	return Mat;
 }
-
 function AxB(A, B) {
 	let N = A.length;
 	let Mat = Array(N);
-
 	for (let i = 0; i < N; i++) {
 		Mat[i] = Array(N);
 	}
-
 	for (let i = 0; i < N; i++) {
 		for (let j = 0; j < N; j++) {
 			Mat[i][j] = 0;
-
 			for (let k = 0; k < N; k++) {
 				Mat[i][j] = Mat[i][j] + A[i][k] * B[k][j];
 			}
 		}
 	}
-
 	return Mat;
 }
-
 function eigens(Hij) {
 	let convergence = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1E-7;
 	let N = Hij.length;
 	let Ei = Array(N);
 	let e0 = Math.abs(convergence / N);
 	let Sij = Array(N);
-
 	for (let i = 0; i < N; i++) {
 		Sij[i] = Array(N);
 	}
-
 	for (let i = 0; i < N; i++) {
 		for (let j = 0; j < N; j++) {
 			Sij[i][j] = (i === j) * 1.0;
 		}
 	}
-
 	let Vab = getAij(Hij);
-
 	while (Math.abs(Vab[1]) >= Math.abs(e0)) {
 		let i = Vab[0][0];
 		let j = Vab[0][1];
@@ -843,14 +720,11 @@ function eigens(Hij) {
 		Sij = AxB(Sij, Gij);
 		Vab = getAij(Hij);
 	}
-
 	for (let i = 0; i < N; i++) {
 		Ei[i] = Hij[i][i];
 	}
-
 	return sorting(Ei, Sij);
 }
-
 function sorting(values, vectors) {
 	let eigsCount = values.length;
 	vectors.length;
@@ -878,7 +752,6 @@ function sorting(values, vectors) {
 	});
 	return [sortedValues, sortedVectors];
 }
-
 function dominentPrincipalVector(matrix) {
 	let [, [dominentVector]] = eigens(matrix);
 	return dominentVector;
@@ -891,57 +764,44 @@ class Vec3 {
 		let z = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : x;
 		this._values = [x, y, z];
 	}
-
 	get x() {
 		return this._values[0];
 	}
-
 	get y() {
 		return this._values[1];
 	}
-
 	get z() {
 		return this._values[2];
 	}
-
 	set x(value) {
 		this._values[0] = value;
 	}
-
 	set y(value) {
 		this._values[1] = value;
 	}
-
 	set z(value) {
 		this._values[2] = value;
 	}
-
 	get length() {
 		return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
 	}
-
 	get lengthSq() {
 		return this.x * this.x + this.y * this.y + this.z * this.z;
 	}
-
 	get normalized() {
 		if (this.length === 0) return null;
 		return Vec3.multScalar(this, 1 / this.length);
 	}
-
 	get colorInt() {
 		const floatToInt = value => {
 			const result = parseInt(value * 255 + 0.5);
 			return Math.max(Math.min(result, 255), 0);
 		};
-
 		return this._values.map(floatToInt);
 	}
-
 	clone() {
 		return new Vec3(this.x, this.y, this.z);
 	}
-
 	set(x) {
 		let y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : x;
 		let z = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : x;
@@ -950,99 +810,79 @@ class Vec3 {
 		this._values[2] = z;
 		return this;
 	}
-
 	toVec4() {
 		let w = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
 		return new Vec4(this.x, this.y, this.z, w);
 	}
-
 	addVector(v) {
 		this._values[0] += v.x;
 		this._values[1] += v.y;
 		this._values[2] += v.z;
 		return this;
 	}
-
 	addScaledVector(v, scalar) {
 		this._values[0] += v.x * scalar;
 		this._values[1] += v.y * scalar;
 		this._values[2] += v.z * scalar;
 		return this;
 	}
-
 	mult(scalar) {
 		this._values[0] *= scalar;
 		this._values[1] *= scalar;
 		this._values[2] *= scalar;
 		return this;
 	}
-
 	multVector(vec) {
 		this._values[0] *= vec.x;
 		this._values[1] *= vec.y;
 		this._values[2] *= vec.z;
 		return this;
 	}
-
 	clamp(min, max) {
 		const clamper = v => min > v ? min : max < v ? max : v;
-
 		this._values[0] = clamper(this._values[0]);
 		this._values[1] = clamper(this._values[1]);
 		this._values[2] = clamper(this._values[2]);
 		return this;
 	}
-
 	clampGrid() {
 		const clamper = v => 0 > v ? 0 : 1 < v ? 1 : v;
-
 		const gridClamper = (value, grid) => Math.trunc(clamper(value) * grid + 0.5) / grid;
-
 		this._values[0] = gridClamper(this._values[0], 31);
 		this._values[1] = gridClamper(this._values[1], 63);
 		this._values[2] = gridClamper(this._values[2], 31);
 		return this;
 	}
-
 	normalize() {
 		this._values[0] /= this.length;
 		this._values[1] /= this.length;
 		this._values[2] /= this.length;
 		return this;
 	}
-
 	toString() {
 		return "Vec3( ".concat(this._values.join(", "), " )");
 	}
-
 	static add(a, b) {
 		return new Vec3(a.x + b.x, a.y + b.y, a.z + b.z);
 	}
-
 	static sub(a, b) {
 		return new Vec3(a.x - b.x, a.y - b.y, a.z - b.z);
 	}
-
 	static dot(a, b) {
 		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
-
 	static multScalar(a, scalar) {
 		return new Vec3(a.x * scalar, a.y * scalar, a.z * scalar);
 	}
-
 	static multVector(a, b) {
 		return new Vec3(a.x * b.x, a.y * b.y, a.z * b.z);
 	}
-
 	static interpolate(a, b, p) {
 		let a_ = Vec3.multScalar(a, 1 - p);
 		let b_ = Vec3.multScalar(b, p);
 		return Vec3.add(a_, b_);
 	}
-
 }
-
 class Vec4 {
 	constructor() {
 		let x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
@@ -1051,76 +891,58 @@ class Vec4 {
 		let w = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : x;
 		this._values = [x, y, z, w];
 	}
-
 	get x() {
 		return this._values[0];
 	}
-
 	get y() {
 		return this._values[1];
 	}
-
 	get z() {
 		return this._values[2];
 	}
-
 	get w() {
 		return this._values[3];
 	}
-
 	set x(value) {
 		this._values[0] = value;
 	}
-
 	set y(value) {
 		this._values[1] = value;
 	}
-
 	set z(value) {
 		this._values[2] = value;
 	}
-
 	set w(value) {
 		this._values[3] = value;
 	}
-
 	get length() {
 		return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
 	}
-
 	get lengthSq() {
 		return this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
 	}
-
 	get normalized() {
 		if (this.length === 0) return null;
 		return Vec4.multScalar(this, 1 / this.length);
 	}
-
 	get xyz() {
 		return new Vec3(this.x, this.y, this.z);
 	}
-
 	get splatX() {
 		return new Vec4(this.x);
 	}
-
 	get splatY() {
 		return new Vec4(this.y);
 	}
-
 	get splatZ() {
 		return new Vec4(this.z);
 	}
-
 	get splatW() {
 		return new Vec4(this.w);
 	}
-
 	clone() {
 		return new Vec4(this.x, this.y, this.z, this.w);
 	}
-
 	set(x) {
 		let y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : x;
 		let z = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : x;
@@ -1131,11 +953,9 @@ class Vec4 {
 		this._values[3] = w;
 		return this;
 	}
-
 	toVec3() {
 		return this.xyz;
 	}
-
 	addVector(v) {
 		this._values[0] += v.x;
 		this._values[1] += v.y;
@@ -1143,7 +963,6 @@ class Vec4 {
 		this._values[3] += v.w;
 		return this;
 	}
-
 	addScaledVector(v, scalar) {
 		this._values[0] += v.x * scalar;
 		this._values[1] += v.y * scalar;
@@ -1151,7 +970,6 @@ class Vec4 {
 		this._values[3] += v.w * scalar;
 		return this;
 	}
-
 	subVector(v) {
 		this._values[0] -= v.x;
 		this._values[1] -= v.y;
@@ -1159,7 +977,6 @@ class Vec4 {
 		this._values[3] -= v.w;
 		return this;
 	}
-
 	mult(scalar) {
 		this._values[0] *= scalar;
 		this._values[1] *= scalar;
@@ -1167,7 +984,6 @@ class Vec4 {
 		this._values[3] *= scalar;
 		return this;
 	}
-
 	multVector(vec) {
 		this._values[0] *= vec.x;
 		this._values[1] *= vec.y;
@@ -1175,7 +991,6 @@ class Vec4 {
 		this._values[3] *= vec.w;
 		return this;
 	}
-
 	reciprocal() {
 		this._values[0] = 1 / this._values[0];
 		this._values[1] = 1 / this._values[1];
@@ -1183,29 +998,23 @@ class Vec4 {
 		this._values[3] = 1 / this._values[3];
 		return this;
 	}
-
 	clamp(min, max) {
 		const clamper = v => min > v ? min : max < v ? max : v;
-
 		this._values[0] = clamper(this._values[0]);
 		this._values[1] = clamper(this._values[1]);
 		this._values[2] = clamper(this._values[2]);
 		this._values[3] = clamper(this._values[3]);
 		return this;
 	}
-
 	clampGrid() {
 		const clamper = v => 0 > v ? 0 : 1 < v ? 1 : v;
-
 		const gridClamper = (value, grid) => Math.trunc(clamper(value) * grid + 0.5) / grid;
-
 		this._values[0] = gridClamper(this._values[0], 31);
 		this._values[1] = gridClamper(this._values[1], 63);
 		this._values[2] = gridClamper(this._values[2], 31);
 		this._values[3] = clamper(this._values[3]);
 		return this;
 	}
-
 	truncate() {
 		this._values[0] = Math.trunc(this._values[0]);
 		this._values[1] = Math.trunc(this._values[1]);
@@ -1213,7 +1022,6 @@ class Vec4 {
 		this._values[3] = Math.trunc(this._values[3]);
 		return this;
 	}
-
 	normalize() {
 		this._values[0] /= this.length;
 		this._values[1] /= this.length;
@@ -1221,51 +1029,39 @@ class Vec4 {
 		this._values[3] /= this.length;
 		return this;
 	}
-
 	toString() {
 		return "Vec4( ".concat(this._values.join(", "), " )");
 	}
-
 	static add(a, b) {
 		return new Vec4(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
 	}
-
 	static sub(a, b) {
 		return new Vec4(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w);
 	}
-
 	static dot(a, b) {
 		return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 	}
-
 	static multScalar(a, scalar) {
 		return new Vec4(a.x * scalar, a.y * scalar, a.z * scalar, a.w * scalar);
 	}
-
 	static multVector(a, b) {
 		return new Vec4(a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
 	}
-
 	static interpolate(a, b, p) {
 		let a_ = Vec4.multScalar(a, 1 - p);
 		let b_ = Vec4.multScalar(b, p);
 		return Vec4.add(a_, b_);
 	}
-
 	static multiplyAdd(a, b, c) {
 		return new Vec4(a.x * b.x + c.x, a.y * b.y + c.y, a.z * b.z + c.z, a.w * b.w + c.w);
 	}
-
 	static negativeMultiplySubtract(a, b, c) {
 		return new Vec4(c.x - a.x * b.x, c.y - a.y * b.y, c.z - a.z * b.z, c.w - a.w * b.w);
 	}
-
 	static compareAnyLessThan(left, right) {
 		return left.x < right.x || left.y < right.y || left.z < right.z || left.w < right.w;
 	}
-
 }
-
 function computeWeightedCovariance(values, weights) {
 	let total = 0;
 	let mean = values.reduce((sum, value, i) => {
@@ -1290,7 +1086,6 @@ function computeWeightedCovariance(values, weights) {
 	covariance[2][1] = covariance[1][2];
 	return covariance;
 }
-
 function computePCA(values, weights) {
 	const covariance = computeWeightedCovariance(values, weights);
 	return new Vec3(...dominentPrincipalVector(covariance));
@@ -1307,45 +1102,37 @@ function floatToInt(value, limit) {
 	if (integer > limit) return integer;
 	return integer;
 }
-
 function floatTo565(color) {
 	const r = floatToInt(31.0 * color.x, 31);
 	const g = floatToInt(63.0 * color.y, 63);
 	const b = floatToInt(31.0 * color.z, 31);
 	return r << 11 | g << 5 | b;
 }
-
 function writeColourBlock(firstColor, secondColor, indices, result, blockOffset) {
 	result[blockOffset + 0] = firstColor & 0xff;
 	result[blockOffset + 1] = firstColor >> 8;
 	result[blockOffset + 2] = secondColor & 0xff;
 	result[blockOffset + 3] = secondColor >> 8;
-
 	for (let y = 0; y < 4; y++) {
 		result[blockOffset + 4 + y] = indices[4 * y + 0] | indices[4 * y + 1] << 2 | indices[4 * y + 2] << 4 | indices[4 * y + 3] << 6;
 	}
 }
-
 function writeColourBlock3(start, end, indices, result, blockOffset) {
 	let firstColor = floatTo565(start);
 	let secondColor = floatTo565(end);
 	let remapped;
-
 	if (firstColor <= secondColor) {
 		remapped = indices.slice();
 	} else {
 		[firstColor, secondColor] = [secondColor, firstColor];
 		remapped = indices.map(index => index === 0 ? 1 : index === 1 ? 0 : index);
 	}
-
 	writeColourBlock(firstColor, secondColor, remapped, result, blockOffset);
 }
-
 function writeColourBlock4(start, end, indices, result, blockOffset) {
 	let firstColor = floatTo565(start);
 	let secondColor = floatTo565(end);
 	let remapped;
-
 	if (firstColor < secondColor) {
 		[firstColor, secondColor] = [secondColor, firstColor];
 		remapped = indices.map(index => (index ^ 0x1) & 0x3);
@@ -1354,7 +1141,6 @@ function writeColourBlock4(start, end, indices, result, blockOffset) {
 	} else {
 		remapped = indices.slice();
 	}
-
 	writeColourBlock(firstColor, secondColor, remapped, result, blockOffset);
 }
 
@@ -1368,21 +1154,17 @@ class ColorSet {
 		this._points = [];
 		const isDxt1 = (this.flags & kDxt1) != 0;
 		const weightByAlpha = (this.flags & kWeightColourByAlpha) != 0;
-
 		for (let i = 0; i < 16; i++) {
 			const bit = 1 << i;
-
 			if ((mask & bit) == 0) {
 				this._remap[i] = -1;
 				continue;
 			}
-
 			if (isDxt1 && rgba[4 * i + 3] < 128) {
 				this._remap[i] = -1;
 				this._transparent = true;
 				continue;
 			}
-
 			for (let j = 0;; j++) {
 				if (j == i) {
 					const r = rgba[4 * i] / 255.0;
@@ -1395,10 +1177,8 @@ class ColorSet {
 					this._count++;
 					break;
 				}
-
 				const oldbit = 1 << j;
 				const match = (mask & oldbit) != 0 && rgba[4 * i] == rgba[4 * j] && rgba[4 * i + 1] == rgba[4 * j + 1] && rgba[4 * i + 2] == rgba[4 * j + 2] && (rgba[4 * j + 3] >= 128 || !isDxt1);
-
 				if (match) {
 					const index = this._remap[j];
 					const w = (rgba[4 * i + 3] + 1) / 256.0;
@@ -1408,61 +1188,44 @@ class ColorSet {
 				}
 			}
 		}
-
 		for (let i = 0; i < this._count; ++i) this._weights[i] = Math.sqrt(this._weights[i]);
 	}
-
 	get transparent() {
 		return this._transparent;
 	}
-
 	get count() {
 		return this._count;
 	}
-
 	get points() {
 		return Object.freeze(this._points.slice());
 	}
-
 	get weights() {
 		return Object.freeze(this._weights.slice());
 	}
-
 	remapIndicesSingle(singleIndex, target) {
 		const result = this._remap.map(index => index === -1 ? 3 : singleIndex);
-
 		target.forEach((_, i) => target[i] = result[i]);
 	}
-
 	remapIndices(indexMap, target) {
 		const result = this._remap.map(index => index === -1 ? 3 : indexMap[index]);
-
 		target.forEach((_, i) => target[i] = result[i]);
 	}
-
 }
-
 class ColorFit {
 	constructor(colorSet) {
 		this.colors = colorSet;
 		this.flags = colorSet.flags;
 	}
-
 	compress(result, offset) {
 		const isDxt1 = (this.flags & kDxt1) != 0;
-
 		if (isDxt1) {
 			this.compress3(result, offset);
 			if (!this.colors.transparent) this.compress4(result, offset);
 		} else this.compress4(result, offset);
 	}
-
 	compress3(result, offset) {}
-
 	compress4(result, offset) {}
-
 }
-
 class SingleColourFit extends ColorFit {
 	constructor(colorSet) {
 		super(colorSet);
@@ -1474,10 +1237,8 @@ class SingleColourFit extends ColorFit {
 		this.error = Infinity;
 		this.bestError = Infinity;
 	}
-
 	compressBase(lookups, saveFunc) {
 		this.computeEndPoints(lookups);
-
 		if (this.error < this.bestError) {
 			const indices = new Uint8Array(16);
 			this.colors.remapIndicesSingle(this.index, indices);
@@ -1485,30 +1246,21 @@ class SingleColourFit extends ColorFit {
 			this.bestError = this.error;
 		}
 	}
-
 	compress3(result, offset) {
 		const lookups = [lookup_5_3, lookup_6_3, lookup_5_3];
-
 		const saveFunc = (start, end, indices) => writeColourBlock3(start, end, indices, result, offset);
-
 		this.compressBase(lookups, saveFunc);
 	}
-
 	compress4(result, offset) {
 		const lookups = [lookup_5_4, lookup_6_4, lookup_5_4];
-
 		const saveFunc = (start, end, indices) => writeColourBlock4(start, end, indices, result, offset);
-
 		this.compressBase(lookups, saveFunc);
 	}
-
 	computeEndPoints(lookups) {
 		this.error = Infinity;
-
 		for (let index = 0; index < 2; index++) {
 			const sources = [];
 			let error = 0;
-
 			for (let channel = 0; channel < 3; channel++) {
 				const lookup = lookups[channel];
 				const target = this.color[channel];
@@ -1516,7 +1268,6 @@ class SingleColourFit extends ColorFit {
 				const diff = sources[channel][2];
 				error += diff * diff;
 			}
-
 			if (error < this.error) {
 				this.start = new Vec3(sources[0][0] / 31.0, sources[1][0] / 63.0, sources[2][0] / 31.0);
 				this.end = new Vec3(sources[0][1] / 31.0, sources[1][1] / 63.0, sources[2][1] / 31.0);
@@ -1525,24 +1276,19 @@ class SingleColourFit extends ColorFit {
 			}
 		}
 	}
-
 }
-
 class RangeFit extends ColorFit {
 	constructor(colorSet) {
 		super(colorSet);
 		this.metric = new Vec3(1);
-
 		if ((this.flags & kColourMetricPerceptual) !== 0) {
 			this.metric.set(0.2126, 0.7152, 0.0722);
 		}
-
 		this.start = new Vec3(0);
 		this.end = new Vec3(0);
 		this.bestError = Infinity;
 		this.computePoints();
 	}
-
 	compressBase(codes, saveFunc) {
 		const {
 			points: values
@@ -1559,7 +1305,6 @@ class RangeFit extends ColorFit {
 			error += minDist;
 			return packedIndex;
 		});
-
 		if (error < this.bestError) {
 			let indices = new Uint8Array(16);
 			this.colors.remapIndices(closest, indices);
@@ -1567,23 +1312,16 @@ class RangeFit extends ColorFit {
 			this.bestError = error;
 		}
 	}
-
 	compress3(result, offset) {
 		const codes = [this.start.clone(), this.end.clone(), Vec3.interpolate(this.start, this.end, 0.5)];
-
 		const saveFunc = (start, end, indices) => writeColourBlock3(start, end, indices, result, offset);
-
 		this.compressBase(codes, saveFunc);
 	}
-
 	compress4(result, offset) {
 		const codes = [this.start.clone(), this.end.clone(), Vec3.interpolate(this.start, this.end, 1 / 3), Vec3.interpolate(this.start, this.end, 2 / 3)];
-
 		const saveFunc = (start, end, indices) => writeColourBlock4(start, end, indices, result, offset);
-
 		this.compressBase(codes, saveFunc);
 	}
-
 	computePoints() {
 		const {
 			count,
@@ -1595,10 +1333,8 @@ class RangeFit extends ColorFit {
 		let start, end, min, max;
 		start = end = values[0];
 		min = max = Vec3.dot(start, principle);
-
 		for (let i = 1; i < count; i++) {
 			let value = Vec3.dot(values[i], principle);
-
 			if (value < min) {
 				start = values[i];
 				min = value;
@@ -1607,13 +1343,10 @@ class RangeFit extends ColorFit {
 				max = value;
 			}
 		}
-
 		this.start = start.clampGrid().clone();
 		this.end = end.clampGrid().clone();
 	}
-
 }
-
 class ClusterFit extends ColorFit {
 	constructor(colorSet) {
 		super(colorSet);
@@ -1621,11 +1354,9 @@ class ClusterFit extends ColorFit {
 		this.iterationCount = colorSet.flags & kColourIterativeClusterFit ? kMaxIterations : 1;
 		this.bestError = Infinity;
 		this.metric = new Vec4(1);
-
 		if ((this.flags & kColourMetricPerceptual) !== 0) {
 			this.metric.set(0.2126, 0.7152, 0.0722, 0);
 		}
-
 		const {
 			points: values,
 			weights
@@ -1635,7 +1366,6 @@ class ClusterFit extends ColorFit {
 		this.pointsWeights = [];
 		this.xSum_wSum = new Vec4(0);
 	}
-
 	constructOrdering(axis, iteration) {
 		const currentOrder = this.makeOrder(axis);
 		this.copyOrderToThisOrder(currentOrder, iteration);
@@ -1644,7 +1374,6 @@ class ClusterFit extends ColorFit {
 		this.copyOrderWeight(currentOrder);
 		return true;
 	}
-
 	compress3(result, offset) {
 		const aabbx = _ref => {
 			let [part0,, part1, part2] = _ref;
@@ -1662,12 +1391,9 @@ class ClusterFit extends ColorFit {
 				ab: alphabeta_sum
 			};
 		};
-
 		const saveFunc = (start, end, indices) => writeColourBlock3(start, end, indices, result, offset);
-
 		this.compressBase(aabbx, saveFunc, 2);
 	}
-
 	compress4(result, offset) {
 		const aabbx = _ref2 => {
 			let [part0, part1, part2, part3] = _ref2;
@@ -1687,12 +1413,9 @@ class ClusterFit extends ColorFit {
 				ab: alphabeta_sum
 			};
 		};
-
 		const saveFunc = (start, end, indices) => writeColourBlock4(start, end, indices, result, offset);
-
 		this.compressBase(aabbx, saveFunc, 3);
 	}
-
 	compressBase(aabbFunc, saveFunc) {
 		let repeater = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 2;
 		this.constructOrdering(this.principle, 0);
@@ -1705,19 +1428,15 @@ class ClusterFit extends ColorFit {
 			bestJ: 0
 		};
 		if (repeater === 3) best.bestK = 0;
-
 		const leastSquares = (parts, internalIndices) => {
 			const aabbx = aabbFunc(parts);
 			const internalBest = this.computeOptimalPoints(aabbx);
-
 			if (internalBest.error < best.error) {
 				best = _objectSpread2(_objectSpread2({}, internalBest), internalIndices);
 				return true;
 			}
-
 			return false;
 		};
-
 		for (let iterationIndex = 0;;) {
 			this.clusterIterate(iterationIndex, leastSquares, repeater);
 			if (best.iteration != iterationIndex) break;
@@ -1726,10 +1445,8 @@ class ClusterFit extends ColorFit {
 			const newAxis = Vec4.sub(best.end, best.start).xyz;
 			if (!this.constructOrdering(newAxis, iterationIndex)) break;
 		}
-
 		if (best.error < this.bestError) this.saveBlock(best, saveFunc);
 	}
-
 	makeOrder(axis) {
 		const {
 			count,
@@ -1743,36 +1460,29 @@ class ClusterFit extends ColorFit {
 			return a - b;
 		});
 	}
-
 	copyOrderToThisOrder(order, iteration) {
 		const orderOffset = iteration * 16;
 		order.forEach((ord, i) => {
 			this.order[orderOffset + i] = ord;
 		});
 	}
-
 	checkOrderUnique(order, iteration) {
 		const {
 			count
 		} = this.colors;
-
 		for (let it = 0; it < iteration; it++) {
 			let prevOffset = it * 16;
 			let same = true;
-
 			for (let i = 0; i < count; i++) {
 				if (order[i] !== this.order[prevOffset + i]) {
 					same = false;
 					break;
 				}
 			}
-
 			if (same) return false;
 		}
-
 		return true;
 	}
-
 	copyOrderWeight(order) {
 		const {
 			count,
@@ -1780,7 +1490,6 @@ class ClusterFit extends ColorFit {
 			weights
 		} = this.colors;
 		this.xSum_wSum.set(0);
-
 		for (let i = 0; i < count; i++) {
 			const j = order[i];
 			const p = unweighted[j].toVec4(1);
@@ -1790,7 +1499,6 @@ class ClusterFit extends ColorFit {
 			this.xSum_wSum.addVector(x);
 		}
 	}
-
 	computeOptimalPoints(vectorPoint) {
 		const {
 			ax,
@@ -1814,7 +1522,6 @@ class ClusterFit extends ColorFit {
 			error
 		};
 	}
-
 	computeError(_ref3) {
 		let {
 			a,
@@ -1833,7 +1540,6 @@ class ClusterFit extends ColorFit {
 		const e5 = Vec4.multVector(e4, this.metric);
 		return e5.x + e5.y + e5.z;
 	}
-
 	saveBlock(best, writeFunc) {
 		const {
 			count
@@ -1849,30 +1555,25 @@ class ClusterFit extends ColorFit {
 		} = best;
 		const orderOffset = iteration * 16;
 		const unordered = new Uint8Array(16);
-
 		const mapper = m => {
 			if (m < bestI) return 0;
 			if (m < bestJ) return 2;
 			if (m < bestK) return 3;
 			return 1;
 		};
-
 		for (let i = 0; i < count; i++) {
 			unordered[this.order[orderOffset + i]] = mapper(i);
 		}
-
 		const bestIndices = new Uint8Array(16);
 		this.colors.remapIndices(unordered, bestIndices);
 		writeFunc(start.xyz, end.xyz, bestIndices);
 		this.bestError = error;
 	}
-
 	clusterIterate(index, func) {
 		let iterCount = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 2;
 		const {
 			count
 		} = this.colors;
-
 		const indexMapper = (i, j, k) => {
 			const mapper = {
 				bestI: i,
@@ -1882,16 +1583,12 @@ class ClusterFit extends ColorFit {
 			if (iterCount === 3) mapper.bestK = k;
 			return mapper;
 		};
-
 		let part0 = new Vec4(0.0);
-
 		for (let i = 0; i < count; i++) {
 			let part1 = new Vec4(0.0);
-
 			for (let j = i;;) {
 				let preLastPart = j == 0 ? this.pointsWeights[0].clone() : new Vec4(0.0);
 				const kmin = j == 0 ? 1 : j;
-
 				for (let k = kmin;;) {
 					const restPart = Vec4.sub(this.xSum_wSum, preLastPart).subVector(part1).subVector(part0);
 					func([part0, part1, preLastPart, restPart], indexMapper(i, j, k));
@@ -1899,17 +1596,14 @@ class ClusterFit extends ColorFit {
 					preLastPart.addVector(this.pointsWeights[k]);
 					k++;
 				}
-
 				if (iterCount === 2) break;
 				if (j === count) break;
 				part1.addVector(this.pointsWeights[j]);
 				j++;
 			}
-
 			part0.addVector(this.pointsWeights[i]);
 		}
 	}
-
 }
 
 function quantise(alpha) {
@@ -1919,7 +1613,6 @@ function quantise(alpha) {
 	if (result > GRID) return GRID;
 	return result;
 }
-
 function compressAlphaDxt3(rgba, mask, result, offset) {
 	for (let i = 0; i < 8; i++) {
 		let quant1 = quantise(rgba[8 * i + 3]);
@@ -1931,13 +1624,11 @@ function compressAlphaDxt3(rgba, mask, result, offset) {
 		result[offset + i] = quant1 | quant2 << 4;
 	}
 }
-
 function compressAlphaDxt5(rgba, mask, result, offset) {
 	let step5 = interpolateAlpha(rgba, mask, 5);
 	let step7 = interpolateAlpha(rgba, mask, 7);
 	if (step5.error <= step7.error) writeAlphaBlock5(step5, result, offset);else writeAlphaBlock7(step7, result, offset);
 }
-
 function interpolateAlpha(rgba, mask, steps) {
 	let {
 		min,
@@ -1953,16 +1644,13 @@ function interpolateAlpha(rgba, mask, steps) {
 		error
 	};
 }
-
 function setAlphaRange(rgba, mask, steps) {
 	let min = 255;
 	let max = 0;
-
 	for (let i = 0; i < 16; i++) {
 		let bit = 1 << i;
 		if ((mask & bit) == 0) continue;
 		let value = rgba[4 * i + 3];
-
 		if (steps === 5) {
 			if (value !== 0 && value < min) min = value;
 			if (value !== 255 && value > max) max = value;
@@ -1971,7 +1659,6 @@ function setAlphaRange(rgba, mask, steps) {
 			if (value > max) max = value;
 		}
 	}
-
 	if (min > max) min = max;
 	if (max - min < steps) max = Math.min(min + steps, 255);
 	if (max - min < steps) min = Math.max(max - steps, 0);
@@ -1980,61 +1667,48 @@ function setAlphaRange(rgba, mask, steps) {
 		max
 	};
 }
-
 function setAlphaCodeBook(min, max, steps) {
 	let codes = [min, max, ...Array.from({
 		length: steps - 1
 	}, (_, i) => {
 		return Math.floor(((steps - (i + 1)) * min + (i + 1) * max) / steps);
 	})];
-
 	if (steps === 5) {
 		codes[6] = 0;
 		codes[7] = 255;
 	}
-
 	return codes;
 }
-
 function fitCodes(rgba, mask, codes, indices) {
 	let err = 0;
-
 	for (let i = 0; i < 16; ++i) {
 		let bit = 1 << i;
-
 		if ((mask & bit) == 0) {
 			indices[i] = 0;
 			continue;
 		}
-
 		let value = rgba[4 * i + 3];
 		let least = Infinity;
 		let index = 0;
-
 		for (let j = 0; j < 8; ++j) {
 			let dist = value - codes[j];
 			dist *= dist;
-
 			if (dist < least) {
 				least = dist;
 				index = j;
 			}
 		}
-
 		indices[i] = index;
 		err += least;
 	}
-
 	return err;
 }
-
 function writeAlphaBlock5(_ref, result, offset) {
 	let {
 		min: alpha0,
 		max: alpha1,
 		indices
 	} = _ref;
-
 	if (alpha0 > alpha1) {
 		const swapped = indices.map(index => {
 			if (index === 0) return 1;
@@ -2045,14 +1719,12 @@ function writeAlphaBlock5(_ref, result, offset) {
 		writeAlphaBlock(alpha1, alpha0, swapped, result, offset);
 	} else writeAlphaBlock(alpha0, alpha1, indices, result, offset);
 }
-
 function writeAlphaBlock7(_ref2, result, offset) {
 	let {
 		min: alpha0,
 		max: alpha1,
 		indices
 	} = _ref2;
-
 	if (alpha0 > alpha1) {
 		const swapped = indices.map(index => {
 			if (index === 0) return 1;
@@ -2062,22 +1734,18 @@ function writeAlphaBlock7(_ref2, result, offset) {
 		writeAlphaBlock(alpha1, alpha0, swapped, result, offset);
 	} else writeAlphaBlock(alpha0, alpha1, indices, result, offset);
 }
-
 function writeAlphaBlock(alpha0, alpha1, indices, result, offset) {
 	result[offset] = alpha0;
 	result[offset + 1] = alpha1;
 	let indicesPointer = 0;
 	let resultPointer = offset + 2;
-
 	for (let i = 0; i < 2; i++) {
 		let value = 0;
-
 		for (let j = 0; j < 8; ++j) {
 			let index = indices[indicesPointer];
 			value |= index << 3 * j;
 			indicesPointer++;
 		}
-
 		for (let j = 0; j < 3; ++j) {
 			let byte = value >> 8 * j & 0xff;
 			result[resultPointer] = byte;
@@ -2092,13 +1760,11 @@ function unpack565(color16bit) {
 	const blue = color16bit & 0x1f;
 	return [red << 3 | red >> 2, green << 2 | green >> 4, blue << 3 | blue >> 2, 255];
 }
-
 function interpolateColorArray(a, b, amount) {
 	const result = a.map((aColor, i) => Math.floor(aColor * (1 - amount) + b[i] * amount));
 	result[3] = 255;
 	return result;
 }
-
 function unpackColorCodes(block, offset, isDxt1) {
 	const color1 = block[offset] | block[offset + 1] << 8;
 	const color2 = block[offset + 2] | block[offset + 3] << 8;
@@ -2106,11 +1772,9 @@ function unpackColorCodes(block, offset, isDxt1) {
 	const unpackedColor2 = unpack565(color2);
 	return [unpackedColor1, unpackedColor2, isDxt1 && color1 <= color2 ? interpolateColorArray(unpackedColor1, unpackedColor2, 1 / 2) : interpolateColorArray(unpackedColor1, unpackedColor2, 1 / 3), isDxt1 && color1 <= color2 ? [0, 0, 0, 0] : interpolateColorArray(unpackedColor1, unpackedColor2, 2 / 3)];
 }
-
 function unpackIndices(block, blockOffset) {
 	let offset = blockOffset + 4;
 	let result = new Uint8Array(16);
-
 	for (let i = 0; i < 4; i++) {
 		let packedIndices = block[offset + i];
 		result[i * 4 + 0] = packedIndices & 0x3;
@@ -2118,21 +1782,17 @@ function unpackIndices(block, blockOffset) {
 		result[i * 4 + 2] = packedIndices >> 4 & 0x3;
 		result[i * 4 + 3] = packedIndices >> 6 & 0x3;
 	}
-
 	return result;
 }
-
 function decompressColor(rgba, block, offset, isDxt1) {
 	const colorCode = unpackColorCodes(block, offset, isDxt1);
 	const indices = unpackIndices(block, offset);
-
 	for (let i = 0; i < 16; i++) {
 		for (let j = 0; j < 4; j++) {
 			rgba[4 * i + j] = colorCode[indices[i]][j];
 		}
 	}
 }
-
 function decompressAlphaDxt3(rgba, block, offset) {
 	for (let i = 0; i < 8; ++i) {
 		let quant = block[offset + i];
@@ -2142,7 +1802,6 @@ function decompressAlphaDxt3(rgba, block, offset) {
 		rgba[8 * i + 7] = hi | hi >> 4;
 	}
 }
-
 function decompressAlphaDxt5(rgba, block, offset) {
 	let alpha0 = block[offset + 0];
 	let alpha1 = block[offset + 1];
@@ -2150,23 +1809,19 @@ function decompressAlphaDxt5(rgba, block, offset) {
 	let indices = new Uint8Array(16);
 	let indicePointer = 0;
 	let bytePointer = 2;
-
 	for (let i = 0; i < 2; i++) {
 		let value = 0;
-
 		for (let j = 0; j < 3; j++) {
 			let byte = block[offset + bytePointer];
 			value |= byte << 8 * j;
 			bytePointer++;
 		}
-
 		for (let j = 0; j < 8; j++) {
 			let index = value >> 3 * j & 0x7;
 			indices[indicePointer] = index;
 			indicePointer++;
 		}
 	}
-
 	for (let i = 0; i < 16; ++i) {
 		rgba[4 * i + 3] = codes[indices[i]];
 	}
@@ -2197,7 +1852,6 @@ const DXT1_COMPRESSED_BYTES = 8;
 const DXT5_COMPRESSED_BYTES = 16;
 const COLORS = 4;
 const DECOMPRESSED_BLOCK_SIZE = 16;
-
 function blockRepeat(width, height, func) {
 	for (let y = 0; y < height; y += 4) {
 		for (let x = 0; x < width; x += 4) {
@@ -2205,7 +1859,6 @@ function blockRepeat(width, height, func) {
 		}
 	}
 }
-
 function rectRepeat(func) {
 	for (let y = 0; y < 4; y++) {
 		for (let x = 0; x < 4; x++) {
@@ -2213,7 +1866,6 @@ function rectRepeat(func) {
 		}
 	}
 }
-
 function FixFlags(flags) {
 	let method = flags & (kDxt1 | kDxt3 | kDxt5);
 	let fit = flags & (kColourIterativeClusterFit | kColourClusterFit | kColourRangeFit);
@@ -2224,14 +1876,12 @@ function FixFlags(flags) {
 	if (metric != kColourMetricUniform) metric = kColourMetricPerceptual;
 	return method | fit | metric | extra;
 }
-
 function GetStorageRequirements(width, height, flags) {
 	flags = FixFlags(flags);
 	const blockcount = Math.floor((width + 3) / 4) * Math.floor((height + 3) / 4);
 	const blocksize = (flags & kDxt1) !== 0 ? DXT1_COMPRESSED_BYTES : DXT5_COMPRESSED_BYTES;
 	return blockcount * blocksize;
 }
-
 function extractColorBlock(img) {
 	let {
 		x = 0,
@@ -2245,14 +1895,11 @@ function extractColorBlock(img) {
 	rectRepeat(function (px, py) {
 		let sx = x + px;
 		let sy = y + py;
-
 		if (sx < width && sy < height) {
 			let sourceColorOffset = COLORS * (width * sy + sx);
-
 			for (let i = 0; i < COLORS; i++) {
 				block[blockColorOffset++] = img[sourceColorOffset++];
 			}
-
 			mask |= 1 << 4 * py + px;
 		} else blockColorOffset += COLORS;
 	});
@@ -2261,7 +1908,6 @@ function extractColorBlock(img) {
 		mask
 	};
 }
-
 function copyBuffer(result, block) {
 	let {
 		x = 0,
@@ -2273,23 +1919,19 @@ function copyBuffer(result, block) {
 	rectRepeat(function (px, py) {
 		let sx = x + px;
 		let sy = y + py;
-
 		if (sx < width && sy < height) {
 			let resultColorOffset = COLORS * (width * sy + sx);
-
 			for (let i = 0; i < COLORS; i++) {
 				result[resultColorOffset + i] = block[blockColorOffset++];
 			}
 		} else blockColorOffset += COLORS;
 	});
 }
-
 function getCompressor(colorSet) {
 	if (colorSet.count === 1) return new SingleColourFit(colorSet);
 	if ((colorSet.flags & kColourRangeFit) != 0 || colorSet.count == 0) return new RangeFit(colorSet);
 	return new ClusterFit(colorSet);
 }
-
 function CompressMasked(rgba, mask, result, offset, flags) {
 	flags = FixFlags(flags);
 	let colorOffset = (flags & (kDxt3 | kDxt5)) !== 0 ? 8 : 0;
@@ -2298,14 +1940,12 @@ function CompressMasked(rgba, mask, result, offset, flags) {
 	compressor.compress(result, offset + colorOffset);
 	if ((flags & kDxt3) !== 0) compressAlphaDxt3(rgba, mask, result, offset);else if ((flags & kDxt5) !== 0) compressAlphaDxt5(rgba, mask, result, offset);
 }
-
 function decompressBlock(result, block, offset, flags) {
 	flags = FixFlags(flags);
 	let colorOffset = (flags & (kDxt3 | kDxt5)) !== 0 ? 8 : 0;
 	decompressColor(result, block, offset + colorOffset, (flags & kDxt1) !== 0);
 	if ((flags & kDxt3) !== 0) decompressAlphaDxt3(result, block, offset);else if ((flags & kDxt5) !== 0) decompressAlphaDxt5(result, block, offset);
 }
-
 function compressImage(source, width, height, result, flags) {
 	flags = FixFlags(flags);
 	const bytesPerBlock = (flags & kDxt1) !== 0 ? DXT1_COMPRESSED_BYTES : DXT5_COMPRESSED_BYTES;
@@ -2324,12 +1964,10 @@ function compressImage(source, width, height, result, flags) {
 		targetBlockPointer += bytesPerBlock;
 	});
 }
-
 function decompressImage(result, width, height, source, flags) {
 	flags = FixFlags(flags);
 	const bytesPerBlock = (flags & kDxt1) !== 0 ? DXT1_COMPRESSED_BYTES : DXT5_COMPRESSED_BYTES;
 	let sourceBlockPointer = 0;
-
 	for (let y = 0; y < height; y += 4) {
 		for (let x = 0; x < width; x += 4) {
 			const targetRGBA = new Uint8Array(DECOMPRESSED_BLOCK_SIZE * COLORS);
@@ -2344,7 +1982,6 @@ function decompressImage(result, width, height, source, flags) {
 		}
 	}
 }
-
 const flags = {
 	DXT1: kDxt1,
 	DXT3: kDxt3,
@@ -2356,7 +1993,6 @@ const flags = {
 	ColourMetricUniform: kColourMetricUniform,
 	WeightColourByAlpha: kWeightColourByAlpha
 };
-
 function compress(inputData, width, height, flags) {
 	let source = inputData instanceof ArrayBuffer ? new Uint8Array(inputData) : inputData;
 	const targetSize = GetStorageRequirements(width, height, flags);
@@ -2364,7 +2000,6 @@ function compress(inputData, width, height, flags) {
 	compressImage(source, width, height, result, flags);
 	return result;
 }
-
 function decompress(inputData, width, height, flags) {
 	let source = inputData instanceof ArrayBuffer ? new Uint8Array(inputData) : inputData;
 	const targetSize = width * height * 4;
@@ -2376,7 +2011,6 @@ function decompress(inputData, width, height, flags) {
 function extractBits(bitData, amount, offset) {
 	return bitData >> offset & 2 ** amount - 1;
 }
-
 function colorToBgra5551(red, green, blue, alpha) {
 	const r = Math.round(red / 255 * 31);
 	const g = Math.round(green / 255 * 31);
@@ -2384,24 +2018,19 @@ function colorToBgra5551(red, green, blue, alpha) {
 	const a = Math.round(alpha / 255);
 	return a << 15 | r << 10 | g << 5 | b;
 }
-
 function bgra5551ToColor(bgra5551) {
 	const r = extractBits(bgra5551, 5, 10);
 	const g = extractBits(bgra5551, 5, 5);
 	const b = extractBits(bgra5551, 5, 0);
 	const a = bgra5551 >> 15 & 1;
-
 	const scaleUp = value => value << 3 | value >> 2;
-
 	const [red, green, blue] = [r, g, b].map(scaleUp);
 	return [red, green, blue, a * 255];
 }
-
 function convertTo5551(colorBuffer) {
 	const colorArray = new Uint8Array(colorBuffer);
 	const length = colorArray.length / 4;
 	const convertedArray = new Uint8Array(length * 2);
-
 	for (let i = 0; i < length; i++) {
 		const red = colorArray[i * 4];
 		const green = colorArray[i * 4 + 1];
@@ -2411,20 +2040,16 @@ function convertTo5551(colorBuffer) {
 		convertedArray[i * 2] = bgra5551 & 0xff;
 		convertedArray[i * 2 + 1] = bgra5551 >> 8;
 	}
-
 	return convertedArray;
 }
-
 function convertFrom5551(colorBuffer) {
 	const colorArray = new Uint8Array(colorBuffer);
 	const length = colorArray.length / 2;
 	const convertedArray = new Uint8Array(length * 4);
-
 	for (let i = 0; i < length; i++) {
 		const colors = bgra5551ToColor(colorArray[i * 2] | colorArray[i * 2 + 1] << 8);
 		[convertedArray[i * 4], convertedArray[i * 4 + 1], convertedArray[i * 4 + 2], convertedArray[i * 4 + 3]] = colors;
 	}
-
 	return convertedArray;
 }
 
@@ -2433,12 +2058,10 @@ class Texture2DReader extends BaseReader {
 		switch (type) {
 			case 'Microsoft.Xna.Framework.Content.Texture2DReader':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		const int32Reader = new Int32Reader();
 		const uint32Reader = new UInt32Reader();
@@ -2446,22 +2069,31 @@ class Texture2DReader extends BaseReader {
 		let width = uint32Reader.read(buffer);
 		let height = uint32Reader.read(buffer);
 		let mipCount = uint32Reader.read(buffer);
+		let usedWidth = null;
+		let usedHeight = null;
 		if (mipCount > 1) console.warn("Found mipcount of ".concat(mipCount, ", only the first will be used."));
 		let dataSize = uint32Reader.read(buffer);
+		if (width * height * 4 > dataSize) {
+			usedWidth = width >> 16 & 0xffff;
+			width = width & 0xffff;
+			usedHeight = height >> 16 & 0xffff;
+			height = height & 0xffff;
+			if (width * height * 4 !== dataSize) {
+				console.warn("invalid width & height! ".concat(width, " x ").concat(height));
+			}
+		}
 		let data = buffer.read(dataSize);
 		if (format == 4) data = decompress(data, width, height, flags.DXT1);else if (format == 5) data = decompress(data, width, height, flags.DXT3);else if (format == 6) data = decompress(data, width, height, flags.DXT5);else if (format == 2) {
 			data = convertFrom5551(data);
 		} else if (format != 0) throw new Error("Non-implemented Texture2D format type (".concat(format, ") found."));
 		if (data instanceof ArrayBuffer) data = new Uint8Array(data);
-
 		for (let i = 0; i < data.length; i += 4) {
 			let inverseAlpha = 255 / data[i + 3];
 			data[i] = Math.min(Math.ceil(data[i] * inverseAlpha), 255);
 			data[i + 1] = Math.min(Math.ceil(data[i + 1] * inverseAlpha), 255);
 			data[i + 2] = Math.min(Math.ceil(data[i + 2] * inverseAlpha), 255);
 		}
-
-		return {
+		const result = {
 			format,
 			export: {
 				type: this.type,
@@ -2470,36 +2102,40 @@ class Texture2DReader extends BaseReader {
 				height
 			}
 		};
+		if (usedWidth !== null) result.additional = {
+			usedWidth,
+			usedHeight
+		};
+		return result;
 	}
-
 	write(buffer, content, resolver) {
 		const int32Reader = new Int32Reader();
 		const uint32Reader = new UInt32Reader();
 		this.writeIndex(buffer, resolver);
-		const width = content.export.width;
-		const height = content.export.height;
+		let width = content.export.width;
+		let height = content.export.height;
+		if (content.additional != null) {
+			width = width | content.additional.usedWidth << 16;
+			height = height | content.additional.usedHeight << 16;
+		}
 		int32Reader.write(buffer, content.format, null);
-		uint32Reader.write(buffer, content.export.width, null);
-		uint32Reader.write(buffer, content.export.height, null);
+		uint32Reader.write(buffer, width, null);
+		uint32Reader.write(buffer, height, null);
 		uint32Reader.write(buffer, 1, null);
 		let data = content.export.data;
-
 		for (let i = 0; i < data.length; i += 4) {
 			const alpha = data[i + 3] / 255;
 			data[i] = Math.floor(data[i] * alpha);
 			data[i + 1] = Math.floor(data[i + 1] * alpha);
 			data[i + 2] = Math.floor(data[i + 2] * alpha);
 		}
-
 		if (content.format === 4) data = compress(data, width, height, flags.DXT1);else if (content.format === 5) data = compress(data, width, height, flags.DXT3);else if (content.format === 6) data = compress(data, width, height, flags.DXT5);else if (content.format === 2) data = convertTo5551(data);
 		uint32Reader.write(buffer, data.length, null);
 		buffer.concat(data);
 	}
-
 	isValueType() {
 		return false;
 	}
-
 }
 
 class Vector3Reader extends BaseReader {
@@ -2508,12 +2144,10 @@ class Vector3Reader extends BaseReader {
 			case 'Microsoft.Xna.Framework.Content.Vector3Reader':
 			case 'Microsoft.Xna.Framework.Vector3':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		const singleReader = new SingleReader();
 		let x = singleReader.read(buffer);
@@ -2525,7 +2159,6 @@ class Vector3Reader extends BaseReader {
 			z
 		};
 	}
-
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		const singleReader = new SingleReader();
@@ -2533,7 +2166,6 @@ class Vector3Reader extends BaseReader {
 		singleReader.write(buffer, content.y, null);
 		singleReader.write(buffer, content.z, null);
 	}
-
 }
 
 class SpriteFontReader extends BaseReader {
@@ -2541,16 +2173,13 @@ class SpriteFontReader extends BaseReader {
 		switch (type) {
 			case 'Microsoft.Xna.Framework.Content.SpriteFontReader':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	static parseTypeList() {
 		return ["SpriteFont", "Texture2D", 'List<Rectangle>', 'Rectangle', 'List<Rectangle>', 'Rectangle', 'List<Char>', 'Char', null, null, 'List<Vector3>', 'Vector3', 'Nullable<Char>', 'Char'];
 	}
-
 	read(buffer, resolver) {
 		const int32Reader = new Int32Reader();
 		const singleReader = new SingleReader();
@@ -2574,7 +2203,6 @@ class SpriteFontReader extends BaseReader {
 			defaultCharacter
 		};
 	}
-
 	write(buffer, content, resolver) {
 		const int32Reader = new Int32Reader();
 		const charReader = new CharReader();
@@ -2585,7 +2213,6 @@ class SpriteFontReader extends BaseReader {
 		const charListReader = new ListReader(charReader);
 		const vector3ListReader = new ListReader(new Vector3Reader());
 		this.writeIndex(buffer, resolver);
-
 		try {
 			texture2DReader.write(buffer, content.texture, resolver);
 			buffer.alloc(100000);
@@ -2600,11 +2227,9 @@ class SpriteFontReader extends BaseReader {
 			throw ex;
 		}
 	}
-
 	isValueType() {
 		return false;
 	}
-
 }
 
 class TBinReader extends BaseReader {
@@ -2612,12 +2237,10 @@ class TBinReader extends BaseReader {
 		switch (type) {
 			case 'xTile.Pipeline.TideReader':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		const int32Reader = new Int32Reader();
 		let size = int32Reader.read(buffer);
@@ -2629,7 +2252,6 @@ class TBinReader extends BaseReader {
 			}
 		};
 	}
-
 	write(buffer, content, resolver) {
 		this.writeIndex(buffer, resolver);
 		const data = content.export.data;
@@ -2637,11 +2259,9 @@ class TBinReader extends BaseReader {
 		int32Reader.write(buffer, data.byteLength, null);
 		buffer.concat(data);
 	}
-
 	isValueType() {
 		return false;
 	}
-
 }
 
 class LightweightTexture2DReader extends BaseReader {
@@ -2649,16 +2269,13 @@ class LightweightTexture2DReader extends BaseReader {
 		switch (type) {
 			case 'Microsoft.Xna.Framework.Content.Texture2DReader':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	static type() {
 		return "Texture2D";
 	}
-
 	read(buffer) {
 		const int32Reader = new Int32Reader();
 		const uint32Reader = new UInt32Reader();
@@ -2671,14 +2288,12 @@ class LightweightTexture2DReader extends BaseReader {
 		let data = buffer.read(dataSize);
 		data = new Uint8Array(data);
 		if (format != 0) throw new Error("Compressed texture format is not supported!");
-
 		for (let i = 0; i < data.length; i += 4) {
 			let inverseAlpha = 255 / data[i + 3];
 			data[i] = Math.min(Math.ceil(data[i] * inverseAlpha), 255);
 			data[i + 1] = Math.min(Math.ceil(data[i + 1] * inverseAlpha), 255);
 			data[i + 2] = Math.min(Math.ceil(data[i + 2] * inverseAlpha), 255);
 		}
-
 		return {
 			format,
 			export: {
@@ -2689,7 +2304,6 @@ class LightweightTexture2DReader extends BaseReader {
 			}
 		};
 	}
-
 	write(buffer, content, resolver) {
 		if (content.format != 0) throw new Error("Compressed texture format is not supported!");
 		const int32Reader = new Int32Reader();
@@ -2702,26 +2316,21 @@ class LightweightTexture2DReader extends BaseReader {
 		uint32Reader.write(buffer, content.export.height, null);
 		uint32Reader.write(buffer, 1, null);
 		let data = content.export.data;
-
 		for (let i = 0; i < data.length; i += 4) {
 			const alpha = data[i + 3] / 255;
 			data[i] = Math.floor(data[i] * alpha);
 			data[i + 1] = Math.floor(data[i + 1] * alpha);
 			data[i + 2] = Math.floor(data[i + 2] * alpha);
 		}
-
 		uint32Reader.write(buffer, data.length, null);
 		buffer.concat(data);
 	}
-
 	isValueType() {
 		return false;
 	}
-
 	get type() {
 		return "Texture2D";
 	}
-
 }
 
 class Vector2Reader extends BaseReader {
@@ -2730,12 +2339,10 @@ class Vector2Reader extends BaseReader {
 			case 'Microsoft.Xna.Framework.Content.Vector2Reader':
 			case 'Microsoft.Xna.Framework.Vector2':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		const singleReader = new SingleReader();
 		let x = singleReader.read(buffer);
@@ -2745,7 +2352,12 @@ class Vector2Reader extends BaseReader {
 			y
 		};
 	}
-
+	write(buffer, content, resolver) {
+		this.writeIndex(buffer, resolver);
+		const singleReader = new SingleReader();
+		singleReader.write(buffer, content.x, null);
+		singleReader.write(buffer, content.y, null);
+	}
 }
 
 class Vector4Reader extends BaseReader {
@@ -2754,12 +2366,10 @@ class Vector4Reader extends BaseReader {
 			case 'Microsoft.Xna.Framework.Content.Vector4Reader':
 			case 'Microsoft.Xna.Framework.Vector4':
 				return true;
-
 			default:
 				return false;
 		}
 	}
-
 	read(buffer) {
 		const singleReader = new SingleReader();
 		let x = singleReader.read(buffer);
@@ -2773,7 +2383,14 @@ class Vector4Reader extends BaseReader {
 			w
 		};
 	}
-
+	write(buffer, content, resolver) {
+		this.writeIndex(buffer, resolver);
+		const singleReader = new SingleReader();
+		singleReader.write(buffer, content.x, null);
+		singleReader.write(buffer, content.y, null);
+		singleReader.write(buffer, content.z, null);
+		singleReader.write(buffer, content.w, null);
+	}
 }
 
-export { ArrayReader, BaseReader, BmFontReader, BooleanReader, CharReader, DictionaryReader, DoubleReader, EffectReader, Int32Reader, LightweightTexture2DReader, ListReader, NullableReader, RectangleReader, ReflectiveReader, SingleReader, SpriteFontReader, StringReader, TBinReader, Texture2DReader, UInt32Reader, Vector2Reader, Vector3Reader, Vector4Reader };
+export { ArrayReader, BaseReader, BmFontReader, BooleanReader, CharReader, DictionaryReader, DoubleReader, EffectReader, Int32Reader, LightweightTexture2DReader, ListReader, NullableReader, PointReader, RectangleReader, ReflectiveReader, SingleReader, SpriteFontReader, StringReader, TBinReader, Texture2DReader, UInt32Reader, Vector2Reader, Vector3Reader, Vector4Reader };
