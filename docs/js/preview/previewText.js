@@ -58,16 +58,13 @@ class PreviewText extends HTMLElement {
 				let textNode = document.createElement("pre");
 				textNode.textContent = this.#chunkedText[i];
 				this.#observer.observe(textNode);
-				console.log(`new observed : ${i}`);
 				fragment.append(textNode);
 			}
 		}
-		console.log(oldLength, newLength);
 		// remove overflown element
 		for(let i=oldLength-1; i>=newLength; i--)
 		{
 			this.#observer.unobserve(children[i]);
-			console.log(`new unobserved : ${i}`);
 			children[i].remove();
 		}
 		this.shadowRoot.append(fragment);

@@ -96,8 +96,8 @@ async function handleEachFile(file, index)
 		return result;
 	}
 	catch(error) {
-		console.log(error);
 		outputPreviewer.showError(error, index);
+		throw error;
 	}
 }
 

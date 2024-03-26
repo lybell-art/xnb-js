@@ -5,9 +5,41 @@ export default `
 	width: 100%;
 	height: 100%;
 	overflow: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.indicator-container {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.title {
+	font-family: "Raleway";
+	font-weight: 700;
+	font-size: 24px;
+	color: #3b7362;
+}
+
+.red {
+	color: #e73e59;
+}
+
+.error-icon {
+	image-rendering: pixelated;
+}
+
+.error-text {
+	font-family: monospace;
+	unicode-bidi: isolate;
+	line-break: anywhere;
+	color: #444;
+	margin: 0;
 }
 
 /* Result item style */

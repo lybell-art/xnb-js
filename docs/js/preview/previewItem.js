@@ -64,16 +64,18 @@ class PreviewItem extends HTMLElement {
 		this.#loadingElem.remove();
 		this.#previewElem.remove();
 		this.shadowRoot.append(this.#errorElem);
-		this.#errorTextElem.innerText = error.message;
+
+		this.#errorTextElem.innerText = error.message.replace(/\<uuid:[0-9a-f-]+\>$/, "");
 	}
 	__initLoadingElem()
 	{
 		const element = document.createElement("div");
-		element.className= "spinner";
-		element.innerHTML = `
+		element.className= "indicator-container";
+		element.innerHTML = `<div class="spinner">
 			<div class="cube1"></div>
 			<div class="cube2"></div>
-		`.trim();
+		</div>
+		<p class="title">Loading...</p>`;
 		return element;
 	}
 	__initPreviewElem()
@@ -85,16 +87,16 @@ class PreviewItem extends HTMLElement {
 				<img class="preview-img" src="assets/blank.png" alt="preview image"/>
 			</div>
 			<preview-text class="preview-text"></preview-text>
-		`;
+		`.trim();
 		return element;
 	}
 	__initErrorElem()
 	{
 		const element = document.createElement("div");
-		element.className= "error-container";
+		element.className= "indicator-container";
 		element.innerHTML = `
 			<img class="error-icon" src="assets/error.png" />
-			<p class="error-title">Unpack Error!</p>
+			<p class="title red">Unpack Error!</p>
 			<p class="error-text"></p>
 		`;
 		return element;
