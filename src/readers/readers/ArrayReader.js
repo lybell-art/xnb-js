@@ -83,6 +83,7 @@ export default class ArrayReader extends BaseReader {
 	}
 
 	parseTypeList() {
-		return [this.type, ...this.reader.parseTypeList()];
+		const inBlock = this.reader.parseTypeList();
+		return [`${this.type}:${inBlock.length}`, ...inBlock];
 	}
 }

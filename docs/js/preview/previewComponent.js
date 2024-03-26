@@ -80,10 +80,10 @@ class PreviewComponent extends HTMLElement {
 		if(index >= this.#maxLength) return;
 		this.#container.children[index].showData(data);
 	}
-	showError(error, index)
+	showError(error, index, fileName)
 	{
 		if(index >= this.#maxLength) return;
-		this.#container.children[index].showError(error);
+		this.#container.children[index].showError(error, fileName);
 	}
 }
 

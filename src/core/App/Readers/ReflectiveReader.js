@@ -15,13 +15,13 @@ export default class ReflectiveSchemeReader {
 		return "ReflectiveScheme";
 	}
 	/**
-     * @constructor
-     * @param {Object} object scheme
-     */
-    constructor(name, readers) {
-        this.name = name;
-        this.readers = readers;
-    }
+	 * @constructor
+	 * @param {Object} object scheme
+	 */
+	constructor(name, readers) {
+		this.name = name;
+		this.readers = readers;
+	}
 
 	/**
 	 * Reads Reflection data from buffer.
@@ -61,18 +61,26 @@ export default class ReflectiveSchemeReader {
 	}
 
 	isValueType() {
-        return false;
-    }
+		return false;
+	}
 
-    get type() {
-        return `ReflectiveScheme<${this.name}>`;
-    }
+	get type() {
+		const reg = /\.([^\.]+)$/;
+		if(reg.test(this.name)) return this.name.match(reg)[1];
+		return this.name;
+	}
 
-    parseTypeList() {
-		return [...this.reader.parseTypeList()];
+	parseTypeList() {
+		let types = [...this.readers.values()].map( reader=>{
+			if(reader.isValueType()) return null;
+			return reader.parseTypeList();
+		} ).flat();
+
+		types.unshift(this.type);
+		return types;
 	}
 
 	toString() {
-		return this.type;
+		return `ReflectiveScheme<${this.name}>`
 	}
 }

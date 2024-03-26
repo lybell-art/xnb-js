@@ -204,6 +204,7 @@ class TypeReader
 	 */
 	static getReaderTypeList(typeString){
 		let reader = TypeReader.getReader(typeString);
+		console.log(reader);
 		return reader.parseTypeList();
 	}
 

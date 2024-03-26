@@ -41,13 +41,13 @@ export default class Texture2DReader extends BaseReader {
 
 		// for stardew valley 1.5 ios adjustment
 		// sdv 1.5 ios img size format is (imgwidth)/(usedWidth)/(imgHeight)/(usedHeight)
-		if(width*height > dataSize)
+		if(width*height*4 > dataSize)
 		{
 			usedWidth = (width >> 16) & 0xffff;
 			width = width & 0xffff;
 			usedHeight = (height >> 16) & 0xffff;
 			height = height & 0xffff;
-			if(width * height !== dataSize)
+			if(width * height * 4 !== dataSize)
 			{
 				console.warn(`invalid width & height! ${width} x ${height}`);
 			}
@@ -78,19 +78,16 @@ export default class Texture2DReader extends BaseReader {
 			data[i + 2] = Math.min(Math.ceil(data[i + 2] * inverseAlpha), 255);
 		}
 
-		const exporter = {
-			type: this.type, 
-			data, width, height
-		};
-		if(usedWidth !== null) {
-			exporter.usedWidth = usedWidth;
-			exporter.usedHeight = usedHeight;
-		}
-
-		return {
+		const result = {
 			format,
-			export: exporter
+			export: {
+				type: this.type, 
+				data, width, height
+			}
 		};
+		if(usedWidth !== null) result.additional = {usedWidth, usedHeight};
+
+		return result;
 	}
 
 	/**
@@ -107,9 +104,9 @@ export default class Texture2DReader extends BaseReader {
 
 		let width = content.export.width;
 		let height = content.export.height;
-		if (content.export.usedWidth != null && content.export.usedHeight != null) {
-			width = width & (content.export.usedWidth << 16);
-			height = height & (content.export.usedHeight << 16);
+		if (content.additional != null) {
+			width = width | (content.additional.usedWidth << 16);
+			height = height | (content.additional.usedHeight << 16);
 		}
 
 		int32Reader.write(buffer, content.format, null);

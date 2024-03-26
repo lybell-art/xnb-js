@@ -10,6 +10,7 @@ class PreviewItem extends HTMLElement {
 	#previewTextElem;
 	#errorElem;
 	#errorTextElem;
+	#errorFileNameElem;
 
 	constructor()
 	{
@@ -22,7 +23,7 @@ class PreviewItem extends HTMLElement {
 		this.#previewImgElem = this.#previewElem.querySelector("img");
 		this.#previewTextElem = this.#previewElem.querySelector("preview-text");
 		this.#errorElem = this.__initErrorElem();
-		this.#errorTextElem = this.#errorElem.querySelector(".error-text");
+		[this.#errorFileNameElem, this.#errorTextElem] = this.#errorElem.querySelectorAll(".error-text");
 	}
 	disconnectedCallback()
 	{
@@ -59,12 +60,13 @@ class PreviewItem extends HTMLElement {
 			this.#previewTextElem.text = data;
 		}
 	}
-	showError(error)
+	showError(error, fileName)
 	{
 		this.#loadingElem.remove();
 		this.#previewElem.remove();
 		this.shadowRoot.append(this.#errorElem);
 
+		this.#errorFileNameElem.innerText = `from : ${fileName}.xnb`;
 		this.#errorTextElem.innerText = error.message.replace(/\<uuid:[0-9a-f-]+\>$/, "");
 	}
 	__initLoadingElem()
@@ -97,6 +99,7 @@ class PreviewItem extends HTMLElement {
 		element.innerHTML = `
 			<img class="error-icon" src="assets/error.png" />
 			<p class="title red">Unpack Error!</p>
+			<p class="error-text"></p>
 			<p class="error-text"></p>
 		`;
 		return element;
