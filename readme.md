@@ -20,11 +20,11 @@ You can load and use a library hosted online. Here's how to use it:
 
 #### Load as ES6 Module(Recommended)
 ```js
-import * as XNB from "https://cdn.jsdelivr.net/npm/xnb@1.2.0/dist/xnb.module.js";
+import * as XNB from "https://cdn.jsdelivr.net/npm/xnb@1.3.0/dist/xnb.module.js";
 ```
 #### Load as UMD
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xnb@1.2.0/dist/xnb.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xnb@1.3.0/dist/xnb.min.js"></script>
 ```
 If you need to support ES5, such as IE11, I recommend using xnb.es5.min.js.
 
@@ -89,6 +89,7 @@ See this [link](https://github.com/lybell-art/xnb-js/blob/main/api.md).
 
 ## Customs
 After 1.1 update, you can load and use only a portion of the existing readers, or you can add a custom reader to use it.
+After 1.3 update, we bring up a file that specifies the type structure of data to be imported into the custom scheme and suggest how to unpack the easier custom data structure.
 
 ### Load only part of existing readers
 ```js
@@ -146,6 +147,23 @@ XNB.addReaders({CustomReader});
 
 ...
 ```
+
+### Add custom scheme
+Custom scheme is a data structure which defines the c# class that the reflective reader reads, and has the following grammar;
+```javascript
+const myScheme =  {
+	DisplayName: "String", // Specify the field name of the custom class with key, and data type with value.
+	$Description: "String", // You can add $ prefix to express nullable field.
+	IsDebuff: "Boolean",
+	IconSpriteIndex: "Int32",
+	$Effects: "StardewValley.GameData.Buffs.BuffAttributesData", //  If you are fetching another custom class, please write the full name of the C# class.
+	$ActionsOnApply: ["String"], // [] means a List type.
+	$CustomFields: {"String": "String"} // {} means a Dictionary type.
+}
+XNB.addSchemes({"StardewValley.GameData.Buffs.BuffData": myScheme}); // The key value contains the full name of reflected c# class.
+```
+
+
 
 ## External resource
 xnb.js contains dxt.js, lz4.js, and png.js as bundle. libsquish(=dxt.js) and lz4.js were rewritten for es6 module system.

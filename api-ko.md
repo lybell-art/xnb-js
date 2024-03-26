@@ -127,7 +127,7 @@ console.log(result);
 ## Reader Plugins
 
 ### setReaders( readers : Object\<BaseReader\> )
-- ``readers`` (ArrayBuffer) : Reader
+- ``readers`` (Object\<BaseReader\>) : 커스텀 리더
 
 xnb.js에서 사용하는 리더의 종류를 지정합니다. 특정한 Reader만 사용하고 싶을 때 유용합니다.
 ``readers``의 key는 xnb 파일의 헤더가 인식 가능한 자료명+Reader로, value는 BaseReader를 상속한 리더 클래스가 들어가야 합니다. 다음의 예제를 참조하십시오.
@@ -142,7 +142,7 @@ setReaders({
 ```
 
 ### addReaders( readers : Object\<BaseReader\> )
-- ``readers`` (ArrayBuffer) : Reader
+- ``readers`` (Object\<BaseReader\>) : 커스텀 리더
 
 xnb.js에서 사용하는 리더를 추가합니다. 플러그인을 추가하고 싶을 때 유용합니다. 다음의 예제를 참조하십시오.
 ```js
@@ -151,6 +151,65 @@ import * as StardewReader from "@xnb/stardew-valley";
 
 addReaders({...StardewReader});
 ```
+
+### setSchemes( schemes: Object\<XNBSchemeObject\> )
+- ``schemes`` (Object\<XNBSchemeObject\>) : C# 클래스의 타입 정의 객체
+
+xnb.js에서 사용하는 scheme의 종류를 지정합니다.
+The key of ``schemes``의 key는 대응하는 C# 클래스의 풀네임으로, value는 해당 C# 클래스의 타입을 나타내는 객체가 들어가야 합니다. 다음의 예제를 참조하십시오.
+```js
+import {setSchemes} from "xnb";
+
+// from StardewValley.GameData.BigCraftables.BigCraftableData C# file
+const bigCraftableScheme = {
+	Name: "String",
+	DisplayName: "String",
+	Description: "String",
+	Price: "Int32",
+	Fragility: "Int32",
+	CanBePlacedOutdoors: "Boolean",
+	CanBePlacedIndoors: "Boolean",
+	IsLamp: "Boolean",
+	$Texture: "String",
+	SpriteIndex: "Int32",
+	$ContextTags: ["String"],
+	$CustomFields: {"String": "String"}
+};
+
+setSchemes({"StardewValley.GameData.BigCraftables.BigCraftableData": bigCraftableScheme});
+```
+
+### addSchemes( schemes: Object\<XNBSchemeObject\> )
+- ``schemes`` (Object\<XNBSchemeObject\>) : C# 클래스의 타입 정의 객체
+
+xnb.js에서 사용하는 scheme을 추가합니다. 다음의 예제를 참조하십시오.
+```js
+import {addSchemes} from "xnb";
+import {schemes as StardewSchemes} from "@xnb/stardew-valley";
+
+addSchemes(StardewSchemes);
+```
+
+### setEnums( enums: Array\<string\> )
+- ``enums`` (Array\<string\>) : C# enum 자료형의 풀네임
+
+xnb.js가 해석할 수 있는 enum을 지정합니다. `enums`는 `StardewValley.Season`과 같이 해당 enum의 C# 풀네임이 들어가야 합니다. 다음의 예제를 참조하십시오.
+```js
+import {setEnums} from "xnb";
+
+setEnums(["StardewValley.Season"]);
+```
+
+### addEnums( enums: Array\<string\> )
+- ``enums`` (Array\<string\>) : C# enum 자료형의 풀네임
+
+xnb.js가 해석할 수 있는 enum을 추가합니다. 다음의 예제를 참조하십시오.
+```js
+import {addEnums} from "xnb";
+
+addEnums(["StardewValley.Season"]);
+```
+
 
 ## Data Structure
 ### XnbData

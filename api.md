@@ -149,7 +149,7 @@ console.log(result);
 ## Reader Plugins
 
 ### setReaders( readers : Object\<BaseReader\> )
-- ``readers`` (ArrayBuffer) : Reader
+- ``readers`` (Object\<BaseReader\>) : Reader
 
 Specifies the type of reader used by xnb.js. This is useful when you want to use only certain readers.
 The key of ``readers`` should be a recognizable data name+Reader for the header of the xnb file, and the value should include the reader class that inherited the BaseReader. See the following example:
@@ -164,15 +164,74 @@ setReaders({
 ```
 
 ### addReaders( readers : Object\<BaseReader\> )
-- ``readers`` (ArrayBuffer) : Reader
+- ``readers`` (Object\<BaseReader\>) : Reader
 
 Add the readers used by xnb.js. This is useful when you want to add plugins. See the following example:
 ```js
 import {addReaders} from "xnb";
-import * as StardewReader from "@xnb/stardew-valley";
+import {readers as StardewReader} from "@xnb/stardew-valley";
 
 addReaders(StardewReader);
 ```
+
+### setSchemes( schemes: Object\<XNBSchemeObject\> )
+- ``schemes`` (Object\<XNBSchemeObject\>) : custom schemes reflects C# class
+
+Specifies the type of scheme used by xnb.js.
+The key of ``schemes`` should be C# class full name, and the value should be custom scheme object. See the following example:
+```js
+import {setSchemes} from "xnb";
+
+// from StardewValley.GameData.BigCraftables.BigCraftableData C# file
+const bigCraftableScheme = {
+	Name: "String",
+	DisplayName: "String",
+	Description: "String",
+	Price: "Int32",
+	Fragility: "Int32",
+	CanBePlacedOutdoors: "Boolean",
+	CanBePlacedIndoors: "Boolean",
+	IsLamp: "Boolean",
+	$Texture: "String",
+	SpriteIndex: "Int32",
+	$ContextTags: ["String"],
+	$CustomFields: {"String": "String"}
+};
+
+setSchemes({"StardewValley.GameData.BigCraftables.BigCraftableData": bigCraftableScheme});
+```
+
+### addSchemes( schemes: Object\<XNBSchemeObject\> )
+- ``schemes`` (Object\<XNBSchemeObject\>) : custom schemes reflects C# class
+
+Add the schemes used by xnb.js. See the following example:
+```js
+import {addSchemes} from "xnb";
+import {schemes as StardewSchemes} from "@xnb/stardew-valley";
+
+addSchemes(StardewSchemes);
+```
+
+### setEnums( enums: Array\<string\> )
+- ``enums`` (Array\<string\>) : to read enum full name in C#
+
+Specifies the type of enum full names used by xnb.js. The name should be like `StardewValley.Season`. See the following example:
+```js
+import {setEnums} from "xnb";
+
+setEnums(["StardewValley.Season"]);
+```
+
+### addEnums( enums: Array\<string\> )
+- ``enums`` (Array\<string\>) : to read enum full name in C#
+
+Add the type of enum full names used by xnb.js. See the following example:
+```js
+import {addEnums} from "xnb";
+
+addEnums(["StardewValley.Season"]);
+```
+
 
 ## Data Structure
 ### XnbData

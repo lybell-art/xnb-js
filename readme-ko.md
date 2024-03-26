@@ -20,11 +20,11 @@ xnb.js는 es6 모듈을 이용하여 불러오는 것을 권장합니다.
 
 #### ES6 모듈로 불러오기(권장)
 ```js
-import * as XNB from "https://cdn.jsdelivr.net/npm/xnb@1.2.0/dist/xnb.module.js";
+import * as XNB from "https://cdn.jsdelivr.net/npm/xnb@1.3.0/dist/xnb.module.js";
 ```
 #### 스크립트 링크로 불러오기
 ```html
-<script src="https://cdn.jsdelivr.net/npm/xnb@1.2.0/dist/xnb.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xnb@1.3.0/dist/xnb.min.js"></script>
 ```
 자신이 IE11 등 ES5를 지원해야 한다면, xnb.es5.min.js를 사용하는 것을 권장합니다.
 
@@ -89,6 +89,7 @@ readFile("./Abigail.xnb") // read xnb file as Buffer
 
 ## 커스텀
 xnb.js 1.1 업데이트 이후부터는 리더의 일부만 불러오거나, 커스텀 리더를 추가할 수 있습니다.
+xnb.js 1.3 업데이트 이후부터는 custom scheme으로 불러올 데이터의 타입 구조를 지정한 파일을 불러와, 더 쉬운 커스텀 자료구조를 언팩하는 방법을 제시합니다.
 
 ### 일부 리더만 불러오기
 ```js
@@ -144,6 +145,22 @@ XNB.addReaders({CustomReader});
 
 ...
 ```
+
+### 커스텀 scheme 추가
+커스텀 scheme은 reflective reader가 불러오는 c# 클래스를 정의한 파일로, 다음의 문법을 갖고 있습니다.
+```javascript
+const myScheme =  {
+	DisplayName: "String", // key값으로 커스텀 클래스의 필드명을, value값으로 자료형의 타입(Reader와 동일)을 지정합니다.
+	$Description: "String", // 앞에 $을 붙여서 nullable 필드를 표현합니다.
+	IsDebuff: "Boolean",
+	IconSpriteIndex: "Int32",
+	$Effects: "StardewValley.GameData.Buffs.BuffAttributesData", // 다른 커스텀 클래스를 불러오는 경우 C# 클래스의 풀 네임을 적어주세요.
+	$ActionsOnApply: ["String"], // []로 감싼 자료형은 List형을 의미합니다.
+	$CustomFields: {"String": "String"} // {}로 감싼 자료형은 Dictionary형을 의미합니다.
+}
+XNB.addSchemes({"StardewValley.GameData.Buffs.BuffData": myScheme}); // key값으로 해당 c# 클래스의 풀 네임이 들어갑니다.
+```
+
 
 ## 외부 리소스
 xnb.js에는 dxt.js와 lz4.js, png.js가 번들링되어 있으며, dxt.js와 lz4.js는 es6 모듈에 최적화되어 재작성되었습니다.
