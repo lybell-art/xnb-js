@@ -59,6 +59,7 @@ main{
 	font-weight: 700;
 	font-size: 24px;
 	color: #3b7362;
+	flex-shrink: 0;
 }
 
 .title.big{
