@@ -8,7 +8,7 @@ export default {
 	$RemovalToolIds: ["String"],
 	$RemovalToolTypes: ["String"],
 	RemovalDebrisType: "Int32",
-	$HeldObjectDrawOffset: "Vector2",
+	HeldObjectDrawOffset: "Vector2",
 	LeftEndHeldObjectDrawX: "Single",
 	RightEndHeldObjectDrawX: "Single"
 }

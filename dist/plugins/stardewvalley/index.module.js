@@ -1,5 +1,5 @@
 /** 
- * @xnb/stardewvalley 1.2.0
+ * @xnb/stardewvalley 1.3.2
  * made by Lybell( https://github.com/lybell-art/ )
  * special thanks to Concernedape(Stardew Valley Producer), 진의(Unoffical XnbCli updater)
  * 
@@ -5870,7 +5870,7 @@ var fenceData = {
 	$RemovalToolIds: ["String"],
 	$RemovalToolTypes: ["String"],
 	RemovalDebrisType: "Int32",
-	$HeldObjectDrawOffset: "Vector2",
+	HeldObjectDrawOffset: "Vector2",
 	LeftEndHeldObjectDrawX: "Single",
 	RightEndHeldObjectDrawX: "Single"
 };
