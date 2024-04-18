@@ -32,6 +32,7 @@ export default {
 	"DeluxeProduceMinimumFriendship": "Int32",
 	"DeluxeProduceCareDivisor": "Single",
 	"DeluxeProduceLuckMultiplier": "Single",
+	"CanEatGoldenCrackers": "Boolean",
 	"ProfessionForHappinessBoost": "Int32",
 	"ProfessionForQualityBoost": "Int32",
 	"ProfessionForFasterProduce": "Int32",
@@ -43,6 +44,8 @@ export default {
 	"UseFlippedRightForLeft": "Boolean",
 	"SpriteWidth": "Int32",
 	"SpriteHeight": "Int32",
+	"UseDoubleUniqueAnimationFrames": "Boolean",
+	"SleepFrame": "Int32",
 	"EmoteOffset": "Point",
 	"SwimOffset": "Point",
 	"$Skins": [
