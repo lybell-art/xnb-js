@@ -1,5 +1,5 @@
 export default {
-	"Name": "String",
+	"Id": "String",
 	"IsSideBehavior": "Boolean",
 	"RandomizeDirection": "Boolean",
 	"$Direction": "String",

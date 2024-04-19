@@ -32,6 +32,7 @@ export default {
 	"ShowNextIndexWhenReady": "Boolean",
 	"AllowFairyDust": "Boolean",
 	"IsIncubator": "Boolean",
+	"OnlyCompleteOvernight": "Boolean",
 	"$ClearContentsOvernightCondition": "String",
 	"$StatsToIncrementWhenLoaded": [
 		"StardewValley.GameData.StatIncrement"

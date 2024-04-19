@@ -1,5 +1,5 @@
 /** 
- * @xnb/stardewvalley 1.3.2
+ * @xnb/stardewvalley 1.3.3
  * made by Lybell( https://github.com/lybell-art/ )
  * special thanks to Concernedape(Stardew Valley Producer), 진의(Unoffical XnbCli updater)
  * 
@@ -5417,6 +5417,7 @@ var quantityModiier = {
 };
 
 var statIncrement = {
+	Id: "String",
 	$RequiredItemId: "String",
 	$RequiredTags: ["String"],
 	StatName: "String"
@@ -5801,6 +5802,7 @@ var farmAnimalData = {
 	"DeluxeProduceMinimumFriendship": "Int32",
 	"DeluxeProduceCareDivisor": "Single",
 	"DeluxeProduceLuckMultiplier": "Single",
+	"CanEatGoldenCrackers": "Boolean",
 	"ProfessionForHappinessBoost": "Int32",
 	"ProfessionForQualityBoost": "Int32",
 	"ProfessionForFasterProduce": "Int32",
@@ -5812,6 +5814,8 @@ var farmAnimalData = {
 	"UseFlippedRightForLeft": "Boolean",
 	"SpriteWidth": "Int32",
 	"SpriteHeight": "Int32",
+	"UseDoubleUniqueAnimationFrames": "Boolean",
+	"SleepFrame": "Int32",
 	"EmoteOffset": "Point",
 	"SwimOffset": "Point",
 	"$Skins": ["StardewValley.GameData.FarmAnimals.FarmAnimalSkin"],
@@ -5835,6 +5839,7 @@ var farmAnimalData = {
 };
 
 var alternatePurchaseAnimals = {
+	Id: "String",
 	$Condition: "String",
 	AnimalIds: ["String"]
 };
@@ -6073,7 +6078,10 @@ var spawnFishData = _objectSpread2(_objectSpread2({}, genericSpawnItemDataWithCo
 	"MaxDistanceFromShore": "Int32",
 	"ApplyDailyLuck": "Boolean",
 	"CuriosityLureBuff": "Single",
+	"SpecificBaitBuff": "Single",
+	"SpecificBaitMultiplier": "Single",
 	"CatchLimit": "Int32",
+	"$CanUseTrainingRod": "Boolean",
 	"IsBossFish": "Boolean",
 	"$SetFlagOnCatch": "String",
 	"RequireMagicBait": "Boolean",
@@ -6113,6 +6121,7 @@ var machineData = {
 	"ShowNextIndexWhenReady": "Boolean",
 	"AllowFairyDust": "Boolean",
 	"IsIncubator": "Boolean",
+	"OnlyCompleteOvernight": "Boolean",
 	"$ClearContentsOvernightCondition": "String",
 	"$StatsToIncrementWhenLoaded": ["StardewValley.GameData.StatIncrement"],
 	"$StatsToIncrementWhenHarvested": ["StardewValley.GameData.StatIncrement"],
@@ -6371,7 +6380,7 @@ var petAnimationFrame = {
 };
 
 var petBehavior = {
-	"Name": "String",
+	"Id": "String",
 	"IsSideBehavior": "Boolean",
 	"RandomizeDirection": "Boolean",
 	"$Direction": "String",
@@ -6420,6 +6429,7 @@ var petBreed = {
 };
 
 var petGift = {
+	"Id": "String",
 	"MinimumFriendshipThreshold": "Int32",
 	"Weight": "Single",
 	"QualifiedItemID": "String",
@@ -6439,7 +6449,10 @@ var powerData = {
 	"$Description": "String",
 	"TexturePath": "String",
 	"TexturePosition": "Point",
-	"UnlockedCondition": "String"
+	"UnlockedCondition": "String",
+	"$CustomFields": {
+		"String": "String"
+	}
 };
 
 var shopData = {
@@ -6848,7 +6861,8 @@ const schemes = {
 	"StardewValley.GameData.WorldMaps.WorldMapAreaPositionScrollTextZoneData": worldMapAreaPositionScrollTextZoneData,
 	"StardewValley.GameData.WorldMaps.WorldMapRegionData": worldMapRegionData,
 	"StardewValley.GameData.WorldMaps.WorldMapTextureData": worldMapTextureData,
-	"StardewValley.GameData.WorldMaps.WorldMapTooltipData": worldMapTooltipData
+	"StardewValley.GameData.WorldMaps.WorldMapTooltipData": worldMapTooltipData,
+	"System.Object": {}
 };
 
 var enums = ["StardewValley.GameData.QuantityModifier+ModificationType", "StardewValley.GameData.QuantityModifier+QuantityModifierMode", "StardewValley.GameData.MusicContext", "StardewValley.GameData.PlantableResult", "StardewValley.GameData.PlantableRuleContext", "StardewValley.GameData.Buildings.BuildingChestType", "StardewValley.Gender", "StardewValley.GameData.Characters.CalendarBehavior", "StardewValley.GameData.Characters.EndSlideShowBehavior", "StardewValley.GameData.Characters.NpcAge", "StardewValley.GameData.Characters.NpcLanguage", "StardewValley.GameData.Characters.NpcManner", "StardewValley.GameData.Characters.NpcOptimism", "StardewValley.GameData.Characters.NpcSocialAnxiety", "StardewValley.GameData.Characters.SocialTabBehavior", "StardewValley.Season", "StardewValley.GameData.Crops.HarvestMethod", "StardewValley.GameData.FloorsAndPaths.FloorPathConnectType", "StardewValley.GameData.FloorsAndPaths.FloorPathShadowType", "StardewValley.GameData.Machines.MachineOutputTrigger", "StardewValley.GameData.Machines.MachineTimeBlockers", "StardewValley.GameData.Pets.PetAnimationLoopMode", "StardewValley.GameData.Shops.LimitedStockMode", "StardewValley.GameData.Shops.ShopOwnerType", "StardewValley.GameData.Shops.StackSizeVisibility", "StardewValley.GameData.SpecialOrders.QuestDuration", "StardewValley.GameData.WildTrees.WildTreeGrowthStage"];
