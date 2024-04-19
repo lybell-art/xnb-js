@@ -3,5 +3,6 @@ export default {
 	"$Description": "String",
 	"TexturePath": "String",
 	"TexturePosition": "Point",
-	"UnlockedCondition": "String"
+	"UnlockedCondition": "String",
+	"$CustomFields": {"String": "String"}
 };

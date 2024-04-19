@@ -313,7 +313,9 @@ const schemes = {
 	"StardewValley.GameData.WorldMaps.WorldMapAreaPositionScrollTextZoneData": worldMapAreaPositionScrollTextZoneData,
 	"StardewValley.GameData.WorldMaps.WorldMapRegionData": worldMapRegionData,
 	"StardewValley.GameData.WorldMaps.WorldMapTextureData": worldMapTextureData,
-	"StardewValley.GameData.WorldMaps.WorldMapTooltipData": worldMapTooltipData
+	"StardewValley.GameData.WorldMaps.WorldMapTooltipData": worldMapTooltipData,
+
+	"System.Object": {}
 };
 
 export default schemes;
