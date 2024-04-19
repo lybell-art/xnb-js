@@ -31,8 +31,9 @@ class PreviewText extends HTMLElement {
 		const shadowRoot = this.attachShadow({mode: "open"});
 		const style = new CSSStyleSheet();
 		style.insertRule(`.wrapper, pre { margin:0; }`);
-		style.insertRule(`.wrapper:not(:last-child) { width:100%; height:${LINE_CHUNK*46/3}px; }`);
-		style.insertRule(`.wrapper:last-child { width:100%; height:calc(var(--lastLine) * 46px / 3); }`);
+		style.insertRule(`.wrapper{ width: max-content; min-width: 100%; }`);
+		style.insertRule(`.wrapper:not(:last-child) { height:${LINE_CHUNK*46/3}px; }`);
+		style.insertRule(`.wrapper:last-child { height:calc(var(--lastLine) * 46px / 3); }`);
 		shadowRoot.adoptedStyleSheets = [style];
 
 		this.#observer = new IntersectionObserver((entries, observer)=>{
