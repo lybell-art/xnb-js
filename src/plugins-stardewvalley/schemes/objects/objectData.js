@@ -17,6 +17,8 @@ export default {
 		"StardewValley.GameData.Objects.ObjectGeodeDropData"
 	],
 	"$ArtifactSpotChances": {"String": "Single"},
+	"CanBeGivenAsGift": "Boolean",
+	"CanBeTrashed": "Boolean",
 	"ExcludeFromFishingCollection": "Boolean",
 	"ExcludeFromShippingCollection": "Boolean",
 	"ExcludeFromRandomSale": "Boolean",

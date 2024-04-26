@@ -1,5 +1,5 @@
 /** 
- * @xnb/stardewvalley 1.3.3
+ * @xnb/stardewvalley 1.3.4
  * made by Lybell( https://github.com/lybell-art/ )
  * special thanks to Concernedape(Stardew Valley Producer), 진의(Unoffical XnbCli updater)
  * 
@@ -6283,6 +6283,8 @@ var objectData = {
 	"$ArtifactSpotChances": {
 		"String": "Single"
 	},
+	"CanBeGivenAsGift": "Boolean",
+	"CanBeTrashed": "Boolean",
 	"ExcludeFromFishingCollection": "Boolean",
 	"ExcludeFromShippingCollection": "Boolean",
 	"ExcludeFromRandomSale": "Boolean",
