@@ -150,7 +150,7 @@ label {
 	font-size: 15px;
 }
 
-label:hover + .checkbox-desc, .checkbox-desc:hover{
+label:hover + .checkbox-desc, .checkbox-desc:hover, input[type=checkbox]:focus-visible ~ .checkbox-desc{
 	opacity: 1;
 	pointer-events: bounding-box;
 }

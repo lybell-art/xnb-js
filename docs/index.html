@@ -23,25 +23,25 @@
 					<div class="title-wrapper">
 						<p class="title">Unpack XNB</p>
 						<div class="checkbox-item legacy-toggle-wrapper">
-							<input id="check_legacy" type="checkbox" value="legacy">
+							<input id="check_legacy" type="checkbox" value="legacy" aria-describedby="check-legacy-desc">
 							<label for="check_legacy">Use legacy reader<span class="small">(Stardew 1.5)</span></label>
-							<div class="checkbox-desc">
+							<div id="check-legacy-desc" class="checkbox-desc">
 								Use the reader corresponding to Stardew valley 1.5(mobile, console).
 							</div>
 						</div>
 					</div>
 					<div class="checkbox-wrapper">
 						<div class="checkbox-item">
-							<input id="check_yaml" type="checkbox" name="unpack_options" value="yaml">
+							<input id="check_yaml" type="checkbox" name="unpack_options" value="yaml" aria-describedby="check-yaml-desc">
 							<label for="check_yaml">Export to YAML</label>
-							<div class="checkbox-desc">
+							<div id="check-yaml-desc" class="checkbox-desc">
 								Export to a yaml file that is compatible with the XNB Extractor.
 							</div>
 						</div>
 						<div class="checkbox-item">
-							<input id="check_content" type="checkbox" name="unpack_options" value="content_only">
+							<input id="check_content" type="checkbox" name="unpack_options" value="content_only" aria-describedby="check-content-desc">
 							<label for="check_content">Content Only</label>
-							<div class="checkbox-desc desc-120px">
+							<div id="check-content-desc" class="checkbox-desc desc-120px">
 								Export content file only.
 							</div>
 						</div>
@@ -64,9 +64,9 @@
 					</div>
 					<div class="checkbox-wrapper">
 						<div class="checkbox-item">
-							<input id="check_lz4" type="checkbox" name="pack_options" value="lz4" checked>
+							<input id="check_lz4" type="checkbox" name="pack_options" value="lz4" checked aria-describedby="check-lz4-desc">
 							<label for="check_lz4">LZ4 Compression</label>
-							<div class="checkbox-desc">
+							<div id="check-lz4-desc" class="checkbox-desc">
 								Returns the xnb file using the LZ4 compression algorithm.<br/>
 								Guarantees a smaller file size, but incompatible with XnbExtractor.
 							</div>
