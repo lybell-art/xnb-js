@@ -90,7 +90,7 @@ async function handleEachFile(file, index)
 	try{
 		const data = await file.arrayBuffer().then(bufferToXnb);
 		const previewData = convertXnbDataToShow(data);
-		outputPreviewer.showData(previewData, index);
+		outputPreviewer.showData(previewData, index, baseName);
 		const result = await xnbDataToFiles(data, {...options, fileName:baseName});
 		result.forEach( file=>file.fileName=baseName );
 		return result;
