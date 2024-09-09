@@ -97,7 +97,7 @@ class PreviewItem extends HTMLElement {
 		const element = document.createElement("div");
 		element.className= "indicator-container";
 		element.innerHTML = `
-			<img class="error-icon" src="assets/error.png" />
+			<img class="error-icon" src="assets/error.png" alt="" role="presentation" />
 			<p class="title red">Unpack Error!</p>
 			<p class="error-text"></p>
 			<p class="error-text"></p>

@@ -15,14 +15,27 @@ export default `
 	flex-shrink: 0;
 }
 
-.button {
+button {
+	position: absolute;
 	width: 36px;
 	height: 33px;
-	position: absolute;
-	image-rendering: pixelated;
+	border: none;
+	cursor: pointer;
+	background: inherit;
+	box-shadow:none;
+	border-radius:0;
+	padding:0;
+	overflow:visible;
 	transition: transform 0.2s;
 }
-.button:hover {
+
+button img {
+	width: 100%;
+	height: 100%;
+	image-rendering: pixelated;
+}
+
+button:hover {
 	transform: scale(1.1);
 }
 

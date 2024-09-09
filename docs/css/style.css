@@ -25,6 +25,10 @@ a {
 	text-decoration: none;
 }
 
+a:hover, a:focus {
+	text-decoration: underline;
+}
+
 
 body {
 	width: 100vw;
@@ -264,6 +268,19 @@ footer p{
 
 .drag-indicator.hidden {
 	visibility: hidden;
+}
+
+.github-corner {
+	position: absolute;
+	top: 0;
+	border: 0;
+	right: 0;
+	fill: #202020;
+	color: #ffffff;
+}
+
+.github-corner:focus {
+	fill: #303030;
 }
 
 /* Tablet(Horizontal) */

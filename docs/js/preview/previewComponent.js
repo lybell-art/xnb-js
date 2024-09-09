@@ -37,8 +37,8 @@ class PreviewComponent extends HTMLElement {
 		shadowRoot.innerHTML = `
 			<style>${previewComponentStyle}</style>
 			<div id="container"></div>
-			<img id="leftButton" class="button" src="assets/leftButton.png">
-			<img id="rightButton" class="button" src="assets/rightButton.png">
+			<button id="leftButton"><img src="assets/leftButton.png" alt="move left"></button>
+			<button id="rightButton"><img src="assets/rightButton.png" alt="move right"></button>
 		`;
 		this.#container = shadowRoot.getElementById("container");
 		this.#leftButton = shadowRoot.getElementById("leftButton");
