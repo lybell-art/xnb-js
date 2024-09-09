@@ -42,7 +42,7 @@ class PreviewItem extends HTMLElement {
 		this.#previewElem.remove();
 		this.#errorElem.remove();
 	}
-	showData(data)
+	showData(data, fileName)
 	{
 		this.#loadingElem.remove();
 		this.shadowRoot.append(this.#previewElem);
@@ -52,11 +52,11 @@ class PreviewItem extends HTMLElement {
 			this.#previewTextElem.text = "";
 			window.URL.revokeObjectURL(this.#imageURL);
 			this.#imageURL = window.URL.createObjectURL(data);
-			this.#previewImgElem.src = this.#imageURL;
+			this.#setImage(this.#imageURL, `result image of ${fileName}.xnb`);
 		}
 		else
 		{
-			this.#previewImgElem.src = "assets/blank.png";
+			this.#setImage(null);
 			this.#previewTextElem.text = data;
 		}
 	}
@@ -68,6 +68,19 @@ class PreviewItem extends HTMLElement {
 
 		this.#errorFileNameElem.innerText = `from : ${fileName}.xnb`;
 		this.#errorTextElem.innerText = error.message.replace(/\<uuid:[0-9a-f-]+\>$/, "");
+	}
+	#setImage(url, alt="preview image")
+	{
+		if(url) {
+			this.#previewImgElem.src = url;
+			this.#previewImgElem.alt = alt;
+			this.#previewImgElem.removeAttribute("aria-hidden");
+		}
+		else {
+			this.#previewImgElem.src = "assets/blank.png";
+			this.#previewImgElem.alt = "";
+			this.#previewImgElem.setAttribute("aria-hidden", "true");
+		}
 	}
 	__initLoadingElem()
 	{
@@ -86,7 +99,7 @@ class PreviewItem extends HTMLElement {
 		element.className= "preview-container";
 		element.innerHTML = `
 			<div class="image-box-aligner">
-				<img class="preview-img" src="assets/blank.png" alt="preview image"/>
+				<img class="preview-img" src="assets/blank.png" alt=""/>
 			</div>
 			<preview-text class="preview-text"></preview-text>
 		`.trim();
