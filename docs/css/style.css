@@ -4,9 +4,20 @@ html, body{
 }
 
 p {
-	font-family: "Noto Sans KR";
+	font-family: "Noto Sans KR", sans-serif;
 	margin-top: 0px;
 	margin-bottom: 0.5em;
+}
+
+button {
+	font-family: "Noto Sans KR", sans-serif;
+	border: none;
+	cursor: pointer;
+	background: inherit;
+	box-shadow:none;
+	border-radius:0;
+	padding:0;
+	overflow:visible;
 }
 
 a {
@@ -160,7 +171,7 @@ label:hover + .checkbox-desc, .checkbox-desc:hover{
 	cursor: pointer;
 }
 
-.button.inactive {
+.button[disabled] {
 	background-color: #aaa;
 	cursor: default;
 }

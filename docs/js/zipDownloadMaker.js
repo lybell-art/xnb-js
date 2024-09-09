@@ -21,7 +21,7 @@ class zipDownloadMaker
 
 		this.virtualLink = document.createElement("a");
 		this.linkElement.addEventListener("click", (e)=>{
-			if(linkElement.classList.contains("inactive")) return;
+			if(linkElement.disabled) return;
 			this.virtualLink.click();
 		});
 
@@ -64,7 +64,7 @@ class zipDownloadMaker
 
 		this.virtualLink.href = this.url;
 		this.virtualLink.download = fileName;
-		this.linkElement.classList.remove("inactive");
+		this.linkElement.disabled = false;
 		this.displayFilename(fileName);
 	}
 	displayFilename(fileName="result.zip")
@@ -78,7 +78,7 @@ class zipDownloadMaker
 	}
 	inactiveDownloadButton()
 	{
-		this.linkElement.classList.add("inactive");
+		this.linkElement.disabled = true;
 		this.displayFilename("");
 	}
 }
