@@ -7,6 +7,7 @@ export default {
 	"Price": "Int32",
 	"$Texture": "String",
 	"SpriteIndex": "Int32",
+	"ColorOverlayFromNextIndex": "Boolean",
 	"Edibility": "Int32",
 	"IsDrink": "Boolean",
 	"$Buffs": [

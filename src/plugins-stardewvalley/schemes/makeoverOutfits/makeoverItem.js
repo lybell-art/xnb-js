@@ -1,5 +1,6 @@
 export default {
-	$Id: "String",
-	$ItemId: "String",
-	$Color: "String"
+	Id: "String",
+	ItemId: "String",
+	$Color: "String",
+	$Gender: "Int32"
 }
