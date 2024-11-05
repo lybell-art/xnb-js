@@ -4989,7 +4989,7 @@ class ModFarmTypeReader extends BaseReader {
 	write(buffer, content, resolver) {
 		const stringReader = new StringReader();
 		const nullableStringReader = new NullableReader(new StringReader());
-		const nullableStringDictReader = new NullableReader(new DictionaryReader(new StringReader()));
+		const nullableStringDictReader = new NullableReader(new DictionaryReader(new StringReader(), new StringReader()));
 		const booleanReader = new BooleanReader();
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.ID, resolver);

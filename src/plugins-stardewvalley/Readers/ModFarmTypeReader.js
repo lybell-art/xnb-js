@@ -73,7 +73,7 @@ export default class ModFarmTypeReader extends BaseReader {
 		const stringReader = new StringReader();
 		const nullableStringReader = new NullableReader( new StringReader() );
 		const nullableStringDictReader = new NullableReader(
-			new DictionaryReader( new StringReader() )
+			new DictionaryReader( new StringReader(), new StringReader() )
 		);
 		const booleanReader = new BooleanReader();
 
