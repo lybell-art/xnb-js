@@ -1,7 +1,7 @@
+import genericSpawnItemDataWithCondition from "../genericSpawnItemDataWithCondition.js";
+
 export default {
-	"Id": "String",
+	...genericSpawnItemDataWithCondition,
 	"MinimumFriendshipThreshold": "Int32",
-	"Weight": "Single",
-	"QualifiedItemID": "String",
-	"Stack": "Int32"
+	"Weight": "Single"
 };
