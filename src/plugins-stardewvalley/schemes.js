@@ -95,6 +95,9 @@ import locationMusicData from "./schemes/locations/locationMusicData.js";
 import spawnFishData from "./schemes/locations/spawnFishData.js";
 import spawnForageData from "./schemes/locations/spawnForageData.js";
 
+// lost item data:1.6.9
+import lostItemData from "./schemes/lostItemData.js";
+
 // machine data:1.6
 import machineData from "./schemes/machines/machineData.js";
 import machineEffects from "./schemes/machines/machineEffects.js";
@@ -258,6 +261,8 @@ const schemes = {
 	"StardewValley.GameData.Locations.LocationMusicData": locationMusicData,
 	"StardewValley.GameData.Locations.SpawnFishData": spawnFishData,
 	"StardewValley.GameData.Locations.SpawnForageData": spawnForageData,
+
+	"StardewValley.GameData.LostItem": lostItemData,
 
 	"StardewValley.GameData.Machines.MachineData": machineData,
 	"StardewValley.GameData.Machines.MachineEffects": machineEffects,
