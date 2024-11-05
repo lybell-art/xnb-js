@@ -9,7 +9,6 @@ export default {
 	"SpriteIndex": "Int32",
 	"MenuSpriteIndex": "Int32",
 	"UpgradeLevel": "Int32",
-	"ApplyUpgradeLevelToDisplayName": "Boolean",
 	"$ConventionalUpgradeFrom": "String",
 	"$UpgradeFrom": [
 		"StardewValley.GameData.Tools.ToolUpgradeData"
