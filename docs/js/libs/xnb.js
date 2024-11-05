@@ -16,15 +16,13 @@ import {
 	pack,
 	XnbData,
 	XnbContent
-} from "../../../src/core/Xnb.js"; // @xnb/core
+} from "./core/xnb-core.module.js" // @xnb/core
 import * as Reader from "./readers/xnb-readers.module.js"; // @xnb/readers
 import {
 	readers as StardewReader,
 	schemes as StardewScheme, 
 	enums as StardewEnum
-} from "../../../src/plugins-stardewvalley/index.js"; // @xnb/plugin-stardewValley
-// from "./core/xnb-core.module.js";
-// from "./plugins/xnb-stardew.module.js";
+} from "./plugins/xnb-stardew.module.js"; // @xnb/plugin-stardewValley
 
 const readers_1_6 = {...Reader, ...StardewReader};
 let loaded = false;

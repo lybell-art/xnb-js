@@ -5,7 +5,7 @@ function header()
 	return {
 		renderChunk(code){
 			return `/** 
- * @xnb/stardewvalley 1.3.4
+ * @xnb/stardewvalley 1.3.5
  * made by Lybell( https://github.com/lybell-art/ )
  * special thanks to Concernedape(Stardew Valley Producer), 진의(Unoffical XnbCli updater)
  * 

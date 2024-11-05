@@ -35,7 +35,6 @@ export default class ReflectiveSchemeReader {
 			if(reader.isValueType()) result[key] = reader.read(buffer);
 			else if(reader.constructor.type() === "Nullable") result[key] = reader.read(buffer, resolver);
 			else result[key] = resolver.read(buffer);
-			console.log({value: result[key], key, offset: buffer._offset.toString(16)});
 		}
 
 		return result;
