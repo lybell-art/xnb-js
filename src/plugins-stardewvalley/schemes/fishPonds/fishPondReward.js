@@ -2,6 +2,6 @@ import genericSpawnItemDataWithCondition from "../genericSpawnItemDataWithCondit
 
 export default {
 	...genericSpawnItemDataWithCondition,
-	"MinimumFriendshipThreshold": "Int32",
-	"Weight": "Single"
+	RequiredPopulation: "Int32",
+	Chance: "Single"
 };

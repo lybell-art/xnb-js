@@ -1,10 +1,10 @@
 export default {
-	"$ApplyProfitMargins": "Boolean",
 	"Currency": "Int32",
 	"$StackSizeVisibility": "Int32",
 	"$OpenSound": "String",
 	"$PurchaseSound": "String",
 	"$PurchaseRepeatSound": "String",
+	"$ApplyProfitMargins": "Boolean",
 	"$PriceModifiers": [
 		"StardewValley.GameData.QuantityModifier"
 	],

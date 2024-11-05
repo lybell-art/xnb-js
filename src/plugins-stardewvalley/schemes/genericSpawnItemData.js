@@ -8,6 +8,7 @@ export default {
 	Quality: "Int32",
 	$ObjectInternalName: "String",
 	$ObjectDisplayName: "String",
+	$ObjectColor : "String",
 	ToolUpgradeLevel: "Int32",
 	IsRecipe: "Boolean",
 	$StackModifiers: ["StardewValley.GameData.QuantityModifier"],

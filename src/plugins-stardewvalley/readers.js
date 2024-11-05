@@ -13,9 +13,7 @@ export {default as ConcessionItemDataReader} from "./Readers/ConcessionItemDataR
 // concession taste data:1.4
 export {default as ConcessionTasteReader} from "./Readers/ConcessionTasteReader.js";
 
-// fish pond data:1.4
-export {default as FishPondDataReader} from "./Readers/FishPondDataReader.js";
-export {default as FishPondRewardReader} from "./Readers/FishPondRewardReader.js";
+// fish pond data is now reflective schemes readers
 
 // tailor item recipe data:1.4
 export {default as TailorItemRecipeReader} from "./Readers/TailorItemRecipeReader.js";

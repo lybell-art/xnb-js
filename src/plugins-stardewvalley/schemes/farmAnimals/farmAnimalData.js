@@ -55,6 +55,7 @@ export default {
 	"$ShadowWhenBaby": "StardewValley.GameData.FarmAnimals.FarmAnimalShadowData",
 	"$ShadowWhenAdultSwims": "StardewValley.GameData.FarmAnimals.FarmAnimalShadowData",
 	"$ShadowWhenAdult": "StardewValley.GameData.FarmAnimals.FarmAnimalShadowData",
+	"$Shadow": "StardewValley.GameData.FarmAnimals.FarmAnimalShadowData",
 	"CanSwim": "Boolean",
 	"BabiesFollowAdults": "Boolean",
 	"GrassEatAmount": "Int32",

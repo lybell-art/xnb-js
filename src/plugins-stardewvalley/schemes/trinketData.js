@@ -7,5 +7,6 @@ export default {
 	TrinketEffectClass: "String",
 	DropsNaturally: "Boolean",
 	CanBeReforged: "Boolean",
-	$TrinketMetadata: {"String": "String"}
+	$CustomFields: {"String": "String"},
+	$ModData: {"String": "String"}
 }

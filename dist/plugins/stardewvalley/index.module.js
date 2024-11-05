@@ -1,5 +1,5 @@
 /** 
- * @xnb/stardewvalley 1.3.4
+ * @xnb/stardewvalley 1.3.5
  * made by Lybell( https://github.com/lybell-art/ )
  * special thanks to Concernedape(Stardew Valley Producer), 진의(Unoffical XnbCli updater)
  * 
@@ -4338,110 +4338,6 @@ class ConcessionTasteReader extends BaseReader {
 	}
 }
 
-class FishPondRewardReader extends BaseReader {
-	static isTypeOf(type) {
-		switch (type) {
-			case 'StardewValley.GameData.FishPonds.FishPondReward':
-				return true;
-			default:
-				return false;
-		}
-	}
-	static parseTypeList() {
-		return ["FishPondReward", null, null, "String", null, null];
-	}
-	static type() {
-		return "Reflective<FishPondReward>";
-	}
-	read(buffer, resolver) {
-		const int32Reader = new Int32Reader();
-		const floatReader = new SingleReader();
-		const RequiredPopulation = int32Reader.read(buffer);
-		const Chance = Math.round(floatReader.read(buffer) * 100000) / 100000;
-		const ItemId = resolver.read(buffer);
-		const MinQuantity = int32Reader.read(buffer);
-		const MaxQuantity = int32Reader.read(buffer);
-		return {
-			RequiredPopulation,
-			Chance,
-			ItemId,
-			MinQuantity,
-			MaxQuantity
-		};
-	}
-	write(buffer, content, resolver) {
-		const int32Reader = new Int32Reader();
-		const floatReader = new SingleReader();
-		const stringReader = new StringReader();
-		this.writeIndex(buffer, resolver);
-		int32Reader.write(buffer, content.RequiredPopulation, null);
-		floatReader.write(buffer, content.Chance, null);
-		stringReader.write(buffer, content.ItemId, resolver);
-		int32Reader.write(buffer, content.MinQuantity, null);
-		int32Reader.write(buffer, content.MaxQuantity, null);
-	}
-	isValueType() {
-		return false;
-	}
-}
-
-class FishPondDataReader extends BaseReader {
-	static isTypeOf(type) {
-		switch (type) {
-			case 'StardewValley.GameData.FishPonds.FishPondData':
-				return true;
-			default:
-				return false;
-		}
-	}
-	static parseTypeList() {
-		return ["FishPondData", "String", "List<String>", "String", null, null, "List<FishPondReward>:6", ...FishPondRewardReader.parseTypeList(), "Nullable<Dictionary<Int32,List<String>>>:4", "Dictionary<Int32,List<String>>", "Int32", "List<String>", "String", "Nullable<Dictionary<String,String>>:3", "Dictionary<String,String>", "String", "String"];
-	}
-	static type() {
-		return "Reflective<FishPondData>";
-	}
-	read(buffer, resolver) {
-		const int32Reader = new Int32Reader();
-		const stringListDictReader = new NullableReader(new DictionaryReader(new Int32Reader(), new ListReader(new StringReader())));
-		const stringDictReader = new NullableReader(new DictionaryReader(new StringReader(), new StringReader()));
-		const Id = resolver.read(buffer);
-		const RequiredTags = resolver.read(buffer);
-		const Precedence = int32Reader.read(buffer);
-		const SpawnTime = int32Reader.read(buffer);
-		const ProducedItems = resolver.read(buffer);
-		const PopulationGates = stringListDictReader.read(buffer, resolver);
-		const CustomFields = stringDictReader.read(buffer, resolver);
-		return {
-			Id,
-			RequiredTags,
-			Precedence,
-			SpawnTime,
-			ProducedItems,
-			PopulationGates,
-			CustomFields
-		};
-	}
-	write(buffer, content, resolver) {
-		const stringReader = new StringReader();
-		const stringListReader = new ListReader(new StringReader());
-		const int32Reader = new Int32Reader();
-		const fishPondRewardListReader = new ListReader(new FishPondRewardReader());
-		const stringListDictReader = new NullableReader(new DictionaryReader(new Int32Reader(), new ListReader(new StringReader())));
-		const stringDictReader = new NullableReader(new DictionaryReader(new StringReader(), new StringReader()));
-		this.writeIndex(buffer, resolver);
-		stringReader.write(buffer, content.Id, resolver);
-		stringListReader.write(buffer, content.RequiredTags, resolver);
-		int32Reader.write(buffer, content.Precedence, null);
-		int32Reader.write(buffer, content.SpawnTime, null);
-		fishPondRewardListReader.write(buffer, content.ProducedItems, resolver);
-		stringListDictReader.write(buffer, content.PopulationGates, resolver);
-		stringDictReader.write(buffer, content.CustomFields, resolver);
-	}
-	isValueType() {
-		return false;
-	}
-}
-
 class TailorItemRecipeReader extends BaseReader {
 	static isTypeOf(type) {
 		switch (type) {
@@ -5093,7 +4989,7 @@ class ModFarmTypeReader extends BaseReader {
 	write(buffer, content, resolver) {
 		const stringReader = new StringReader();
 		const nullableStringReader = new NullableReader(new StringReader());
-		const nullableStringDictReader = new NullableReader(new DictionaryReader(new StringReader()));
+		const nullableStringDictReader = new NullableReader(new DictionaryReader(new StringReader(), new StringReader()));
 		const booleanReader = new BooleanReader();
 		this.writeIndex(buffer, resolver);
 		stringReader.write(buffer, content.ID, resolver);
@@ -5243,8 +5139,6 @@ var readers = /*#__PURE__*/Object.freeze({
 	CharacterResponseReader: CharacterResponseReader,
 	ConcessionItemDataReader: ConcessionItemDataReader,
 	ConcessionTasteReader: ConcessionTasteReader,
-	FishPondDataReader: FishPondDataReader,
-	FishPondRewardReader: FishPondRewardReader,
 	TailorItemRecipeReader: TailorItemRecipeReader,
 	HomeRenovationReader: HomeRenovationReader,
 	RenovationValueReader: RenovationValueReader,
@@ -5273,6 +5167,7 @@ var genericSpawnItemData = {
 	Quality: "Int32",
 	$ObjectInternalName: "String",
 	$ObjectDisplayName: "String",
+	$ObjectColor: "String",
 	ToolUpgradeLevel: "Int32",
 	IsRecipe: "Boolean",
 	$StackModifiers: ["StardewValley.GameData.QuantityModifier"],
@@ -5377,6 +5272,7 @@ var triggerActionData = {
 	Id: "String",
 	Trigger: "String",
 	Condition: "String",
+	$SkipPermanentlyCondition: "String",
 	HostOnly: "Boolean",
 	$Action: "String",
 	$Actions: ["String"],
@@ -5395,7 +5291,10 @@ var trinketData = {
 	TrinketEffectClass: "String",
 	DropsNaturally: "Boolean",
 	CanBeReforged: "Boolean",
-	$TrinketMetadata: {
+	$CustomFields: {
+		"String": "String"
+	},
+	$ModData: {
 		"String": "String"
 	}
 };
@@ -5477,16 +5376,24 @@ var buffData = {
 };
 
 var buffAttributesData = {
-	FarmingLevel: "Single",
-	FishingLevel: "Single",
-	MiningLevel: "Single",
-	LuckLevel: "Single",
-	ForagingLevel: "Single",
-	MaxStamina: "Single",
-	MagneticRadius: "Single",
-	Speed: "Single",
-	Defense: "Single",
-	Attack: "Single"
+	"CombatLevel": "Single",
+	"FarmingLevel": "Single",
+	"FishingLevel": "Single",
+	"MiningLevel": "Single",
+	"LuckLevel": "Single",
+	"ForagingLevel": "Single",
+	"MaxStamina": "Single",
+	"MagneticRadius": "Single",
+	"Speed": "Single",
+	"Defense": "Single",
+	"Attack": "Single",
+	"AttackMultiplier": "Single",
+	"Immunity": "Single",
+	"KnockbackMultiplier": "Single",
+	"WeaponSpeedMultiplier": "Single",
+	"CriticalChanceMultiplier": "Single",
+	"CriticalPowerMultiplier": "Single",
+	"WeaponPrecisionMultiplier": "Single"
 };
 
 var buildingData = {
@@ -5628,7 +5535,8 @@ var indoorItemAdd = {
 	Id: "String",
 	ItemId: "String",
 	Tile: "Point",
-	Indestructible: "Boolean"
+	Indestructible: "Boolean",
+	ClearTile: "Boolean"
 };
 
 var indoorItemMove = {
@@ -5823,6 +5731,7 @@ var farmAnimalData = {
 	"$ShadowWhenBaby": "StardewValley.GameData.FarmAnimals.FarmAnimalShadowData",
 	"$ShadowWhenAdultSwims": "StardewValley.GameData.FarmAnimals.FarmAnimalShadowData",
 	"$ShadowWhenAdult": "StardewValley.GameData.FarmAnimals.FarmAnimalShadowData",
+	"$Shadow": "StardewValley.GameData.FarmAnimals.FarmAnimalShadowData",
 	"CanSwim": "Boolean",
 	"BabiesFollowAdults": "Boolean",
 	"GrassEatAmount": "Int32",
@@ -5878,6 +5787,35 @@ var fenceData = {
 	HeldObjectDrawOffset: "Vector2",
 	LeftEndHeldObjectDrawX: "Single",
 	RightEndHeldObjectDrawX: "Single"
+};
+
+var fishPondData = {
+	Id: "String",
+	RequiredTags: ["String"],
+	Precedence: "Int32",
+	MaxPopulation: "Int32",
+	SpawnTime: "Int32",
+	$WaterColor: ["StardewValley.GameData.FishPonds.FishPondWaterColor"],
+	ProducedItems: ["StardewValley.GameData.FishPonds.FishPondReward"],
+	$PopulationGates: {
+		"Int32": ["String"]
+	},
+	$CustomFields: {
+		"String": "String"
+	}
+};
+
+var fishPondReward = _objectSpread2(_objectSpread2({}, genericSpawnItemDataWithCondition), {}, {
+	RequiredPopulation: "Int32",
+	Chance: "Single"
+});
+
+var fishPondWaterColor = {
+	Id: "String",
+	Color: "String",
+	MinPopulation: "Int32",
+	MinUnlockedPopulationGate: "Int32",
+	$Condition: "String"
 };
 
 var floorPathData = {
@@ -6099,6 +6037,13 @@ var spawnForageData = _objectSpread2(_objectSpread2({}, genericSpawnItemDataWith
 	$Season: "Int32"
 });
 
+var lostItemData = {
+	Id: "String",
+	ItemId: "String",
+	$RequireMailReceived: "String",
+	$RequireEventSeen: "String"
+};
+
 var machineData = {
 	"HasInput": "Boolean",
 	"HasOutput": "Boolean",
@@ -6195,13 +6140,14 @@ var machineSoundData = {
 var makeoverOutfit = {
 	Id: "String",
 	OutfitParts: ["StardewValley.GameData.MakeoverOutfits.MakeoverItem"],
-	$Gender: "String"
+	$Gender: "Int32"
 };
 
 var makeoverItem = {
-	$Id: "String",
-	$ItemId: "String",
-	$Color: "String"
+	Id: "String",
+	ItemId: "String",
+	$Color: "String",
+	$Gender: "Int32"
 };
 
 var minecartNetworkData = {
@@ -6275,6 +6221,7 @@ var objectData = {
 	"Price": "Int32",
 	"$Texture": "String",
 	"SpriteIndex": "Int32",
+	"ColorOverlayFromNextIndex": "Boolean",
 	"Edibility": "Int32",
 	"IsDrink": "Boolean",
 	"$Buffs": ["StardewValley.GameData.Objects.ObjectBuffData"],
@@ -6430,13 +6377,10 @@ var petBreed = {
 	"VoicePitch": "Single"
 };
 
-var petGift = {
-	"Id": "String",
+var petGift = _objectSpread2(_objectSpread2({}, genericSpawnItemDataWithCondition), {}, {
 	"MinimumFriendshipThreshold": "Int32",
-	"Weight": "Single",
-	"QualifiedItemID": "String",
-	"Stack": "Int32"
-};
+	"Weight": "Single"
+});
 
 var petSummitPerfectionEventData = {
 	"SourceRect": "Rectangle",
@@ -6458,12 +6402,12 @@ var powerData = {
 };
 
 var shopData = {
-	"$ApplyProfitMargins": "Boolean",
 	"Currency": "Int32",
 	"$StackSizeVisibility": "Int32",
 	"$OpenSound": "String",
 	"$PurchaseSound": "String",
 	"$PurchaseRepeatSound": "String",
+	"$ApplyProfitMargins": "Boolean",
 	"$PriceModifiers": ["StardewValley.GameData.QuantityModifier"],
 	"PriceModifierMode": "Int32",
 	"$Owners": ["StardewValley.GameData.Shops.ShopOwnerData"],
@@ -6549,7 +6493,6 @@ var toolData = {
 	"SpriteIndex": "Int32",
 	"MenuSpriteIndex": "Int32",
 	"UpgradeLevel": "Int32",
-	"ApplyUpgradeLevelToDisplayName": "Boolean",
 	"$ConventionalUpgradeFrom": "String",
 	"$UpgradeFrom": ["StardewValley.GameData.Tools.ToolUpgradeData"],
 	"CanBeLostOnDeath": "Boolean",
@@ -6793,6 +6736,9 @@ const schemes = {
 	"StardewValley.GameData.FarmAnimals.FarmAnimalShadowData": farmAnimalShadowData,
 	"StardewValley.GameData.FarmAnimals.FarmAnimalSkin": farmAnimalSkin,
 	"StardewValley.GameData.Fences.FenceData": fenceData,
+	"StardewValley.GameData.FishPonds.FishPondData": fishPondData,
+	"StardewValley.GameData.FishPonds.FishPondReward": fishPondReward,
+	"StardewValley.GameData.FishPonds.FishPondWaterColor": fishPondWaterColor,
 	"StardewValley.GameData.FloorsAndPaths.FloorPathData": floorPathData,
 	"StardewValley.GameData.FruitTrees.FruitTreeData": fruitTreeData,
 	"StardewValley.GameData.FruitTrees.FruitTreeFruitData": fruitTreeFruitData,
@@ -6812,6 +6758,7 @@ const schemes = {
 	"StardewValley.GameData.Locations.LocationMusicData": locationMusicData,
 	"StardewValley.GameData.Locations.SpawnFishData": spawnFishData,
 	"StardewValley.GameData.Locations.SpawnForageData": spawnForageData,
+	"StardewValley.GameData.LostItem": lostItemData,
 	"StardewValley.GameData.Machines.MachineData": machineData,
 	"StardewValley.GameData.Machines.MachineEffects": machineEffects,
 	"StardewValley.GameData.Machines.MachineItemAdditionalConsumedItems": machineItemAdditionalConsumedItems,

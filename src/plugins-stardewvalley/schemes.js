@@ -58,6 +58,12 @@ import farmAnimalSkin from "./schemes/farmAnimals/farmAnimalSkin.js";
 
 // fence data:1.6
 import fenceData from "./schemes/fenceData.js";
+
+// fish pond data:1.4->1.6.9
+import fishPondData from "./schemes/fishPonds/fishPondData.js";
+import fishPondReward from "./schemes/fishPonds/fishPondReward.js";
+import fishPondWaterColor from "./schemes/fishPonds/fishPondWaterColor.js";
+
 // floors and paths data:1.6
 import floorPathData from "./schemes/floorPathData.js";
 
@@ -88,6 +94,9 @@ import fishAreaData from "./schemes/locations/fishAreaData.js";
 import locationMusicData from "./schemes/locations/locationMusicData.js";
 import spawnFishData from "./schemes/locations/spawnFishData.js";
 import spawnForageData from "./schemes/locations/spawnForageData.js";
+
+// lost item data:1.6.9
+import lostItemData from "./schemes/lostItemData.js";
 
 // machine data:1.6
 import machineData from "./schemes/machines/machineData.js";
@@ -223,6 +232,11 @@ const schemes = {
 	"StardewValley.GameData.FarmAnimals.FarmAnimalSkin": farmAnimalSkin,
 
 	"StardewValley.GameData.Fences.FenceData": fenceData,
+
+	"StardewValley.GameData.FishPonds.FishPondData": fishPondData,
+	"StardewValley.GameData.FishPonds.FishPondReward": fishPondReward,
+	"StardewValley.GameData.FishPonds.FishPondWaterColor": fishPondWaterColor,
+
 	"StardewValley.GameData.FloorsAndPaths.FloorPathData": floorPathData,
 
 	"StardewValley.GameData.FruitTrees.FruitTreeData": fruitTreeData,
@@ -247,6 +261,8 @@ const schemes = {
 	"StardewValley.GameData.Locations.LocationMusicData": locationMusicData,
 	"StardewValley.GameData.Locations.SpawnFishData": spawnFishData,
 	"StardewValley.GameData.Locations.SpawnForageData": spawnForageData,
+
+	"StardewValley.GameData.LostItem": lostItemData,
 
 	"StardewValley.GameData.Machines.MachineData": machineData,
 	"StardewValley.GameData.Machines.MachineEffects": machineEffects,

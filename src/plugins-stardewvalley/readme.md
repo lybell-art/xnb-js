@@ -8,16 +8,18 @@ npm install @xnb-js/stardew-valley
 ### Usage
 ```js
 import {setReaders, unpackToXnbData} from "@xnb-js/core";
-import * as Readers from "@xnb-js/stardew-valley";
+import { readers, schemes, enums } from "@xnb-js/stardew-valley";
 
-setReaders(Readers);
+setReaders(readers);
+setSchemes(schemes);
+setEnum(enums);
 
 unpackToXnbData(file);
 ```
 ### Documentation
 
 #### Data Reader added in Stardew Valley 1.4
-- MovieSceneReader : A reader that can read and write **Movies.xnb**.
+- ~~MovieSceneReader~~(Obsolate, use scheme instead) : A reader that can read and write **Movies.xnb**.
 	- MovieDataReader 
 - MovieCharacterReactionReader : A reader that can read and write **MoviesReactions.xnb**.
 	- MovieReactionReader 
@@ -25,7 +27,7 @@ unpackToXnbData(file);
 	- CharacterResponseReader 
 - ConcessionItemDataReader : A reader that can read and write **Concessions.xnb**.
 - ConcessionTasteReader : A reader that can read and write **ConcessionTastes.xnb**.
-- FishPondDataReader : A reader that can read and write **FishPondData.xnb**.
+- ~~FishPondDataReader~~(Obsolate, use scheme instead)  : A reader that can read and write **FishPondData.xnb**.
 	- FishPondRewardReader 
 - TailorItemRecipeReader : A reader that can read and write **TailoringRecipes.xnb**.
 
