@@ -16,13 +16,17 @@ import {
 	pack,
 	XnbData,
 	XnbContent
-} from "./core/xnb-core.module.js"; // @xnb/core
+} from "../../../src/core/Xnb.js"; // @xnb/core
 import * as Reader from "./readers/xnb-readers.module.js"; // @xnb/readers
-import {readers as StardewReader, schemes as StardewScheme, enums as StardewEnum} from "./plugins/xnb-stardew.module.js"; // @xnb/plugin-stardewValley
-import * as StardewLegacyReader from "./plugins/xnb-stardew-legacy.module.js"; // @xnb/plugin-stardewValley 1.5
+import {
+	readers as StardewReader,
+	schemes as StardewScheme, 
+	enums as StardewEnum
+} from "../../../src/plugins-stardewvalley/index.js"; // @xnb/plugin-stardewValley
+// from "./core/xnb-core.module.js";
+// from "./plugins/xnb-stardew.module.js";
 
 const readers_1_6 = {...Reader, ...StardewReader};
-const readers_1_5 = {...Reader, ...StardewLegacyReader};
 let loaded = false;
 
 if(!loaded) {
@@ -30,13 +34,6 @@ if(!loaded) {
 	setSchemes(StardewScheme);
 	setEnum(StardewEnum);
 	console.log("---loaded readers!---");
-}
-
-// for stardew valley 1.5 mobile / console
-function toggleLegacy(isLegacy)
-{
-	if(isLegacy) setReaders(readers_1_5);
-	else setReaders(readers_1_6);
 }
 
 export {
@@ -54,7 +51,5 @@ export {
 	xnbDataToFiles,
 	pack,
 	XnbData,
-	XnbContent,
-
-	toggleLegacy
+	XnbContent
 };
